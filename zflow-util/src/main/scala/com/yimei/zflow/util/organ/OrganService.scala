@@ -234,7 +234,7 @@ trait OrganService extends CoreConfig
     * @param page
     * @param pageSize
     */
-  def search(req: UserSearchRequest, page: Int, pageSize: Int): Future[UserGroupListResponse] = {
+  def search(req: UserSearchRequest, page: Int, pageSize: Int): Future[Result[UserGroupListResponse]] = {
 
     if (page <= 0 || pageSize <= 0) throw BusinessException("分页参数有误！")
 
@@ -272,7 +272,7 @@ trait OrganService extends CoreConfig
     for {
       info <- getUserInfo(userName, companyName, pageSize, (page - 1) * pageSize)
       total <- getAccount(userName, companyName)
-    } yield UserGroupListResponse(userGroupList = info.map(getResult(_)), total = total)
+    } yield Result[UserGroupListResponse](Some(UserGroupListResponse(userGroupList = info.map(getResult(_)), total = total)), success = true)
   }
 
   /**
