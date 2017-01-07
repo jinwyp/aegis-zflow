@@ -21,10 +21,17 @@ object Models extends DefaultJsonProtocol {
 
   implicit val UserQueryResponseFormat = jsonFormat7(UserQueryResponse)
 
+  case class UserGroupQueryResponse(user_id: String, username: String, email: String, phone: String, party_class: String, gid: String, instance_id: String, party_name: String)
+  implicit val UserGroupQueryResponseFormat = jsonFormat8(UserGroupQueryResponse)
+
   // 用户列表
   case class UserListResponse(userList: Seq[UserQueryResponse], total: Int)
 
   implicit val UserListResponseFormat = jsonFormat2(UserListResponse)
+
+  case class UserGroupListResponse(userGroupList: Seq[UserGroupQueryResponse], total: Int)
+  implicit val UserGroupListResponseFormat = jsonFormat2(UserGroupListResponse)
+
 
   // 用户authorization
   case class UserAuthRequest(username: String, password: String)

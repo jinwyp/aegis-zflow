@@ -9,7 +9,7 @@ import com.yimei.zflow.util.config.CoreConfig
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 import com.yimei.zflow.util.organ.db.Entities.{PartyInstanceEntity, PartyUserEntity}
 import com.yimei.zflow.util.organ.db._
-import com.yimei.zflow.util.organ.routes.Models.{UserAuthRequest, UserAuthResponse, UserCreateRequest, UserCreateResponse, UserListResponse, UserQueryResponse, UserSearchRequest}
+import com.yimei.zflow.util.organ.routes.Models.{UserAuthRequest, UserAuthResponse, UserCreateRequest, UserCreateResponse, UserGroupListResponse, UserGroupQueryResponse, UserListResponse, UserQueryResponse, UserSearchRequest}
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -234,7 +234,7 @@ trait OrganService extends CoreConfig
     * @param page
     * @param pageSize
     */
-  def search(req: UserSearchRequest, page: Int, pageSize: Int): = {
+  def search(req: UserSearchRequest, page: Int, pageSize: Int): Future[UserGroupListResponse] = {
 
     if (page <= 0 || pageSize <= 0) throw BusinessException("分页参数有误！")
 
@@ -263,24 +263,16 @@ trait OrganService extends CoreConfig
 
     }
 
-    def getResult(Info: Seq[(String, String, String, String, String, String, String, String)]): List[UserData] = {
-      var result = mutable.MutableList[UserData]()
-      Info.toList.foreach { info =>
-        val role = if (info._6 == null || info._6 == "1") info._5 else info._5 + "Accountant"
-        result += UserData(info._1, info._2, info._3, info._4, role, info._7, info._8)
-      }
-      result.toList
-    }
+    def getResult(info: (String, String, String, String, String, String, String, String)): UserGroupQueryResponse = UserGroupQueryResponse(
+      info._1, info._2, info._3, info._4, info._5, info._6, info._7, info._8
+    )
 
-    val userName = "%" + qi.userName.getOrElse("") + "%"
-    val companyName = "%" + qi.companyName.getOrElse("") + "%"
-    val result = for {
+    val userName = "%" + req.userName.getOrElse("") + "%"
+    val companyName = "%" + req.companyName.getOrElse("") + "%"
+    for {
       info <- getUserInfo(userName, companyName, pageSize, (page - 1) * pageSize)
-      list = getResult(info)
       total <- getAccount(userName, companyName)
-    } yield UserInfoList(datas = list, total = total)
-
-
+    } yield UserGroupListResponse(userGroupList = info.map(getResult(_)), total = total)
   }
 
   /**
