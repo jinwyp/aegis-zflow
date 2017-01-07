@@ -21,7 +21,7 @@ trait DB extends CoreConfig {
   val password: String
   val log: LoggingAdapter
 
-  private val hikariConfig = new HikariConfig()
+  private def hikariConfig() = new HikariConfig()
   hikariConfig.setJdbcUrl(jdbcUrl)
   hikariConfig.setUsername(username)
   hikariConfig.setPassword(password)

@@ -93,7 +93,7 @@ trait GroupRoute extends OrganService with SprayJsonSupport {
     }
   }
 
-  def route: Route =
+  def groupRoute: Route =
     getGroupParty ~
       createGroupParty ~
       deleteGroupParty ~

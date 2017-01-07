@@ -95,21 +95,8 @@ trait UserRoute extends SprayJsonSupport with OrganService {
     }
   }
 
-  def route: Route = postUser ~ getUser ~ putUser ~ getUserList ~ userAuth ~ disableUser ~ getAllUserInfo
+  def userRoute: Route = postUser ~ getUser ~ putUser ~ getUserList ~ userAuth ~ disableUser ~ getAllUserInfo
 }
 
 
-/**
-  * Created by hary on 16/12/2.
-  */
-object UserRoute {
-
-  implicit val userServiceTimeout = Timeout(2 seconds)
-
-
-  def apply(proxy: ActorRef) = new UserRoute(proxy)
-
-  def route(proxy: ActorRef): Route = UserRoute(proxy).route
-
-}
 

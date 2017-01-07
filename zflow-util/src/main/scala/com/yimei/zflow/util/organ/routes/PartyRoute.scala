@@ -46,7 +46,7 @@ trait PartyRoute extends OrganService with SprayJsonSupport {
     }
   }
 
-  def route: Route = getParty ~ partyCreate ~ partyQuery ~ updatePt
+  def partyRoute: Route = getParty ~ partyCreate ~ partyQuery ~ updatePt
 
 }
 
