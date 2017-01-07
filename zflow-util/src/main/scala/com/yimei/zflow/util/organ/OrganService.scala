@@ -3,13 +3,13 @@ package com.yimei.zflow.util.organ
 import java.sql.Timestamp
 import java.time.Instant
 
-import akka.http.scaladsl.server.Directives._
+import com.sun.media.sound.SoftMidiAudioFileReader
 import com.yimei.zflow.util.ResultProtocol.Result
 import com.yimei.zflow.util.config.CoreConfig
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
-import com.yimei.zflow.util.organ.db.Entities.{PartyInstanceEntity, PartyUserEntity}
+import com.yimei.zflow.util.organ.db.Entities._
 import com.yimei.zflow.util.organ.db._
-import com.yimei.zflow.util.organ.routes.Models.{UserAuthRequest, UserAuthResponse, UserCreateRequest, UserCreateResponse, UserListResponse, UserQueryResponse, UserSearchRequest}
+import com.yimei.zflow.util.organ.routes.Models.{PartyClassEntry, PartyGroupEntry, PartyGroupsResponse, PartyInstanceCreateRequest, PartyInstanceEntry, PartyInstancesResponse, UserAuthRequest, UserAuthResponse, UserCreateRequest, UserCreateResponse, UserGroupEntry, UserListResponse, UserQueryResponse, UserSearchRequest}
 
 import scala.collection.mutable
 import scala.concurrent.Future
@@ -21,7 +21,8 @@ trait OrganService extends CoreConfig
   with PartyGroupTable
   with PartyInstanceTable
   with PartyUserTable
-  with UserGroupTable {
+  with UserGroupTable
+  with PartyClassTable {
 
   import driver.api._
 
@@ -234,7 +235,10 @@ trait OrganService extends CoreConfig
     * @param page
     * @param pageSize
     */
-  def search(req: UserSearchRequest, page: Int, pageSize: Int): = {
+  def search(req: UserSearchRequest, page: Int, pageSize: Int):
+
+  =
+  {
 
     if (page <= 0 || pageSize <= 0) throw BusinessException("分页参数有误！")
 
@@ -283,6 +287,8 @@ trait OrganService extends CoreConfig
 
   }
 
+  private def toPartyGroupEntry(pt: PartyGroupEntity): PartyGroupEntry = PartyGroupEntry(pt.id.get, pt.party_class, pt.gid, pt.description)
+
   /**
     *
     * @param partyClass
@@ -290,8 +296,284 @@ trait OrganService extends CoreConfig
     * @param offset
     * @return
     */
-  def getGroupsByParty(partyClass: String, limit: Int, offset: Int) = {
-    dbrun(partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result)
+  def getGroupsByParty(partyClass: String, limit: Int, offset: Int): Future[Result[PartyGroupsResponse]] = {
+    val rs: Future[Seq[PartyGroupEntity]] = dbrun(partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result)
+    val total: Future[Int] = dbrun(partyGroup.filter(_.party_class === partyClass).length.result)
+
+    for {
+      r: Seq[PartyGroupEntity] <- rs
+      t: Int <- total
+    } yield Result(Some(
+      PartyGroupsResponse(r.map(toPartyGroupEntry(_)), t))
+    )
+  }
+
+  /**
+    * 创建group
+    *
+    * @param partyClass
+    * @param gid
+    * @param desc
+    * @return
+    */
+  def createGroupParty(partyClass: String, gid: String, desc: String): Future[Result[PartyGroupEntry]] = {
+    dbrun(
+      (partyGroup returning partyGroup.map(_.id)) into ((pg, tid) => pg.copy(id = tid)) += PartyGroupEntity(None, partyClass, gid, desc, Timestamp.from(Instant.now))
+    ) map { pt =>
+      Result(Some(toPartyGroupEntry(pt)))
+    }
+  }
+
+
+  /**
+    * 删除group
+    *
+    * @param partyClass
+    * @param gid
+    * @return
+    */
+  def deleteGroup(partyClass: String, gid: String): Future[Result[String]] = {
+    val delete = partyGroup.filter(pg => pg.party_class === partyClass && pg.gid === gid).delete
+    dbrun(delete) map { count =>
+      if (count > 0) Result(Some("success")) else throw DatabaseException(s"$partyClass,$gid 删除失败")
+    }
+  }
+
+
+  /**
+    * 更新group描述
+    *
+    * @param id
+    * @param desc
+    * @return
+    */
+  def updateGroup(id: Long, desc: String): Future[Result[String]] = {
+    val update = partyGroup.filter(_.id === id).map(p => p.description).update(desc)
+    dbrun(update) map { count =>
+      if (count > 0) Result(Some("success")) else throw DatabaseException(s"$id 更新失败")
+    }
+  }
+
+
+  private def toUserGroupEntry(ug: UserGroupEntity) = UserGroupEntry(ug.id.get, ug.party_id, ug.gid, ug.user_id)
+
+  /**
+    * 根据partyId和gid查找用户组
+    *
+    * @param partyId
+    * @param gid
+    * @return
+    */
+  def getUsersByGroup(partyId: Long, gid: String): Future[Result[Seq[UserGroupEntry]]] = {
+    dbrun(userGroup.filter(u =>
+      u.party_id === partyId &&
+        u.gid === gid
+    ).result) map { sq =>
+      Result(Some(sq.map(toUserGroupEntry(_))))
+    }
+  }
+
+
+  /**
+    * 创建用户组
+    *
+    * @param partyId
+    * @param gid
+    * @param userId
+    * @return
+    */
+  def createUserGroup(partyId: Long, gid: String, userId: String): Future[Result[UserGroupEntry]] = {
+    dbrun(
+      (userGroup returning userGroup.map(_.id)) into ((ug, id) => ug.copy(id = id)) += UserGroupEntity(None, partyId, gid, userId, Timestamp.from(Instant.now))
+    ) map { ug =>
+      Result(Some(toUserGroupEntry(ug)))
+    }
+  }
+
+  /**
+    * 判断该用户是否在group里
+    * @param partyClass
+    * @param instantId
+    * @param userId
+    * @param gid
+    * @return
+    */
+  def auditUserInGroup(partyClass: String, instantId: String, userId: String, gid: String): Future[Result[Seq[UserGroupEntry]]] = {
+    dbrun((for{
+      (pi,ug) <- partyInstance.filter(p=>
+        p.party_class === partyClass &&
+          p.instance_id === instantId
+      ) join userGroup.filter( u=>
+        u.user_id === userId &&
+          u.gid     === gid
+      ) on(_.id === _.party_id)
+    } yield {
+      ug
+    }).result) map { sq =>
+      Result(Some(sq.map(toUserGroupEntry(_))))
+    }
+  }
+
+
+  private def toPartyClassEntry(pc:PartyClassEntity) = PartyClassEntry(pc.id.get, pc.class_name, pc.description)
+
+  /**
+    *
+    * @param offset
+    * @param limit
+    * @return
+    */
+  def getParties(offset: Int, limit: Int): Future[Result[Seq[PartyClassEntry]]] =  {
+    dbrun(partClass.drop(offset).take(limit).result) map { t =>
+      Result(Some(t.map(toPartyClassEntry(_))))
+    }
+  }
+
+
+  /**
+    * 创建party_class
+    * @param partyClass
+    * @param desc
+    * @return
+    */
+  def createParty(partyClass:String, desc:String): Future[Result[PartyClassEntry]] = {
+   dbrun(
+      (partClass returning partClass.map(_.id)) into ((party, id) => party.copy(id = id)) += PartyClassEntity(None, partyClass, desc)
+    ) map { pt =>
+     Result(Some(toPartyClassEntry(pt)))
+   }
+  }
+
+
+  /**
+    * 查询party
+    *
+    * @param partyClass
+    * @return
+    */
+  def queryParty(partyClass:String): Future[Result[Seq[PartyClassEntry]]] = {
+    dbrun(partClass.filter(p => p.class_name === partyClass).result) map { (pt: Seq[PartyClassEntity]) =>
+      Result(Some(pt.map(toPartyClassEntry(_))))
+    }
+  }
+
+  /**
+    * 更新party_class
+    * @param id
+    * @param desc
+    * @return
+    */
+  def updateParty(id:Long,desc:String): Future[Result[String]] = {
+    val update = partClass.filter(_.id === id).map(p => p.description).update(desc)
+    dbrun(update) map { count =>
+      if (count > 0) Result(Some("success")) else throw DatabaseException(s"$id,$desc party_class更新失败")
+    }
+  }
+
+
+
+  private def toPartyInstanceEntry(pt:PartyInstanceEntity) = PartyInstanceEntry(pt.id.get,pt.partyClass,pt.instanceId,pt.companyName)
+
+  /**
+    *创建公司
+    * @param info
+    */
+  def createPartyInstance(info:PartyInstanceCreateRequest): Future[Result[PartyInstanceEntry]] = {
+    val getPartyInstance: Future[Seq[PartyInstanceEntity]] = dbrun(
+      partyInstance.filter( p =>
+        p.disable === 0 &&
+          p.instance_id === info.instanceId &&
+          p.party_class === info.party
+      ).result
+    )
+
+    def entity(pies: Seq[PartyInstanceEntity]): Future[PartyInstanceEntity] = {
+      if(pies.length == 0) {
+        dbrun(
+          (partyInstance returning partyInstance.map(_.id)) into ((pi, id) => pi.copy(id = id)) += PartyInstanceEntity(None, info.party, info.instanceId, info.companyName, 0, Timestamp.from(Instant.now))
+        )
+      } else {
+        throw BusinessException("已存在该公司")
+      }
+
+    }
+
+    for {
+      pi <- getPartyInstance
+      r <- entity(pi)
+    } yield Result(Some(toPartyInstanceEntry(r)))
+  }
+
+  /**
+    * 查询公司
+    *
+    * @param partyClass
+    * @param instanceId
+    * @return
+    */
+  def queryPartyInstance(partyClass:String,instanceId:String): Future[Result[Seq[PartyInstanceEntry]]] = {
+    dbrun(partyInstance.filter(p => p.party_class === partyClass && p.instance_id === instanceId && p.disable === 0).result) map { r=>
+      Result(Some(r.map(toPartyInstanceEntry(_))))
+    }
+  }
+
+
+  /**
+    *更新公司
+    * @param partyClass
+    * @param instanceId
+    * @param companyName
+    */
+  def updatePartyInstance(partyClass:String,instanceId:String,companyName:String): Future[Result[String]] = {
+    def getExistPartyInstance: Future[Seq[PartyInstanceEntity]] = dbrun(partyInstance.filter(p => p.instance_id === instanceId && p.disable === 0).result)
+
+    def updatePartyInstance(pilist: Seq[PartyInstanceEntity]): Future[Result[String]] = {
+      if(pilist.length == 1){
+        dbrun(partyInstance.filter( p => p.instance_id === instanceId && p.disable === 0).map(p => (p.party_class, p.party_name)).update(partyClass, companyName)) map { count =>
+          if(count > 0) Result(Some("success")) else throw DatabaseException(s"$partyClass, $instanceId, $companyName 更新错误")
+        }
+      }else{
+        throw BusinessException("不存在对应的公司！")
+      }
+    }
+
+    for {
+      pilist <- getExistPartyInstance
+      re <- updatePartyInstance(pilist)
+    } yield re
+  }
+
+
+  /**
+    * 获得公司列表
+ *
+    * @param page
+    * @param pageSize
+    * @param companyName
+    */
+  def getPartyInstanceList(page:Int, pageSize:Int, companyName:Option[String]): Future[Result[PartyInstancesResponse]] = {
+    if(page <= 0 || pageSize <= 0)
+      throw BusinessException("分页参数错误")
+
+    val query = if(companyName.isDefined) {
+      partyInstance.filter( pi =>
+        pi.disable === 0
+      ).filter{ pi =>
+        pi.party_name like "%" + companyName.get + "%"
+      }
+    } else {
+      partyInstance.filter{ pi =>
+        pi.disable === 0
+      }
+    }
+
+    def getPartyInstanceList: Future[Seq[PartyInstanceEntity]] = dbrun(query.drop((page - 1) * pageSize).take(pageSize).result)
+    def getAccount = dbrun(query.length.result)
+
+    for {
+      list <- getPartyInstanceList
+      account <- getAccount
+    } yield Result(Some(PartyInstancesResponse(list.map(toPartyInstanceEntry(_)), account)))
   }
 
 }
