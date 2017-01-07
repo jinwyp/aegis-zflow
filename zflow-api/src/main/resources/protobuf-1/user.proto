@@ -1,0 +1,62 @@
+syntax = "proto2";
+import "scalapb/scalapb.proto";
+
+package com.yimei.cflow.models;
+
+message CommandCreateUser {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+}
+
+message CommandTaskSubmit {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+    required string taskId = 2;
+    map<string, DataPoint> points = 3;
+}
+
+message CommandShutDown {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+}
+
+message CommandMobileCome {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+    required ActorRef mobile = 2;
+}
+
+message CommandDesktopCome {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+    required ActorRef desktop = 2;
+}
+
+message CommandQueryUser {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Command";
+    required string guid = 1;
+}
+
+message CommandUserTask {
+    required string flowId = 1;
+    required string guid = 2;
+    required string taskName = 3;
+    required string flowType = 4;
+}
+
+message TaskEnqueue {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Event";
+    required string taskId = 1;
+    required CommandUserTask task = 2;
+}
+
+message TaskDequeue {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.user.Event";
+    required string taskId = 1;
+}
+
+message State {
+    required string userId = 1;
+    required string userType = 2;
+    map<string, CommandUserTask> tasks = 3;
+}

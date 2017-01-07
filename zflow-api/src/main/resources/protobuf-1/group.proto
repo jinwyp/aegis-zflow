@@ -1,0 +1,45 @@
+import "scalapb/scalapb.proto";
+
+package com.yimei.cflow.models;
+
+message CommandCreateGroup {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Command";
+    required string ggid = 1;
+}
+
+message CommandGroupTask {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Command";
+    required string flowType = 1;
+    required string flowId = 2;
+    required string ggid = 3;
+    required string taskName = 4;
+}
+
+message CommandClaimTask {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Command";
+    required string ggid = 1;
+    required string taskId = 2;
+    required string userId = 3;
+}
+
+message CommandQueryGroup {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Command";
+    required string ggid = 1;
+}
+
+message TaskEnqueue {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Event";
+    required string taskId = 1;
+    required CommandGroupTask task = 2;
+}
+
+message TaskDequeue {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.graph.Event";
+    required string taskId = 1;
+}
+
+message State {
+    required string userType = 1;
+    required string gid = 2;
+    map<string, CommandGroupTask> tasks = 3;
+}

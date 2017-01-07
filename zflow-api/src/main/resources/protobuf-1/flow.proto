@@ -1,0 +1,151 @@
+syntax = "proto2";
+
+// This is available because of the PB.protobufConfig on scalapb-runtime in build.sbt
+import "scalapb/scalapb.proto";
+
+package com.yimei.cflow.models;
+
+message DataPoint {
+    required string value = 1;
+    optional string memo = 2;
+    optional string operator = 3;
+    optional string id = 4;
+    optional int64  timestamp = 5;
+    required bool   used = 6;
+}
+
+message CommandCreateFlow {
+    required string flowType = 1;
+    required string guid = 2;
+    map<string, string> initData = 3;
+}
+
+message CreateFlowSuccess {
+    required string flowId = 1;
+}
+
+message CommandRunFlow {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+}
+
+message CommandShutdown {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+}
+
+message CommandPoint {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+    required string name = 2;
+    required DataPoint point = 3;
+}
+
+message CommandPoints {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+    map<string, DataPoint> points = 2;
+}
+
+message CommandFlowGraph {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+}
+
+message CommandFlowState {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+}
+
+message CommandUpdatePoints {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+    map<string, DataPoint> points = 2;
+    required bool trigger = 3;
+}
+
+message CommandHijack {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Command";
+    required string flowId = 1;
+    map<string, DataPoint> points = 2;
+    optional string decision = 3;
+    required bool trigger = 4;
+}
+
+message PointUpdated {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Event";
+    required string name = 1;
+    required DataPoint point = 2;
+}
+
+message PointsUpdated {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Event";
+    map<string, DataPoint> points = 1;
+}
+
+message EdgeCompleted {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Event";
+    required string name = 1;
+}
+
+message DecisionUpdated {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Event";
+    required string name  = 1;
+    repeated Arrow arrow = 2;
+}
+
+message Hijacked {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.Event";
+    map<string, DataPoint> points = 1;
+    optional string decision = 2;
+}
+
+message State {
+    required string flowId = 1;
+    required string guid = 2;
+    map<string, DataPoint> points = 3;
+    map<string, bool> edges = 4;
+    repeated string histories = 5;
+    required string flowType = 6;
+    optional string ending = 7;
+}
+
+message PartUTask {
+    required string guidKey = 1;
+    repeated string tasks = 2;
+}
+
+message PartGTask {
+    required string ggidKey = 1;
+    repeated string tasks = 2;
+}
+
+message Edge {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.flow.EdgeBehavior";
+    required string autoTasks = 1;
+    repeated string userTasks = 2;
+    repeated PartUTask partUTasks = 3;
+    repeated PartGTask partGTasks = 4;
+    required string name = 5;
+    required string end = 6;
+    required string begin = 7;
+}
+
+message TaskInfo {
+    required string description = 1;
+    repeated string points = 2;
+}
+
+message Graph {
+    map<string, Edge> edges = 1;
+    map<string, string> vertices = 2;
+    optional State state = 3;
+    map<string, string> points = 4;
+    map<string, TaskInfo> userTasks = 5;
+    map<string, TaskInfo> autoTasks = 6;
+}
+
+message Arrow {
+    required string end = 1;
+    optional Edge edge = 2;
+}

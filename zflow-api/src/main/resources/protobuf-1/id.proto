@@ -1,0 +1,24 @@
+syntax = "proto2";
+import "scalaph/scalapb.proto";
+
+package com.yimei.cflow.models;
+
+message CommandGetId {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.id.Command";
+    required string key = 1;
+    required int32 buffer = 2;
+}
+
+message Id {
+    required int64 id = 1;
+}
+
+message EventIncrease {
+    option (scalapb.message).extends = "com.yimei.cflow.api.models.id.Event";
+    required string key = 1;
+    required int32 buffer = 2;
+}
+
+message State {
+    map<string, int64> keys = 1;
+}

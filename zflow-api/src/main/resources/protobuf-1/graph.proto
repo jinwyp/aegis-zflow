@@ -1,0 +1,22 @@
+syntax = "proto2";
+import "scalapb/scalapb.proto";
+import "../src/main/protobuf-1/flow.proto";
+
+package com.yimei.cflow.models;
+
+message Vertex {
+    required string description = 1;
+    optional string program = 2;
+}
+
+message GraphConfig {
+    required string graphJar = 1;
+    required bool persistent = 2;
+    required int32 timeout = 3;
+    required string initial = 4;
+    map<string, string> points = 5;
+    map<string, TaskInfo> autoTasks = 6;
+    map<string, TaskInfo> userTasks = 7;
+    map<string, Vertex> vertices = 8;
+    map<string, Edge> edges = 9;
+}
