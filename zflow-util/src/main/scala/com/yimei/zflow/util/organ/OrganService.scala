@@ -3,6 +3,7 @@ package com.yimei.zflow.util.organ
 import java.sql.Timestamp
 import java.time.Instant
 
+import akka.http.scaladsl.server.Directives._
 import com.yimei.zflow.util.ResultProtocol.Result
 import com.yimei.zflow.util.config.CoreConfig
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
@@ -281,4 +282,16 @@ trait OrganService extends CoreConfig
 
 
   }
+
+  /**
+    *
+    * @param partyClass
+    * @param limit
+    * @param offset
+    * @return
+    */
+  def getGroupsByParty(partyClass: String, limit: Int, offset: Int) = {
+    dbrun(partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result)
+  }
+
 }

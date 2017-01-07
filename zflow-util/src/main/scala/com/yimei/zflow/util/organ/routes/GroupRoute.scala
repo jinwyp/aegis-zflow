@@ -4,29 +4,26 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import com.yimei.zflow.util.organ.OrganService
 import com.yimei.zflow.util.organ.db.Entities._
-import com.yimei.zflow.util.organ.db.{PartyGroupTable, PartyInstanceTable, UserGroupTable}
-import spray.json.DefaultJsonProtocol
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class GroupRoute extends DefaultJsonProtocol
-  with PartyGroupTable
-  with UserGroupTable
-  with PartyInstanceTable
-  with SprayJsonSupport {
+trait GroupRoute extends OrganService with SprayJsonSupport {
 
-  //GET    /group/:party_class?limit=10&offset=20     参与方运营组列表
+  /**
+    *
+    * GET    /group/:party_class?limit=10&offset=20     参与方运营组列表
+    * @return
+    */
   def getGroupParty: Route = get {
-    pathPrefix("group" / Segment) { pc =>
-      pathEnd {
-        (parameter("limit".as[Int]) & parameter("offset".as[Int])) { (limit, offset) =>
-          complete(dbrun(partyGroup.filter(_.party_class === pc).drop(offset).take(limit).result))
-        }
+    path("group" / Segment) { pc =>
+      (parameter("limit".as[Int]) & parameter("offset".as[Int])) { (limit, offset) =>
+        complete()
       }
     }
   }
