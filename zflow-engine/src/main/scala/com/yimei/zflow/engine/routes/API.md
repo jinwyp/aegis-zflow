@@ -25,28 +25,9 @@ PUT /flow/:flowId?trigger=true
 任务部分
 --
 
-1. 查询任务列表    guid为可选参数, 如果没有就是查询所有用户, flowType可选, 没有就是查询所有流程类型
-GET /utask?
-guid=:guid&
-flowType=:flowType&
-page=:page&
-pageSize=:pageSize
 
-2. 查询指定任务
-GET /utask/:taskId
 
-3. 提交任务
-POST /utask/:taskId
-
-4. 查询组任务
-GET /gtask
-ggid=:ggid&
-flowType=:flowType&
-page=:page&
-pageSize=:pageSize
-
-5. claim任务
-GET /gtask/:taskId   
+ 
 
 6. 手动触发自动恩物
 POST /auto?flowId=:flowId&taskName=:taskName

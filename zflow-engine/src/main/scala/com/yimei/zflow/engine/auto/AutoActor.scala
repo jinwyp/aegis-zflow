@@ -3,13 +3,11 @@ package com.yimei.zflow.engine.auto
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import com.yimei.zflow.api.models.flow.{CommandPoints, DataPoint, State}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.auto.CommandAutoTask
-import com.yimei.zflow.engine.FlowRegistry
+import com.yimei.zflow.api.models.flow.{CommandPoints, DataPoint}
 
 import scala.concurrent.Future
-
 
 
 /**

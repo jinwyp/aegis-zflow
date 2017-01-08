@@ -16,16 +16,16 @@ trait GroupService {
 
   def groupServiceTimeout: Timeout
 
-  def groupCreate(userType: String, gid: String): Future[GroupState] =
-    (proxy ? CommandCreateGroup(s"${userType}!${gid}")) (groupServiceTimeout).mapTo[GroupState]
+  def groupCreate(ggid: String): Future[GroupState] =
+    (proxy ? CommandCreateGroup(ggid)) (groupServiceTimeout).mapTo[GroupState]
 
-  def groupQuery(userType: String, gid: String) =
-    (proxy ? CommandQueryGroup(s"${userType}!${gid}")) (groupServiceTimeout).mapTo[GroupState]
+  def groupQuery(ggid: String) =
+    (proxy ? CommandQueryGroup(ggid))(groupServiceTimeout).mapTo[GroupState]
 
-  def groupClaim(userType: String, gid: String, userId: String, taskId: String): Future[GroupState] =
-    (proxy ? CommandClaimTask(s"${userType}!${gid}", taskId, userId)) (groupServiceTimeout).mapTo[GroupState]
+  def groupClaim(ggid: String, guid: String, taskId: String): Future[GroupState] =
+    (proxy ? CommandClaimTask(ggid, taskId, guid))(groupServiceTimeout).mapTo[GroupState]
 
-  def groupTask(proxy: ActorRef, userType: String, gid: String, flowId: String, taskName: String, flowType: String): Unit =
-    proxy ! CommandGroupTask(flowType, flowId, s"${userType}!${gid}", taskName)
+  def groupTask(ggid: String, flowId: String, taskName: String, flowType: String): Unit =
+    proxy ! CommandGroupTask(flowType, flowId, ggid, taskName)
 
 }

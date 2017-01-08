@@ -9,13 +9,18 @@ import akka.http.scaladsl.server._
 
 trait AutoRoute extends AutoService {
 
-  def getData = path("auto") {
+  /**
+    * 手动触发自动恩物
+    * POST /auto?flowId=:flowId&taskName=:taskName
+    * @return
+    */
+  def getAuto = path("auto") {
       parameters('flowId, 'taskName) { (flowId, taskName) =>
         complete(s"$taskName + $flowId")
     }
   }
 
-  def route: Route = getData
+  def autoRoute: Route = getAuto
 }
 
 

@@ -1,7 +1,7 @@
 syntax = "proto2";
 import "scalaph/scalapb.proto";
 
-package com.yimei.cflow.models;
+package com.yimei.zflow.util.id.models;
 
 message CommandGetId {
     option (scalapb.message).extends = "com.yimei.cflow.api.models.id.Command";

@@ -1,10 +1,9 @@
-package com.yimei.zflow.api.models.graph
+package com.yimei.zflow
 
-import com.yimei.zflow.api.annotation._
 import com.yimei.zflow.api.AnnotationConfigFlow
 import com.yimei.zflow.api.annotation._
-import com.yimei.zflow.api.models.flow.{Arrow, State}
 import com.yimei.zflow.api.models.auto.CommandAutoTask
+import com.yimei.zflow.api.models.flow.{Arrow, State}
 
 import scala.concurrent.Future
 
