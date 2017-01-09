@@ -27,6 +27,9 @@ object FlowRegistry {
     if (name == module_flow) {
       flow = m
     }
+    if (name == module_id) {
+      id = m
+    }
 
   }
 
@@ -41,6 +44,10 @@ object FlowRegistry {
 
   @(volatile @getter)
   var flow: ActorRef = null
+
+  @(volatile @getter)
+  var id: ActorRef = null
+
 
   /**
     * @param actorName
