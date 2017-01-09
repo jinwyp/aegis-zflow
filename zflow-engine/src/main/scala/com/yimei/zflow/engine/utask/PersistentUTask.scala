@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine.user
+package com.yimei.zflow.engine.utask
 
 import java.util.UUID
 
@@ -10,8 +10,8 @@ import com.yimei.zflow.api.GlobalConfig._
 
 import scala.concurrent.duration._
 
-class PersistentUser(modules: Map[String, ActorRef],
-                     passivateTimeout: Long) extends AbstractUser
+class PersistentUTask(modules: Map[String, ActorRef],
+                      passivateTimeout: Long) extends AbstractUTask
   with PersistentActor
   with ActorLogging {
 

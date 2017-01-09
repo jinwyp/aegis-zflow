@@ -22,7 +22,6 @@ class HttpClient(endpoint: String)(implicit system: ActorSystem, materializer: A
   implicit val ec = system.dispatcher
 
   /**
-    *
     * @param path
     * @param paramters
     * @param pathVariables
@@ -32,8 +31,7 @@ class HttpClient(endpoint: String)(implicit system: ActorSystem, materializer: A
     * @tparam R
     * @return
     */
-  def request[T: JsonFormat, R: JsonFormat](
-                                             path: String,
+  def request[T: JsonFormat, R: JsonFormat]( path: String,
                                              paramters: Map[String, String] = Map(),
                                              pathVariables: Array[String] = Array(),
                                              model: Option[T] = None,
@@ -57,19 +55,15 @@ class HttpClient(endpoint: String)(implicit system: ActorSystem, materializer: A
     import MediaTypes._
 
     //  val contentType = headers.`Content-Type`.apply(ContentType(`application/json`))
-
     val httpRequest = model match {
       case Some(a) => HttpRequest(uri = fullUrl, entity = HttpEntity(`application/json`, ByteString(a.toJson.toString, "UTF-8")), method = httpMethod)
       case _ => HttpRequest(uri = fullUrl, method = httpMethod)
     }
 
-
     //发送请求,并得到结果
     Http().singleRequest(
       httpRequest
     ) flatMap { r =>
-
-
       val strictEntity = r.entity.toStrict(10.seconds)
       val byteString: Future[ByteString] = strictEntity flatMap { e =>
         e.dataBytes

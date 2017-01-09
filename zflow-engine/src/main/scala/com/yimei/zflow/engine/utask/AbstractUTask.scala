@@ -1,11 +1,11 @@
-package com.yimei.zflow.engine.user
+package com.yimei.zflow.engine.utask
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 
 /**
   * Created by hary on 16/12/7.
   */
-abstract class AbstractUser extends Actor with ActorLogging {
+abstract class AbstractUTask extends Actor with ActorLogging {
 
   import com.yimei.zflow.api.models.user._
 

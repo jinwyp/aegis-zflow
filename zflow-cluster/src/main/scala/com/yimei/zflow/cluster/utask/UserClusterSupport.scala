@@ -1,11 +1,11 @@
-package com.yimei.zflow.cluster.user
+package com.yimei.zflow.cluster.utask
 
 import akka.actor.{Actor, ActorInitializationException, ActorRef, ActorSystem, DeathPactException, OneForOneStrategy, Props, SupervisorStrategy}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.user.Command
-import com.yimei.zflow.engine.group.PersistentGroup
-import com.yimei.zflow.engine.user.PersistentUser
+import com.yimei.zflow.engine.gtask.PersistentGTask
+import com.yimei.zflow.engine.utask.PersistentUTask
 import com.yimei.zflow.util.module.ModuleMaster
 
 /**
@@ -42,7 +42,7 @@ class UserProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, depen
   override def initHook() = {
     ClusterSharding(context.system).start(
       typeName = userShardName,
-      entityProps = Props(new PersistentUser(modules, 3)),
+      entityProps = Props(new PersistentUTask(modules, 3)),
       settings = ClusterShardingSettings(context.system),
       extractEntityId = userExtractEntityId,
       extractShardId = userExtractShardId)

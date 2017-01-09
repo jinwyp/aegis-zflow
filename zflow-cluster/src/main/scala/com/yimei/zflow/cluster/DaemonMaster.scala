@@ -5,8 +5,8 @@ import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow}
 import com.yimei.zflow.api.models.user.{Command => UserCommand}
 import com.yimei.zflow.cluster.flow.FlowProxy
-import com.yimei.zflow.cluster.group.GroupProxy
-import com.yimei.zflow.cluster.user.UserProxy
+import com.yimei.zflow.cluster.gtask.GroupProxy
+import com.yimei.zflow.cluster.utask.UserProxy
 import com.yimei.zflow.util.id.IdGenerator
 import com.yimei.zflow.util.module.ModuleMaster.{GiveMeModule, RegisterModule}
 

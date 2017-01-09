@@ -1,10 +1,10 @@
-package com.yimei.zflow.cluster.group
+package com.yimei.zflow.cluster.gtask
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.group.Command
-import com.yimei.zflow.engine.group.PersistentGroup
+import com.yimei.zflow.engine.gtask.PersistentGTask
 import com.yimei.zflow.util.module.ModuleMaster
 
 /**
@@ -41,7 +41,7 @@ class GroupProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, depe
   override def initHook() = {
     ClusterSharding(context.system).start(
       typeName = groupShardName,
-      entityProps = Props(new PersistentGroup(modules, 3)),
+      entityProps = Props(new PersistentGTask(modules, 3)),
       settings = ClusterShardingSettings(context.system),
       extractEntityId = groupExtractEntityId,
       extractShardId = groupExtractShardId)

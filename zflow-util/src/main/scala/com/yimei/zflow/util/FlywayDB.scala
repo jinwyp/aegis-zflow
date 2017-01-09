@@ -11,7 +11,6 @@ class FlywayDB(jdbcUrl: String, username: String, password: String, schema: Stri
   flyway.setDataSource(jdbcUrl, username, password )
   flyway.setTable(schema)
 
-
   def migrate() = {
     flyway.migrate()
     this

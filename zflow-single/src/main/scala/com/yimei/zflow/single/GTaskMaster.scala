@@ -3,17 +3,17 @@ package com.yimei.zflow.single
 import akka.actor.{ActorRef, Props, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.group.{Command, CommandCreateGroup, CommandQueryGroup}
-import com.yimei.zflow.engine.group.{MemoryGroup, PersistentGroup}
+import com.yimei.zflow.engine.gtask.{MemoryGTask, PersistentGTask}
 import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 
-object GroupMaster {
-  def props(dependOn: Array[String]): Props = Props(new GroupMaster(dependOn))
+object GTaskMaster {
+  def props(dependOn: Array[String]): Props = Props(new GTaskMaster(dependOn))
 }
 
 /**
   * Created by hary on 16/12/12.
   */
-class GroupMaster(dependOn: Array[String])
+class GTaskMaster(dependOn: Array[String])
   extends ModuleMaster(module_group, dependOn)
   with ServicableBehavior {
 
@@ -22,11 +22,11 @@ class GroupMaster(dependOn: Array[String])
     val prop = context.system.settings.config.getBoolean("flow.group.persistent") match {
       case true  =>  {
         log.info(s"创建persistent group")
-        Props(new PersistentGroup(modules, 20))
+        Props(new PersistentGTask(modules, 20))
       }
       case false => {
         log.info(s"创建non-persistent group")
-        Props(new MemoryGroup(modules))
+        Props(new MemoryGTask(modules))
       }
     }
     context.actorOf(prop,ggid)

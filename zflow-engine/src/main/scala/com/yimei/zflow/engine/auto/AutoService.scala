@@ -8,8 +8,8 @@ import com.yimei.zflow.api.models.flow.{State  => FlowState}
   * Created by hary on 17/1/6.
   */
 trait AutoService {
-  def proxy: ActorRef
+  def auto: ActorRef = ???
 
   def autoTask(state: FlowState, flowType: String, actorName: String) =
-    proxy ! CommandAutoTask(state, flowType, actorName)
+    auto ! CommandAutoTask(state, flowType, actorName)
 }

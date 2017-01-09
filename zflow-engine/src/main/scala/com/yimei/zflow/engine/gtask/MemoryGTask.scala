@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine.group
+package com.yimei.zflow.engine.gtask
 
 import java.util.UUID
 
@@ -14,7 +14,7 @@ import com.yimei.zflow.api.models.user.CommandUserTask
 //  //def props(userType: String, modules: Map[String, ActorRef]): Props = Props(new PersistentGroup(userType, modules))
 //}
 
-class MemoryGroup(modules:Map[String,ActorRef]) extends AbstractGroup with ActorLogging {
+class MemoryGTask(modules:Map[String,ActorRef]) extends AbstractGTask with ActorLogging {
   import com.yimei.zflow.api.models.group._
 
   val ggid = self.path.name

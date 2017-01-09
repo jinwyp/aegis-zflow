@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import com.yimei.zflow.engine.db.DesignTable
 import com.yimei.zflow.engine.db.Entities.DesignEntity
-import Models._
+import com.yimei.zflow.engine.editor.Models._
 /**
   * Created by hary on 16/12/28.
   */
@@ -14,6 +14,8 @@ import Models._
 trait EditorRoute extends DesignTable with SprayJsonSupport {
 
   import driver.api._
+
+  implicit val editorRouteExecutionContext = coreSystem.dispatcher
 
   // 1> 用户列出所有流程设计  :   GET /design/graph
   def listDesign: Route =  get {

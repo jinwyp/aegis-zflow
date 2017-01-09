@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine.user
+package com.yimei.zflow.engine.utask
 
 import java.util.UUID
 
@@ -10,7 +10,7 @@ import com.yimei.zflow.api.GlobalConfig._
 /**
   * Created by hary on 16/12/13.
   */
-class MemoryUser(modules: Map[String, ActorRef]) extends AbstractUser with ActorLogging {
+class MemoryUTask(modules: Map[String, ActorRef]) extends AbstractUTask with ActorLogging {
 
   val guid = self.path.name;
 

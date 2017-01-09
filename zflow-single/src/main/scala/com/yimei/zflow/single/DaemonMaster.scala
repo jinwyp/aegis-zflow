@@ -19,8 +19,8 @@ object DaemonMaster {
   def moduleProps(name: String, persistent: Boolean = true)(jdbcUrl: String, username: String, password: String): Props = {
     name match {
       case `module_flow`  => FlowMaster.props(Array(module_user, module_auto, module_group, module_id))
-      case `module_user`  => UserMaster.props(Array(module_flow, module_auto, module_group, module_id))
-      case `module_group` => GroupMaster.props(Array(module_user))
+      case `module_user`  => UTaskMaster.props(Array(module_flow, module_auto, module_group, module_id))
+      case `module_group` => GTaskMaster.props(Array(module_user))
       case `module_auto`  => AutoMaster.props(Array(module_user, module_flow, module_id))
       case `module_id`    => IdGenerator.props(name, 0, persistent)
     }

@@ -7,7 +7,6 @@ import akka.event.Logging
 import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess, SnapshotOffer}
 import com.yimei.zflow.api.models.flow.FlowProtocol
 import com.yimei.zflow.engine.FlowRegistry
-import spray.json._
 
 import scala.concurrent.duration._
 
@@ -48,8 +47,6 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
 
   //
   override def genGraph(state: State): Graph = graph.graph(state)
-
-  //  override def modules: Map[String, ActorRef] = dependOn
 
   // 恢复
   def receiveRecover = {

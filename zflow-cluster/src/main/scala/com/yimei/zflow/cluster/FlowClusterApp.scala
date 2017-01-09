@@ -7,8 +7,8 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.cluster.flow.FlowClusterSupport
-import com.yimei.zflow.cluster.group.GroupClusterSupport
-import com.yimei.zflow.cluster.user.UserClusterSupport
+import com.yimei.zflow.cluster.gtask.GroupClusterSupport
+import com.yimei.zflow.cluster.utask.UserClusterSupport
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.FlywayDB
 import com.yimei.zflow.util.id.IdGenerator
@@ -46,9 +46,6 @@ object FlowClusterApp extends FlowClusterSupport
 
     // Id服务
     val idGenerator = system.actorOf(IdGenerator.props("id"))
-
-    // 自动任务
-    // val auto = system.actorOf(AutoMaster.props(Array("abc")))
 
     // 路由
     val all: Route = null;

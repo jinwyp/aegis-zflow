@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.yimei.zflow.util.HttpResult.Result
-import com.yimei.zflow.util.config.CoreConfig
+import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 import com.yimei.zflow.util.organ.db.Entities._
 import com.yimei.zflow.util.organ.db._
@@ -15,7 +15,7 @@ import scala.concurrent.Future
 /**
   * Created by hary on 16/12/29.
   */
-trait OrganService extends CoreConfig
+trait OrganService extends Core
   with PartyGroupTable
   with PartyInstanceTable
   with PartyUserTable
@@ -23,6 +23,8 @@ trait OrganService extends CoreConfig
   with PartyClassTable {
 
   import driver.api._
+
+  implicit val organServiceExecutionContext = coreSystem.dispatcher
 
   /**
     * 创建用户

@@ -3,20 +3,20 @@ package com.yimei.zflow.single
 import akka.actor.{Props, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.user.{CommandCreateUser, CommandQueryUser, CommandUserTask, Command => UserCommand}
-import com.yimei.zflow.engine.user.{MemoryUser, PersistentUser}
+import com.yimei.zflow.engine.utask.{MemoryUTask, PersistentUTask}
 import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 
-object UserMaster {
+object UTaskMaster {
 
 
-  def props(dependOn: Array[String], persist: Boolean = true) = Props(new UserMaster(dependOn))
+  def props(dependOn: Array[String], persist: Boolean = true) = Props(new UTaskMaster(dependOn))
 
 }
 
 /**
   * Created by hary on 16/12/2.
   */
-class UserMaster(dependOn: Array[String])
+class UTaskMaster(dependOn: Array[String])
   extends ModuleMaster(module_user, dependOn)
   with ServicableBehavior {
 
@@ -50,11 +50,11 @@ class UserMaster(dependOn: Array[String])
     val prop = context.system.settings.config.getBoolean("flow.user.persistent") match {
       case true  =>  {
         log.debug(s"创建persistent user")
-        Props(new PersistentUser(modules, 20))
+        Props(new PersistentUTask(modules, 20))
       }
       case false => {
         log.debug(s"创建non-persistent user")
-        Props(new MemoryUser(modules))
+        Props(new MemoryUTask(modules))
       }
     }
     context.actorOf(prop, guid)

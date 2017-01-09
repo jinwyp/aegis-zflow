@@ -1,11 +1,11 @@
-package com.yimei.zflow.engine.group
+package com.yimei.zflow.engine.gtask
 
 import akka.actor.{Actor, ActorLogging}
 
 /**
   * Created by hary on 16/12/12.
   */
-abstract class AbstractGroup extends Actor with ActorLogging {
+abstract class AbstractGTask extends Actor with ActorLogging {
 
   import com.yimei.zflow.api.models.group._
 

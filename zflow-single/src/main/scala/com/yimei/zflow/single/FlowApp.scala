@@ -18,9 +18,10 @@ object FlowApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
 } with App with FlowExceptionHandler with EngineRoute with OrganRoute {
 
-  val jdbcUrl = coreConfig.getString("database.jdbcUrl")
-  val username = coreConfig.getString("database.username")
-  val password = coreConfig.getString("database.password")
+  val config = coreSystem.settings.config
+  val jdbcUrl = config.getString("database.jdbcUrl")
+  val username = config.getString("database.username")
+  val password = config.getString("database.password")
 
   val flyway = new FlywayDB(jdbcUrl, username, password)
   flyway.drop()
@@ -38,9 +39,11 @@ object FlowApp extends {
     engineRoute ~ organRoute
   }
 
+  implicit val httpExecutionContext = coreSystem.dispatcher
+
   // start http server
-  println(s"http is listening on ${coreConfig.getInt("http.port")}")
-  Http().bindAndHandle(route, "0.0.0.0", coreConfig.getInt("http.port"))
+  println(s"http is listening on ${config.getInt("http.port")}")
+  Http().bindAndHandle(route, "0.0.0.0", config.getInt("http.port"))
 }
 
 

@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine.group
+package com.yimei.zflow.engine.gtask
 
 import java.util.UUID
 
@@ -14,7 +14,7 @@ import scala.concurrent.duration._
   * Created by hary on 16/12/10.
   */
 
-class PersistentGroup(modules: Map[String, ActorRef], timeout: Int) extends AbstractGroup with PersistentActor with ActorLogging {
+class PersistentGTask(modules: Map[String, ActorRef], timeout: Int) extends AbstractGTask with PersistentActor with ActorLogging {
 
   import com.yimei.zflow.api.models.group._
 

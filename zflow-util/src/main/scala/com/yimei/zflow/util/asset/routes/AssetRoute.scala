@@ -12,16 +12,18 @@ import akka.util.ByteString
 import com.yimei.zflow.util.asset.db.AssetTable
 import com.yimei.zflow.util.asset.db.Entities.AssetEntity
 import com.yimei.zflow.util.asset.routes.Models.UploadResult
-import com.yimei.zflow.util.config.CoreConfig
+import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 
 import scala.concurrent.Future
 
-trait AssetRoute extends CoreConfig with AssetTable with SprayJsonSupport {
+trait AssetRoute extends Core with AssetTable with SprayJsonSupport {
+
+  implicit val assetRouteExecutionContext = coreSystem.dispatcher
 
   import driver.api._
 
-  val fileRootPath = coreConfig.getString("file.root")
+  val fileRootPath = coreSystem.settings.config.getString("file.root")
 
   import java.io.File
 
