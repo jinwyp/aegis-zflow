@@ -161,11 +161,11 @@ object ApplicationBuild extends Build {
   import BuildSettings._
   import PublishSettings._
 
-  lazy val zflowUtil    = Project("zflow-util",    file("zflow-util"),    settings = buildSettings ++ publishSettings)
-  lazy val zflowEngine  = Project("zflow-engine",  file("zflow-engine"),  settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
-  lazy val zflowSingle  = Project("zflow-single",  file("zflow-single"),  settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowCluster = Project("zflow-cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowMoney   = Project("zflow-money",   file("zflow-money"),   settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+  lazy val zflowUtil    = Project("util",    file("zflow-util"),    settings = buildSettings ++ publishSettings)
+  lazy val zflowEngine  = Project("engine",  file("zflow-engine"),  settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
+  lazy val zflowSingle  = Project("single",  file("zflow-single"),  settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+  lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+  lazy val zflowMoney   = Project("money",   file("zflow-money"),   settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
 
   lazy val root = Project( appName, file(".")).aggregate(zflowEngine, zflowUtil, zflowSingle, zflowCluster, zflowMoney)
 

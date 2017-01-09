@@ -1,14 +1,16 @@
 package com.yimei.zflow.cluster
 
 import akka.actor.ActorSystem
-import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
+import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.cluster.flow.FlowClusterSupport
 import com.yimei.zflow.cluster.group.GroupClusterSupport
 import com.yimei.zflow.cluster.user.UserClusterSupport
+import com.yimei.zflow.engine.graph.GraphLoader
+import com.yimei.zflow.util.FlywayDB
 import com.yimei.zflow.util.id.IdGenerator
 
 /**
@@ -20,10 +22,6 @@ object FlowClusterApp extends FlowClusterSupport
 
   val common = ConfigFactory.load()
 
-  override val groupNumberOfShards: Int = common.getInt("zflow.shard.group")
-  override val userNumberOfShards: Int  = common.getInt("zflow.shard.user")
-  override val flowNumberOfShards: Int  = common.getInt("zflow.shard.flow")
-
   def main(args: Array[String]): Unit = {
     if (args.isEmpty) throw new IllegalArgumentException("请提供节点编号")
     val nodeId = args(0).toInt
@@ -34,6 +32,17 @@ object FlowClusterApp extends FlowClusterSupport
   def startup(config: Config): Unit = {
     implicit val system = ActorSystem("FlowSystem", config)
     implicit val materializer = ActorMaterializer()
+
+    val flyway = new FlywayDB(null, null, null)
+    flyway.drop()
+    flyway.migrate()
+
+    // load flow
+    GraphLoader.loadall()
+
+    // start engines and services
+    val names = Array(module_auto, module_user, module_flow, module_id, module_group)
+    val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
     // Id服务
     val idGenerator = system.actorOf(IdGenerator.props("id"))

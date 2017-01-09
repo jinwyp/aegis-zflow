@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine.depoy
+package com.yimei.zflow.engine.deploy
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._

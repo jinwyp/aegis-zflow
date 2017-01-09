@@ -10,11 +10,12 @@ import com.yimei.zflow.api.GlobalConfig._
 
 import scala.concurrent.duration._
 
-class PersistentUser(guid: String,
-                     modules: Map[String, ActorRef],
+class PersistentUser(modules: Map[String, ActorRef],
                      passivateTimeout: Long) extends AbstractUser
   with PersistentActor
   with ActorLogging {
+
+  val guid = self.path.name
 
   println(s"create persistenter user with guid = $guid")
 

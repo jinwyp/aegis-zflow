@@ -10,7 +10,9 @@ import com.yimei.zflow.api.GlobalConfig._
 /**
   * Created by hary on 16/12/13.
   */
-class MemoryUser(guid: String, modules: Map[String, ActorRef]) extends AbstractUser with ActorLogging {
+class MemoryUser(modules: Map[String, ActorRef]) extends AbstractUser with ActorLogging {
+
+  val guid = self.path.name;
 
   // 用户id与用户类型
   val regex = "([^!]+)!(.*)".r

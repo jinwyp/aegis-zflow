@@ -14,25 +14,21 @@ import scala.concurrent.duration._
   * Created by hary on 16/12/10.
   */
 
-class PersistentGroup(ggid: String, modules: Map[String, ActorRef], passivateTimeout: Long) extends AbstractGroup with PersistentActor with ActorLogging {
+class PersistentGroup(modules: Map[String, ActorRef], timeout: Int) extends AbstractGroup with PersistentActor with ActorLogging {
 
   import com.yimei.zflow.api.models.group._
 
+
+  val ggid = self.path.name
+
   println(s"create persistenter group with ggid = $ggid")
-
-
-  // 用户id与用户类型
-  val regex = "([^!]+)!(.*)".r
-  val (userType, gid) = ggid match {
-    case regex(uid, gid) => (uid, gid)
-  }
 
   override def persistenceId = ggid
 
-  override var state: State = State(userType, gid, Map[String, CommandGroupTask]()) // group的状态不断累积!!!!!!!!
+  override var state: State = State(ggid, Map[String, CommandGroupTask]()) // group的状态不断累积!!!!!!!!
 
   // 超时
-  context.setReceiveTimeout(passivateTimeout seconds)
+  context.setReceiveTimeout(timeout seconds)
 
 
   // 恢复
@@ -65,17 +61,13 @@ class PersistentGroup(ggid: String, modules: Map[String, ActorRef], passivateTim
       }
 
     // todo: 王琦, userId should be guid, we don't know userType, also ggid不应该被split为 userType + gid
-    case command@CommandClaimTask(ggid: String, taskId: String, userId: String) =>
+    case command@CommandClaimTask(ggid: String, taskId: String, guid: String) =>
       log.info(s"claim的请求: $command")
       state.tasks.get(taskId) match {
         case Some(task) => persist(TaskDequeue(taskId)) {
           event =>
             updateState(event)
-            modules(module_user) ! CommandUserTask(task.flowId, s"${
-              userType
-            }!${
-              userId
-            }", task.taskName, task.flowType)
+            modules(module_user) ! CommandUserTask(task.flowId, guid, task.taskName, task.flowType)
             sender() ! state
         }
         case None =>

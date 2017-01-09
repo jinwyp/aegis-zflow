@@ -22,11 +22,11 @@ class GroupMaster(dependOn: Array[String])
     val prop = context.system.settings.config.getBoolean("flow.group.persistent") match {
       case true  =>  {
         log.info(s"创建persistent group")
-        Props(new PersistentGroup(ggid, modules, 20))
+        Props(new PersistentGroup(modules, 20))
       }
       case false => {
         log.info(s"创建non-persistent group")
-        Props(new MemoryGroup(ggid, modules))
+        Props(new MemoryGroup(modules))
       }
     }
     context.actorOf(prop,ggid)

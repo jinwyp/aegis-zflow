@@ -17,8 +17,8 @@ import com.yimei.zflow.engine.flow.{MemoryFlow, PersistentFlow}
   * Created by hary on 16/12/1.
   */
 object FlowMaster {
-  def props(dependOn: Array[String], persist: Boolean = true)(jdbcUrl: String, username: String, password: String): Props =
-    Props(new FlowMaster(dependOn, persist)(jdbcUrl, username, password))
+  def props(dependOn: Array[String], persist: Boolean = true): Props =
+    Props(new FlowMaster(dependOn, persist))
 }
 
 /**
@@ -26,7 +26,7 @@ object FlowMaster {
   * @param dependOn dependent modules' names
   * @param persist  use persist actor or not
   */
-class FlowMaster(dependOn: Array[String], persist: Boolean = true)(jdbcUrl: String, username: String, password: String)
+class FlowMaster(dependOn: Array[String], persist: Boolean = true)
   extends ModuleMaster(module_flow, dependOn)
     with ServicableBehavior
     with IdBufferable {
@@ -42,23 +42,6 @@ class FlowMaster(dependOn: Array[String], persist: Boolean = true)(jdbcUrl: Stri
 
   def serving: Receive = {
 
-    // create and run flow
-    case command@CommandCreateFlow(flowType, guid, initData) =>
-
-      if (true) {
-        val pid = nextId
-        val flowId = s"${flowType}!${guid}!${pid}" // 创建flowId
-        val child = create(flowId, initData)
-        child forward CommandRunFlow(flowId)
-
-      } else {
-        // use UUID to generate persistenceId
-        val flowId = s"${flowType}!${guid}!${UUID.randomUUID().toString}" // 创建flowId
-        val child = create(flowId, initData)
-        child forward CommandRunFlow(flowId)
-      }
-
-    // other command
     case command: Command =>
       log.debug(s"get command $command and forward to child!!!!")
       val child = context.child(command.flowId).fold(create(command.flowId))(identity)
@@ -82,13 +65,12 @@ class FlowMaster(dependOn: Array[String], persist: Boolean = true)(jdbcUrl: Stri
         log.info(s"flowId in flowProp is ${flowId}, ${guid}, ${persistenceId}")
 
 
-        val graph = FlowRegistry.flowGraph(flowType)
         if (persist) {
           log.info(s"创建persistent flow..........")
-          PersistentFlow.props(graph, flowId, modules, persistenceId, guid, initData)(jdbcUrl, username, password)
+          PersistentFlow.props(modules)
         } else {
           log.info(s"创建non-persistent flow..........")
-          MemoryFlow.props(graph, flowId, modules, guid, initData)
+          MemoryFlow.props(modules)
         }
     }
 

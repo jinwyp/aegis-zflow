@@ -14,16 +14,12 @@ import com.yimei.zflow.api.models.user.CommandUserTask
 //  //def props(userType: String, modules: Map[String, ActorRef]): Props = Props(new PersistentGroup(userType, modules))
 //}
 
-class MemoryGroup(ggid:String,modules:Map[String,ActorRef]) extends AbstractGroup with ActorLogging {
+class MemoryGroup(modules:Map[String,ActorRef]) extends AbstractGroup with ActorLogging {
   import com.yimei.zflow.api.models.group._
 
-  // 用户id与用户类型
-  val regex = "([^!]+)!(.*)".r
-  val (userType, gid) = ggid match {
-    case regex(uid, gid) => (uid, gid)
-  }
+  val ggid = self.path.name
 
-  override var state: State = State(userType, gid, Map[String,CommandGroupTask]()) // group的状态不断累积!!!!!!!!
+  override var state: State = State(ggid, Map[String,CommandGroupTask]()) // group的状态不断累积!!!!!!!!
 
   // 生成任务id
   def uuid() = UUID.randomUUID().toString
@@ -45,7 +41,7 @@ class MemoryGroup(ggid:String,modules:Map[String,ActorRef]) extends AbstractGrou
       log.info(s"claim的请求: $command")
       val task = state.tasks(taskId)
       updateState(TaskDequeue(taskId))
-      modules(module_user) ! CommandUserTask(task.flowId,s"${userType}!${userId}",task.taskName,task.flowType)
+      modules(module_user) ! CommandUserTask(task.flowId,s"${ggid}",task.taskName,task.flowType)
       sender() ! state
   }
 

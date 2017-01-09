@@ -50,11 +50,11 @@ class UserMaster(dependOn: Array[String])
     val prop = context.system.settings.config.getBoolean("flow.user.persistent") match {
       case true  =>  {
         log.debug(s"创建persistent user")
-        Props(new PersistentUser(guid, modules, 20))
+        Props(new PersistentUser(modules, 20))
       }
       case false => {
         log.debug(s"创建non-persistent user")
-        Props(new MemoryUser(guid, modules))
+        Props(new MemoryUser(modules))
       }
     }
     context.actorOf(prop, guid)

@@ -1,10 +1,11 @@
 package com.yimei.zflow.cluster.group
 
-import akka.actor.{Actor, ActorInitializationException, ActorSystem, DeathPactException, OneForOneStrategy, Props, SupervisorStrategy}
+import akka.actor.{Actor, ActorRef, Props}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
+import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.group.Command
-import com.yimei.zflow.cluster.FlowClusterApp._
 import com.yimei.zflow.engine.group.PersistentGroup
+import com.yimei.zflow.util.module.ModuleMaster
 
 /**
   * Created by hary on 16/12/16.
@@ -25,29 +26,30 @@ trait GroupClusterSupport {
 }
 
 object GroupProxy {
-
+  def props(dependOn: Array[String]): Props = Props(new GroupProxy(dependOn))
 }
 
-class GroupProxy(system: ActorSystem) extends Actor {
-  val group = context.actorOf(Props[PersistentGroup], "theGroup")
+/**
+  * Flow依赖于user, group, id, auto
+  */
+class GroupProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
+  with Actor
+  with GroupClusterSupport {
 
-  override val supervisorStrategy = OneForOneStrategy() {
-    case _: IllegalArgumentException ⇒ SupervisorStrategy.Resume
-    case _: ActorInitializationException ⇒ SupervisorStrategy.Stop
-    case _: DeathPactException ⇒ SupervisorStrategy.Stop
-    case _: Exception ⇒ SupervisorStrategy.Restart
-  }
+  var region: ActorRef = null
 
-  def receive = {
-    case msg ⇒ group forward msg
-  }
-
-  // 任务组管理
-  def region() = ClusterSharding(system).start(
+  override def initHook() = {
+    ClusterSharding(context.system).start(
       typeName = groupShardName,
-      entityProps = null,     // 创建任务组Prop
-      settings = ClusterShardingSettings(system),
+      entityProps = Props(new PersistentGroup(modules, 3)),
+      settings = ClusterShardingSettings(context.system),
       extractEntityId = groupExtractEntityId,
       extractShardId = groupExtractShardId)
+  }
+
+  def serving: Receive = {
+    case command: Command =>
+      region forward command
+  }
 }
 

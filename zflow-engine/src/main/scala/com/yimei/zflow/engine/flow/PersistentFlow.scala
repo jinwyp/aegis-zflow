@@ -6,45 +6,36 @@ import akka.actor.{ActorRef, Props, ReceiveTimeout}
 import akka.event.Logging
 import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess, SnapshotOffer}
 import com.yimei.zflow.api.models.flow.FlowProtocol
-import com.yimei.zflow.engine.db.FlowInstanceTable
-import com.yimei.zflow.engine.graph.FlowGraph
+import com.yimei.zflow.engine.FlowRegistry
 import spray.json._
 
 import scala.concurrent.duration._
 
 object PersistentFlow {
-
-  def props(graph: FlowGraph,
-            flowId: String,
-            modules: Map[String, ActorRef],
-            pid: String,
-            guid: String,
-            initData: Map[String, String]
-           )(jdbcUrl: String, username: String, password: String): Props =
-    Props(new PersistentFlow(graph, flowId, modules, pid, guid, initData)(jdbcUrl, username, password))
+  def props(modules: Map[String, ActorRef]) = Props(new PersistentFlow(modules))
 }
 
 /**
   * Created by hary on 16/12/6.
   */
-
-class PersistentFlow(
-                      val graph: FlowGraph,
-                      flowId: String,
-                      modules: Map[String, ActorRef],
-                      pid: String,
-                      guid: String,
-                      initData: Map[String, String]
-                    )(val jdbcUrl: String, val username: String, val password: String) extends AbstractFlow with PersistentActor with FlowInstanceTable with FlowProtocol {
-
-  implicit val coreSystem = context.system
+class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
+  with PersistentActor
+  with FlowProtocol {
 
   val log = Logging(context.system.eventStream, this)
 
-
   import com.yimei.zflow.api.models.flow._
-  import driver.api._
 
+  val flowId = self.path.name
+
+  // flowType!guid!pid
+  val regex = "([^!]+)!([^!]+![^!]+)!(.*)".r
+  val (flowType, guid, pid, graph) = flowId match {
+    case regex(xflowType, xguid, xpid) => (xflowType, xguid, xpid, FlowRegistry.flowGraph(xflowType))
+    case _ => throw new Exception("xxxxx")
+  }
+
+  //
   override def persistenceId: String = pid
 
   // 钝化超时时间
@@ -53,12 +44,7 @@ class PersistentFlow(
   log.info(s"timeout is $timeout")
   context.setReceiveTimeout(timeout seconds)
 
-  // 流程初始化数据
-  val initPoints = initData.map { entry =>
-    (entry._1, DataPoint(entry._2, None, None, "init", new Date().getTime, false))
-  }
-
-  override var state = State(flowId, guid, initPoints, Map("start" -> true), Nil, graph.flowType)
+  override var state = State(flowId, guid, Map(), Map("start" -> true), Nil, graph.flowType)
 
   //
   override def genGraph(state: State): Graph = graph.graph(state)
@@ -171,17 +157,17 @@ class PersistentFlow(
         //val temp: Boolean =  state.points.filter(t=>(!t._2.used)).contains("wang")
 
         lazy val edgesNotHasInEdge = !graph.inEdges(e.end).exists(state.edges.contains(_))
-//        lazy val historyHasInEdge = graph.inEdges(e.end).foldLeft(true)((b,s)=>b&&state.histories.contains(s))
-//        lazy val allPointDataCollected = graph.inEdges(e.end)
-//          .map(graph.edges(_))
-//          .map(_.getAllDataPointsName(state))
-//          .foldLeft(true)((b,s) => b && s.foldLeft(true)((b1,s1)=> b1&&state.points.filter(t=>(!t._2.used)).contains(s1)))
+        //        lazy val historyHasInEdge = graph.inEdges(e.end).foldLeft(true)((b,s)=>b&&state.histories.contains(s))
+        //        lazy val allPointDataCollected = graph.inEdges(e.end)
+        //          .map(graph.edges(_))
+        //          .map(_.getAllDataPointsName(state))
+        //          .foldLeft(true)((b,s) => b && s.foldLeft(true)((b1,s1)=> b1&&state.points.filter(t=>(!t._2.used)).contains(s1)))
 
         lazy val allPointDataCollected = graph.inEdges(e.end)
-          .map(graph.edges(_)).foldLeft(true)((b,s) => b && s.check(state))
+          .map(graph.edges(_)).foldLeft(true)((b, s) => b && s.check(state))
 
 
-        if(edgesNotHasInEdge && allPointDataCollected){
+        if (edgesNotHasInEdge && allPointDataCollected) {
           make(e)
         }
       }
@@ -198,13 +184,12 @@ class PersistentFlow(
     val arrows = graph.deciders(e.end)(state)
 
     //更新当前到达点
-    val udState = flowInstance.filter(f=>
-      f.flow_id === state.flowId
-    ).map(f=>(f.state)).update(
-      e.end
-    )
-
-    dbrun(udState)
+//    val udState = flowInstance.filter(f =>
+//      f.flow_id === state.flowId
+//    ).map(f => (f.state)).update(
+//      e.end
+//    )
+//    dbrun(udState)
 
     persist(DecisionUpdated(e.end, arrows)) { event =>
 
@@ -216,21 +201,22 @@ class PersistentFlow(
           case Arrow(name, None) =>
             logState(s"$name 结束")
             saveSnapshot(state)
-            // 更新数据库 todo王琦
-            val pu = flowInstance.filter(f=>
-              f.flow_id === state.flowId
-            ).map(f=>(f.data,f.finished)).update(
-              state.toJson.toString,1
-            )
 
-            dbrun(pu)
+//            // 更新数据库 todo王琦
+//            val pu = flowInstance.filter(f =>
+//              f.flow_id === state.flowId
+//            ).map(f => (f.data, f.finished)).update(
+//              state.toJson.toString, 1
+//            )
+//
+//            dbrun(pu)
 
           case a@Arrow(j, Some(nextEdge)) =>
             val ne = graph.edges(nextEdge)
             if (ne.check(state)) {
               // true边是无法触发的!!!!
               //先删除这个边
-              persist(EdgeCompleted(nextEdge)){ event =>
+              persist(EdgeCompleted(nextEdge)) { event =>
                 updateState(event)
                 make(ne)
               }

@@ -1,9 +1,12 @@
-package com.yimei.zflow.single
+package com.yimei.zflow.cluster
 
 import akka.actor.{Actor, ActorLogging, Props, Terminated}
-import com.yimei.zflow.api.models.user.{Command => UserCommand}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow}
+import com.yimei.zflow.api.models.user.{Command => UserCommand}
+import com.yimei.zflow.cluster.flow.FlowProxy
+import com.yimei.zflow.cluster.group.GroupProxy
+import com.yimei.zflow.cluster.user.UserProxy
 import com.yimei.zflow.util.id.IdGenerator
 import com.yimei.zflow.util.module.ModuleMaster.{GiveMeModule, RegisterModule}
 
@@ -16,17 +19,17 @@ object DaemonMaster {
     * @param name
     * @return
     */
-  def moduleProps(name: String, persistent: Boolean = true)(jdbcUrl: String, username: String, password: String): Props = {
+  def moduleProps(name: String, persistent: Boolean = true): Props = {
     name match {
-      case `module_flow`  => FlowMaster.props(Array(module_user, module_auto, module_group, module_id))
-      case `module_user`  => UserMaster.props(Array(module_flow, module_auto, module_group, module_id))
-      case `module_group` => GroupMaster.props(Array(module_user))
+      case `module_flow`  => FlowProxy.props(Array(module_user, module_auto, module_group, module_id))
+      case `module_user`  => UserProxy.props(Array(module_flow, module_auto, module_group, module_id))
+      case `module_group` => GroupProxy.props(Array(module_user))
       case `module_auto`  => AutoMaster.props(Array(module_user, module_flow, module_id))
       case `module_id`    => IdGenerator.props(name, 0, persistent)
     }
   }
 
-  def props(names: Array[String])(jdbcUrl: String, username: String, password: String) = Props(new DaemonMaster(names)(jdbcUrl, username, password))
+  def props(names: Array[String]) = Props(new DaemonMaster(names))
 
 }
 
@@ -34,14 +37,14 @@ object DaemonMaster {
   *
   * @param names
   */
-class DaemonMaster(names: Array[String])(jdbcUrl: String, username: String, password: String) extends Actor with ActorLogging {
+class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
 
   import DaemonMaster._
 
   val idPersistent = context.system.settings.config.getBoolean("flow.id.persistent")
 
   var modules = names.map { name =>
-    val m = context.actorOf(moduleProps(name, idPersistent)(jdbcUrl, username, password), name)
+    val m = context.actorOf(moduleProps(name, idPersistent))
     context.watch(m)
     (name, m)
   }.toMap
@@ -56,7 +59,7 @@ class DaemonMaster(names: Array[String])(jdbcUrl: String, username: String, pass
       modules = rest
       died.foreach { entry =>
         log.warning(s"!!!!!!!!!!!!!!!!!!${entry._1} died, restarting...")
-        val m = context.actorOf(moduleProps(entry._1)(jdbcUrl, username, password), entry._1)
+        val m = context.actorOf(moduleProps(entry._1), entry._1)
         context.watch(m)
         modules = modules + (entry._1 -> m)
       }

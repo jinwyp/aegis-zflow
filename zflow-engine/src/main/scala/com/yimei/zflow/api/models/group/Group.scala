@@ -11,7 +11,7 @@ case class CommandCreateGroup(ggid: String) extends Command
 
 case class CommandGroupTask(flowType:String, flowId: String, ggid: String, taskName: String) extends Command
 
-case class CommandClaimTask(ggid: String, taskId: String, userId: String) extends Command
+case class CommandClaimTask(ggid: String, taskId: String, guid: String) extends Command
 
 case class CommandQueryGroup(ggid: String) extends Command
 
@@ -25,13 +25,13 @@ case class TaskEnqueue(taskId: String, task: CommandGroupTask) extends Event
 case class TaskDequeue(taskId: String) extends Event
 
 // State:  group -> taskId -> groupTask
-case class State(userType: String, gid: String, tasks: Map[String, CommandGroupTask])
+case class State(ggid: String, tasks: Map[String, CommandGroupTask])
 
 trait GroupProtocol extends DefaultJsonProtocol {
 
   implicit val groupCommandGroupTaskFormat = jsonFormat4(CommandGroupTask)
 
-  implicit val groupStateFormat = jsonFormat3(State)
+  implicit val groupStateFormat = jsonFormat2(State)
 
   implicit val CommandCreateGroupFormat = jsonFormat1(CommandCreateGroup)
 

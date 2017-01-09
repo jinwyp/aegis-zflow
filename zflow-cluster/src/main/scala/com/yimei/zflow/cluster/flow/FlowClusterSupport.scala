@@ -1,9 +1,13 @@
 package com.yimei.zflow.cluster.flow
 
-import akka.actor.{Actor, ActorSystem}
+import akka.actor.{Actor, ActorIdentity, ActorRef, Identify, Props, ReceiveTimeout}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
+import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.Command
-import com.yimei.zflow.cluster.FlowClusterApp._
+import com.yimei.zflow.engine.flow.PersistentFlow
+import com.yimei.zflow.util.module.ModuleMaster
+
+import scala.concurrent.duration._
 
 /**
   * Created by hary on 16/12/16.
@@ -24,24 +28,29 @@ trait FlowClusterSupport {
 }
 
 object FlowProxy {
-
+  def props(dependOn: Array[String]): Props = Props(new FlowProxy(dependOn))
 }
 
-class FlowProxy(system: ActorSystem) extends Actor {
-  override def receive: Receive = identify
+/**
+  * Flow依赖于user, group, id, auto
+  */
+class FlowProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
+  with Actor
+  with FlowClusterSupport {
 
-  def identify: Receive = {
-    case _ => "ok"
+  var region: ActorRef = null
+  override def initHook() =  {
+    ClusterSharding(context.system).start(
+      typeName = flowShardName,
+      entityProps = Props(new PersistentFlow(modules)),
+      settings = ClusterShardingSettings(context.system),
+      extractEntityId = flowExtractEntityId,
+      extractShardId = flowExtractShardId)
   }
 
-
-  // 流程管理 - 需要idGenerator
-  def region = ClusterSharding(system).start(
-    typeName = flowShardName,
-    entityProps = null, //  创建流程的Prop
-    settings = ClusterShardingSettings(system),
-    extractEntityId = flowExtractEntityId,
-    extractShardId = flowExtractShardId)
-
+  def serving: Receive = {
+    case command: Command =>
+      region forward command
+  }
 }
 
