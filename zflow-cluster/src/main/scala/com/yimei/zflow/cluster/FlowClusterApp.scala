@@ -6,9 +6,6 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.cluster.flow.FlowClusterSupport
-import com.yimei.zflow.cluster.gtask.GroupClusterSupport
-import com.yimei.zflow.cluster.utask.UserClusterSupport
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.FlywayDB
 import com.yimei.zflow.util.id.IdGenerator
@@ -16,9 +13,7 @@ import com.yimei.zflow.util.id.IdGenerator
 /**
   * Created by hary on 16/12/16.
   */
-object FlowClusterApp extends FlowClusterSupport
-  with GroupClusterSupport
-  with UserClusterSupport {
+object FlowClusterApp {
 
   val common = ConfigFactory.load()
 

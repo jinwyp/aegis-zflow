@@ -10,41 +10,41 @@ import com.yimei.zflow.util.module.ModuleMaster
 /**
   * Created by hary on 16/12/16.
   */
-trait GroupClusterSupport {
+trait GTaskClusterSupport {
   // for cluster
-  val groupExtractEntityId: ShardRegion.ExtractEntityId = {
+  val gtaskExtractEntityId: ShardRegion.ExtractEntityId = {
     case cmd: Command => (cmd.ggid, cmd)
   }
 
-  val groupNumberOfShards = 100
+  val gtaskNumberOfShards = 100
 
-  val groupExtractShardId: ShardRegion.ExtractShardId = {
-    case cmd: Command => (cmd.ggid.hashCode % groupNumberOfShards).toString
+  val gtaskExtractShardId: ShardRegion.ExtractShardId = {
+    case cmd: Command => (cmd.ggid.hashCode % gtaskNumberOfShards).toString
   }
 
-  val groupShardName = "group"
+  val gtaskShardName = "group"
 }
 
-object GroupProxy {
-  def props(dependOn: Array[String]): Props = Props(new GroupProxy(dependOn))
+object GTaskProxy {
+  def props(dependOn: Array[String]): Props = Props(new GTaskProxy(dependOn))
 }
 
 /**
   * Flow依赖于user, group, id, auto
   */
-class GroupProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
+class GTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
   with Actor
-  with GroupClusterSupport {
+  with GTaskClusterSupport {
 
   var region: ActorRef = null
 
   override def initHook() = {
     ClusterSharding(context.system).start(
-      typeName = groupShardName,
+      typeName = gtaskShardName,
       entityProps = Props(new PersistentGTask(modules, 3)),
       settings = ClusterShardingSettings(context.system),
-      extractEntityId = groupExtractEntityId,
-      extractShardId = groupExtractShardId)
+      extractEntityId = gtaskExtractEntityId,
+      extractShardId = gtaskExtractShardId)
   }
 
   def serving: Receive = {

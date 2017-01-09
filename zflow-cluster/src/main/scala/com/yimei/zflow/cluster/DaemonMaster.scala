@@ -5,8 +5,8 @@ import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow}
 import com.yimei.zflow.api.models.user.{Command => UserCommand}
 import com.yimei.zflow.cluster.flow.FlowProxy
-import com.yimei.zflow.cluster.gtask.GroupProxy
-import com.yimei.zflow.cluster.utask.UserProxy
+import com.yimei.zflow.cluster.gtask.{GTaskProxy}
+import com.yimei.zflow.cluster.utask.{UTaskProxy}
 import com.yimei.zflow.util.id.IdGenerator
 import com.yimei.zflow.util.module.ModuleMaster.{GiveMeModule, RegisterModule}
 
@@ -22,8 +22,8 @@ object DaemonMaster {
   def moduleProps(name: String, persistent: Boolean = true): Props = {
     name match {
       case `module_flow`  => FlowProxy.props(Array(module_user, module_auto, module_group, module_id))
-      case `module_user`  => UserProxy.props(Array(module_flow, module_auto, module_group, module_id))
-      case `module_group` => GroupProxy.props(Array(module_user))
+      case `module_user`  => UTaskProxy.props(Array(module_flow, module_auto, module_group, module_id))
+      case `module_group` => GTaskProxy.props(Array(module_user))
       case `module_auto`  => AutoMaster.props(Array(module_user, module_flow, module_id))
       case `module_id`    => IdGenerator.props(name, 0, persistent)
     }
