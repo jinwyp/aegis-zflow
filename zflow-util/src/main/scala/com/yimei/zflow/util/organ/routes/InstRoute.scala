@@ -14,7 +14,7 @@ trait InstRoute extends OrganService with SprayJsonSupport{
 
   //POST /inst         创建参与方实例
   //body {party: String, instanceId: String, companyName: String}
-  def createPti: Route = post {
+  private def createPti: Route = post {
     path("inst") {
       entity(as[PartyInstanceCreateRequest]) { info =>
         complete(createPartyInstance(info))
@@ -23,7 +23,7 @@ trait InstRoute extends OrganService with SprayJsonSupport{
   }
 
   //GET  /inst/:party/:instance_id           查询参与方实例
-  def queryPti: Route = get {
+  private def queryPti: Route = get {
     pathPrefix("inst" / Segment / Segment) { (pc, ii) =>
       complete(queryPartyInstance(pc,ii))
     }
@@ -31,7 +31,7 @@ trait InstRoute extends OrganService with SprayJsonSupport{
 
   //post  /inst/:party/:instance_id          更新参与方实例
   //body  companyName
-  def updatePti: Route = put {
+  private def updatePti: Route = put {
     path("inst" / Segment / Segment) { (party, ii) =>
       entity(as[String]) { companyName =>
         complete(updatePartyInstance(party,ii,companyName))
@@ -41,7 +41,7 @@ trait InstRoute extends OrganService with SprayJsonSupport{
 
   //post /inst/list?page=x&pageSize=y
   //body Option[companyName]
-  def getPartyInstanceList: Route = post {
+  private def getPartyInstanceList: Route = post {
     (path("inst" / "list") & parameter('page.as[Int]) & parameter('pageSize.as[Int])) { (page, pageSize) =>
       entity(as[Option[String]]) { companyName =>
         complete(getPartyInstanceList(page,pageSize,companyName))

@@ -30,8 +30,8 @@ trait AssetRoute extends CoreConfig with AssetTable with SprayJsonSupport {
   /**
     * GET asset/:asset_id  -- 下载asset_id资源
     */
-  def downloadFile: Route = get {
-    path("file" / Segment) { id =>
+  private def downloadFile: Route = get {
+    path("asset" / Segment) { id =>
       val file: Future[AssetEntity] = dbrun(assetClass.filter(f => f.asset_id === id).result.head) recover {
         case _ => throw new DatabaseException("该文件不存在")
       }
@@ -59,8 +59,8 @@ trait AssetRoute extends CoreConfig with AssetTable with SprayJsonSupport {
     * @return
     */
 
-  def uploadFile: Route = post {
-    path("file") {
+  private def uploadFile: Route = post {
+    path("asset") {
       entity(as[Multipart.FormData]) { fileData =>
         // 多个文件
         val result: Future[Map[String, String]] = fileData.parts.mapAsync[(String, String)](1) {
@@ -99,7 +99,7 @@ trait AssetRoute extends CoreConfig with AssetTable with SprayJsonSupport {
     }
   }
 
-  def getFileType(suffix: String): Int = {
+  private def getFileType(suffix: String): Int = {
     val imageArray = Array("jpg", "jpeg", "gif", "png", "bmp")
     if (suffix.toLowerCase == "pdf") 1
     else if (imageArray.contains(suffix.toLowerCase)) 2
@@ -125,6 +125,6 @@ trait AssetRoute extends CoreConfig with AssetTable with SprayJsonSupport {
   }
 
 
-  def route: Route = downloadFile ~ uploadFile
+  def assetRoute: Route = downloadFile ~ uploadFile
 }
 

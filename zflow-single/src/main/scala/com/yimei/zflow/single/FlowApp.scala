@@ -7,6 +7,7 @@ import akka.http.scaladsl.server._
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.EngineRoute
 import com.yimei.zflow.engine.graph.GraphLoader
+import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
 
 /**
@@ -14,14 +15,12 @@ import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
   */
 
 object FlowApp extends {
-
-} with App with FlowExceptionHandler with EngineRoute {
-
   implicit val coreSystem = ActorSystem("FlowSystem")
+} with App with FlowExceptionHandler with EngineRoute with OrganRoute {
 
-  lazy val jdbcUrl = coreConfig.getString("database.jdbcUrl")
-  lazy val username = coreConfig.getString("database.username")
-  lazy val password = coreConfig.getString("database.password")
+  val jdbcUrl = coreConfig.getString("database.jdbcUrl")
+  val username = coreConfig.getString("database.username")
+  val password = coreConfig.getString("database.password")
 
 
   val flyway = new FlywayDB(jdbcUrl, username, password)
@@ -37,7 +36,7 @@ object FlowApp extends {
 
   // prepare routes
   val route: Route = pathPrefix("api") {
-    engineRoute
+    engineRoute ~ organRoute
   }
 
   // start http server

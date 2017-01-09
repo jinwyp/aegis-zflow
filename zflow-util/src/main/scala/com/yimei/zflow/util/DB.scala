@@ -16,15 +16,16 @@ import scala.concurrent.Future
   */
 trait DB extends CoreConfig {
 
-  val jdbcUrl: String
-  val username: String
-  val password: String
+//  val jdbcUrl: String
+//  val username: String
+//  val password: String
+
   val log: LoggingAdapter
 
-  private def hikariConfig() = new HikariConfig()
-  hikariConfig.setJdbcUrl(jdbcUrl)
-  hikariConfig.setUsername(username)
-  hikariConfig.setPassword(password)
+  val hikariConfig = new HikariConfig()
+  hikariConfig.setJdbcUrl(coreConfig.getString("database.jdbcUrl"))
+  hikariConfig.setUsername(coreConfig.getString("database.username"))
+  hikariConfig.setPassword(coreConfig.getString("database.password"))
 
   private val dataSource = new HikariDataSource(hikariConfig)
   val driver = slick.driver.MySQLDriver;

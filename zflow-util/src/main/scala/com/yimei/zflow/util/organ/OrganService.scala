@@ -3,7 +3,6 @@ package com.yimei.zflow.util.organ
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.sun.media.sound.SoftMidiAudioFileReader
 import com.yimei.zflow.util.HttpResult.Result
 import com.yimei.zflow.util.config.CoreConfig
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
@@ -11,7 +10,6 @@ import com.yimei.zflow.util.organ.db.Entities._
 import com.yimei.zflow.util.organ.db._
 import com.yimei.zflow.util.organ.routes.Models._
 
-import scala.collection.mutable
 import scala.concurrent.Future
 
 /**
@@ -61,12 +59,12 @@ trait OrganService extends CoreConfig
   }
 
   /**
-    *
+    * 查询用户信息
     * @param party
     * @param instance_id
     * @param userId
     */
-  def queryUser(party: String, instance_id: String, userId: String) = {
+  def queryUser(party: String, instance_id: String, userId: String): Future[Result[UserQueryResponse]] = {
     def pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
       p.party_class === party &&
         p.instance_id === instance_id
@@ -102,13 +100,13 @@ trait OrganService extends CoreConfig
   )
 
   /**
-    *
+    * 用户列表
     * @param party
     * @param instance_id
     * @param limit
     * @param offset
     */
-  def getUserList(party: String, instance_id: String, limit: Int, offset: Int) = {
+  def getUserList(party: String, instance_id: String, limit: Int, offset: Int): Future[Result[UserListResponse]] = {
     val pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
       p.party_class === party &&
         p.instance_id === instance_id
@@ -141,7 +139,15 @@ trait OrganService extends CoreConfig
     } yield Result(Some(UserListResponse(u.map(getUserQueryResponse(_)), total)))
   }
 
-  def updateUser(party: String, instance_id: String, userId: String, user: UserCreateRequest) = {
+  /**
+    * 更新用户信息
+    * @param party
+    * @param instance_id
+    * @param userId
+    * @param user
+    * @return
+    */
+  def updateUser(party: String, instance_id: String, userId: String, user: UserCreateRequest): Future[Result[String]] = {
 
     def pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
       p.party_class === party &&
@@ -178,10 +184,10 @@ trait OrganService extends CoreConfig
   }
 
   /**
-    *
+    * 用户认证
     * @param user
     */
-  def auth(user: UserAuthRequest) = {
+  def auth(user: UserAuthRequest): Future[Result[UserAuthResponse]] = {
     val query =
       (for {
         (pu, pi) <- partyUser join partyInstance on (_.party_id === _.id) if (pu.username === user.username && pu.password === user.password && pu.disable === 0)
@@ -208,7 +214,7 @@ trait OrganService extends CoreConfig
   }
 
   /**
-    *
+    * 禁用用户
     * @param userId
     * @return
     */
@@ -230,7 +236,7 @@ trait OrganService extends CoreConfig
   }
 
   /**
-    *
+    * 用户搜索
     * @param req
     * @param page
     * @param pageSize
@@ -535,7 +541,7 @@ trait OrganService extends CoreConfig
 
   /**
     * 获得公司列表
- *
+    *
     * @param page
     * @param pageSize
     * @param companyName
