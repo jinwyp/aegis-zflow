@@ -2,6 +2,8 @@
 *.log
 .idea/
 tmp/
+zflow-single/data/
+zflow-cluster/data/
 
 # sbt specific
 .cache

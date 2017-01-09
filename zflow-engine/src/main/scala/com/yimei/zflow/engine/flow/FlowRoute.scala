@@ -32,7 +32,7 @@ trait FlowRoute extends SprayJsonSupport
   private def listFlow = get {
     path("flow") {
       parameters('guid, 'flowType, 'status, 'page.as[Int], 'pageSize.as[Int]) { (guid, flowType, status, page, pageSize) =>
-          complete(s"listFlow:")
+          complete(s"listFlow: guid=$guid, flowType=$flowType, status=$status, page=$page, pageSize=$pageSize")
       }
     }
   }

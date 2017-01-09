@@ -13,7 +13,7 @@ trait DeployRoute extends DB {
 
 
   // POST /deploy/:flowType  + fileupload
-  def deploy = extractRequestContext { ctx =>
+  private def deployUpload = extractRequestContext { ctx =>
     implicit val materializer = ctx.materializer
     implicit val ec = ctx.executionContext
 
@@ -33,7 +33,7 @@ trait DeployRoute extends DB {
     }
   }
 
-  def deployRoute: Route = ???
+  def deployRoute: Route = deployUpload
 }
 
 
