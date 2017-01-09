@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef, ReceiveTimeout}
 import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
-import com.yimei.zflow.api.GlobalConfig.module_user
+import com.yimei.zflow.api.GlobalConfig.module_utask
 import com.yimei.zflow.api.models.user.CommandUserTask
 
 import scala.concurrent.duration._
@@ -67,7 +67,7 @@ class PersistentGTask(modules: Map[String, ActorRef], timeout: Int) extends Abst
         case Some(task) => persist(TaskDequeue(taskId)) {
           event =>
             updateState(event)
-            modules(module_user) ! CommandUserTask(task.flowId, guid, task.taskName, task.flowType)
+            modules(module_utask) ! CommandUserTask(task.flowId, guid, task.taskName, task.flowType)
             sender() ! state
         }
         case None =>

@@ -1,9 +1,10 @@
 package com.yimei.zflow.single
 
-import akka.actor.{Actor, ActorLogging, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
 import com.yimei.zflow.api.models.user.{Command => UserCommand}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow}
+import com.yimei.zflow.engine.FlowRegistry
 import com.yimei.zflow.util.id.IdGenerator
 import com.yimei.zflow.util.module.ModuleMaster.{GiveMeModule, RegisterModule}
 
@@ -16,17 +17,17 @@ object DaemonMaster {
     * @param name
     * @return
     */
-  def moduleProps(name: String, persistent: Boolean = true)(jdbcUrl: String, username: String, password: String): Props = {
+  def moduleProps(name: String, persistent: Boolean = true): Props = {
     name match {
-      case `module_flow`  => FlowMaster.props(Array(module_user, module_auto, module_group, module_id))
-      case `module_user`  => UTaskMaster.props(Array(module_flow, module_auto, module_group, module_id))
-      case `module_group` => GTaskMaster.props(Array(module_user))
-      case `module_auto`  => AutoMaster.props(Array(module_user, module_flow, module_id))
+      case `module_flow`  => FlowMaster.props(Array(module_utask, module_auto, module_gtask, module_id))
+      case `module_utask`  => UTaskMaster.props(Array(module_flow, module_auto, module_gtask, module_id))
+      case `module_gtask` => GTaskMaster.props(Array(module_utask))
+      case `module_auto`  => AutoMaster.props(Array(module_utask, module_flow, module_id))
       case `module_id`    => IdGenerator.props(name, 0, persistent)
     }
   }
 
-  def props(names: Array[String])(jdbcUrl: String, username: String, password: String) = Props(new DaemonMaster(names)(jdbcUrl, username, password))
+  def props(names: Array[String]) = Props(new DaemonMaster(names))
 
 }
 
@@ -34,15 +35,16 @@ object DaemonMaster {
   *
   * @param names
   */
-class DaemonMaster(names: Array[String])(jdbcUrl: String, username: String, password: String) extends Actor with ActorLogging {
+class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
 
   import DaemonMaster._
 
   val idPersistent = context.system.settings.config.getBoolean("flow.id.persistent")
 
   var modules = names.map { name =>
-    val m = context.actorOf(moduleProps(name, idPersistent)(jdbcUrl, username, password), name)
+    val m = context.actorOf(moduleProps(name, idPersistent), name)
     context.watch(m)
+    fillRouteActor(name, m)
     (name, m)
   }.toMap
 
@@ -56,28 +58,27 @@ class DaemonMaster(names: Array[String])(jdbcUrl: String, username: String, pass
       modules = rest
       died.foreach { entry =>
         log.warning(s"!!!!!!!!!!!!!!!!!!${entry._1} died, restarting...")
-        val m = context.actorOf(moduleProps(entry._1)(jdbcUrl, username, password), entry._1)
+        val m = context.actorOf(moduleProps(entry._1), entry._1)
         context.watch(m)
+        fillRouteActor(entry._1, m)
         modules = modules + (entry._1 -> m)
       }
-
-    ////////////////////////////////////////////////////////////////////////
-    // 测试Flow
-    ////////////////////////////////////////////////////////////////////////
-    case cmd: CommandCreateFlow =>
-      log.debug(s"收到${cmd}")
-      modules.get(module_flow).foreach(_ forward cmd)
-
-    case cmd: Command =>
-      log.debug(s"收到${cmd}")
-      modules.get(module_flow).foreach(_ forward cmd)
-
-    ////////////////////////////////////////////////////////////////////////
-    // 测试user
-    ////////////////////////////////////////////////////////////////////////
-    case cmd: UserCommand =>
-      log.debug(s"收到$cmd")
-      modules.get(module_user).foreach(_ forward cmd)
   }
+
+  private def fillRouteActor(name: String, m: ActorRef): Unit = {
+    if (name == module_auto) {
+      FlowRegistry.auto = m
+    }
+    if (name == module_utask) {
+      FlowRegistry.utask = m
+    }
+    if (name == module_gtask) {
+      FlowRegistry.gtask = m
+    }
+    if (name == module_flow) {
+      FlowRegistry.flow = m
+    }
+  }
+
 }
 

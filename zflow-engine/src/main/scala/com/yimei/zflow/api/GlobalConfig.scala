@@ -9,8 +9,8 @@ object GlobalConfig {
   /**
     * 全局模块名称
     */
-  val module_user   = "UserMaster"
-  val module_group  = "GroupMaster"
+  val module_utask   = "UTaskMaster"
+  val module_gtask  = "GTaskMaster"
   val module_flow   = "FlowMaster"
   val module_auto   = "AutoMaster"
   val module_proxy  = "ServiceProxy"

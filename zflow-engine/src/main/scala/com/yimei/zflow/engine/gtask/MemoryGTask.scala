@@ -41,7 +41,7 @@ class MemoryGTask(modules:Map[String,ActorRef]) extends AbstractGTask with Actor
       log.info(s"claim的请求: $command")
       val task = state.tasks(taskId)
       updateState(TaskDequeue(taskId))
-      modules(module_user) ! CommandUserTask(task.flowId,s"${ggid}",task.taskName,task.flowType)
+      modules(module_utask) ! CommandUserTask(task.flowId,s"${ggid}",task.taskName,task.flowType)
       sender() ! state
   }
 

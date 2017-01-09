@@ -1,30 +1,56 @@
 package com.yimei.zflow.engine.gtask
 
-import akka.actor.ActorRef
 import akka.pattern._
 import akka.util.Timeout
 import com.yimei.zflow.api.models.group.{State => GroupState, _}
-import com.yimei.zflow.engine.ActorService
 
 import scala.concurrent.Future
 
 /**
   * Created by hary on 17/1/6.
   */
-trait GTaskService extends ActorService {
+trait GTaskService {
 
-  def gtaskTimeout: Timeout = ??? // todo
+  import com.yimei.zflow.engine.FlowRegistry._
+
+  val gtaskTimeout: Timeout
+
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   def gtaskCreate(ggid: String): Future[GroupState] =
-    (proxy ? CommandCreateGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
+    if (gtask != null) {
+      (gtask ? CommandCreateGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
+    } else {
+      Future {
+        throw new Exception("gtask not prepared")
+      }
+    }
 
   def gtaskQuery(ggid: String) =
-    (proxy ? CommandQueryGroup(ggid))(gtaskTimeout).mapTo[GroupState]
+    if (gtask != null) {
+      (gtask ? CommandQueryGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
+    } else {
+      Future {
+        throw new Exception("gtask not prepared")
+      }
+    }
 
   def gtaskClaim(ggid: String, guid: String, taskId: String): Future[GroupState] =
-    (proxy ? CommandClaimTask(ggid, taskId, guid))(gtaskTimeout).mapTo[GroupState]
+    if (gtask != null) {
+      (gtask ? CommandClaimTask(ggid, taskId, guid)) (gtaskTimeout).mapTo[GroupState]
+    } else {
+      Future {
+        throw new Exception("gtask not prepared")
+      }
+    }
 
   def gtaskSend(ggid: String, flowId: String, taskName: String, flowType: String): Unit =
-    proxy ! CommandGroupTask(flowType, flowId, ggid, taskName)
+    if (gtask != null) {
+      gtask ! CommandGroupTask(flowType, flowId, ggid, taskName)
+    } else {
+      Future {
+        throw new Exception("gtask not prepared")
+      }
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.yimei.zflow.engine.auto
 
+import akka.actor.ActorRef
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -8,9 +9,9 @@ import akka.http.scaladsl.server._
   * Created by hary on 16/12/6.
   */
 
-trait AutoRoute extends SprayJsonSupport
-// AutoService
-{
+trait AutoRoute extends SprayJsonSupport with AutoService {
+
+
 
   /**
     * 手动触发自动恩物

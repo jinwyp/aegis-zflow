@@ -7,9 +7,7 @@ import akka.http.scaladsl.server.Route
 /**
   * Created by hary on 17/1/7.
   */
-trait UTaskRoute extends SprayJsonSupport
-// with UTaskService
-{
+trait UTaskRoute extends SprayJsonSupport with UTaskService {
 
   /**
     * 1. 查询任务列表    guid为可选参数, 如果没有就是查询所有用户, flowType可选, 没有就是查询所有流程类型

@@ -17,7 +17,7 @@ object UTaskMaster {
   * Created by hary on 16/12/2.
   */
 class UTaskMaster(dependOn: Array[String])
-  extends ModuleMaster(module_user, dependOn)
+  extends ModuleMaster(module_utask, dependOn)
   with ServicableBehavior {
 
   override def serving: Receive = {

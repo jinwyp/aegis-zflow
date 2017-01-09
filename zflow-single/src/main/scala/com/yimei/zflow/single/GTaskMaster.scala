@@ -14,7 +14,7 @@ object GTaskMaster {
   * Created by hary on 16/12/12.
   */
 class GTaskMaster(dependOn: Array[String])
-  extends ModuleMaster(module_group, dependOn)
+  extends ModuleMaster(module_gtask, dependOn)
   with ServicableBehavior {
 
   def create(ggid: String): ActorRef = {

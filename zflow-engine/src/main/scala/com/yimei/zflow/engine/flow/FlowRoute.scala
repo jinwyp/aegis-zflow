@@ -7,8 +7,7 @@ import akka.http.scaladsl.server.Route
 /**
   * Created by hary on 17/1/7.
   */
-trait FlowRoute extends SprayJsonSupport
-//  with FlowService
+trait FlowRoute extends SprayJsonSupport with FlowService
 {
 
   /**

@@ -6,11 +6,41 @@ import com.yimei.zflow.api.models.flow.State
 import com.yimei.zflow.api.models.group.CommandGroupTask
 import com.yimei.zflow.api.models.user.CommandUserTask
 import com.yimei.zflow.engine.graph.FlowGraph
+import com.yimei.zflow.api.GlobalConfig._
+
+import scala.annotation.meta.getter
 
 /**
   * Created by hary on 16/12/7.
   */
 object FlowRegistry {
+  def fillRouteActor(name: String, m: ActorRef): Unit = {
+    if (name == module_auto) {
+      auto = m
+    }
+    if (name == module_utask) {
+      utask = m
+    }
+    if (name == module_gtask) {
+      gtask = m
+    }
+    if (name == module_flow) {
+      flow = m
+    }
+
+  }
+
+  @(volatile @getter)
+  var auto: ActorRef = null
+
+  @(volatile @getter)
+  var utask: ActorRef = null
+
+  @(volatile @getter)
+  var gtask: ActorRef = null
+
+  @(volatile @getter)
+  var flow: ActorRef = null
 
   /**
     * @param actorName

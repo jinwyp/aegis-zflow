@@ -104,20 +104,20 @@ trait EdgeBehavior {
 
     //采集用户任务
     userTasks.foreach(ut =>
-      ufetch(state.flowType, ut, state, modules(module_user), state.guid)
+      ufetch(state.flowType, ut, state, modules(module_utask), state.guid)
     )
 
     // 参与方任务
     partUTasks.foreach { entry =>
       entry.tasks.foreach { ut =>
-        ufetch(state.flowType, ut, state, modules(module_user), state.points(entry.guidKey).value)
+        ufetch(state.flowType, ut, state, modules(module_utask), state.points(entry.guidKey).value)
       }
     }
 
     // 参与方组任务
     partGTasks.foreach { entry =>
       entry.tasks.foreach { gt =>
-        gfetch(state.flowType, gt, state, modules(module_group), state.points(entry.ggidKey).value)
+        gfetch(state.flowType, gt, state, modules(module_gtask), state.points(entry.ggidKey).value)
       }
     }
   }

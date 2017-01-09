@@ -1,14 +1,21 @@
 package com.yimei.zflow.cluster
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
+import akka.util.Timeout
+import scala.concurrent.duration._
 import com.typesafe.config.{Config, ConfigFactory}
 import com.yimei.zflow.api.GlobalConfig._
+import com.yimei.zflow.engine.EngineRoute
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.FlywayDB
 import com.yimei.zflow.util.id.IdGenerator
+import com.yimei.zflow.util.organ.OrganRoute
+
 
 /**
   * Created by hary on 16/12/16.
@@ -25,8 +32,10 @@ object FlowClusterApp {
   }
 
   def startup(config: Config): Unit = {
+
     implicit val system = ActorSystem("FlowSystem", config)
     implicit val materializer = ActorMaterializer()
+
 
     val flyway = new FlywayDB(null, null, null)
     flyway.drop()
@@ -36,14 +45,26 @@ object FlowClusterApp {
     GraphLoader.loadall()
 
     // start engines and services
-    val names = Array(module_auto, module_user, module_flow, module_id, module_group)
+    val names = Array(module_auto, module_utask, module_flow, module_id, module_gtask)
     val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
-    // Id服务
-    val idGenerator = system.actorOf(IdGenerator.props("id"))
-
     // 路由
-    val all: Route = null;
+    object AppRoute extends {
+      implicit val coreSystem = system
+    } with OrganRoute with EngineRoute {
+      override def log: LoggingAdapter = Logging(coreSystem, getClass)
+      override val utaskTimeout: Timeout = Timeout(3 seconds)
+      override val flowServiceTimeout: Timeout = Timeout(3 seconds)
+      override val gtaskTimeout: Timeout = Timeout(3 seconds)
+
+      def route = engineRoute ~ organRoute
+    }
+
+    val all: Route = logRequest("debug") {
+      pathPrefix("api") {
+        AppRoute.route
+      }
+    }
 
     // 启动rest服务
     Http().bindAndHandle(all, "0.0.0.0", config.getInt("rest.port"))
