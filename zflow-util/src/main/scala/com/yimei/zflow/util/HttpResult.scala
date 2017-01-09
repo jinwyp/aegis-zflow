@@ -6,7 +6,7 @@ import spray.json.{DefaultJsonProtocol, JsArray, JsNumber, JsObject, JsString, J
 /**
   * Created by hary on 17/1/7.
   */
-object ResultProtocol extends DefaultJsonProtocol {
+object HttpResult extends DefaultJsonProtocol {
 
   case class Result[T](data: Option[T], success: Boolean = true, error: Error = null, meta: PagerInfo = null)
 

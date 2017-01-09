@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.Route
 import akka.util.Timeout
 import com.yimei.zflow.util.organ.OrganService
 import com.yimei.zflow.util.organ.db.Entities._
-import com.yimei.zflow.util.ResultProtocol._
+import com.yimei.zflow.util.HttpResult._
 
 import scala.concurrent.Future
 import scala.concurrent.duration._

@@ -8,7 +8,7 @@ import com.yimei.zflow.util.exception.DatabaseException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import slick.dbio.NoStream
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
 /**

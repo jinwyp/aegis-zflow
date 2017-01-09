@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.yimei.zflow.util.organ.OrganService
 import com.yimei.zflow.util.organ.routes.Models.{UserAuthRequest, UserCreateRequest, UserSearchRequest}
-import com.yimei.zflow.util.ResultProtocol._
+import com.yimei.zflow.util.HttpResult._
 
 import scala.concurrent.Future
 

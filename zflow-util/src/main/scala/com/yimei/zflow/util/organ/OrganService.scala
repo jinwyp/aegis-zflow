@@ -4,7 +4,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 import com.sun.media.sound.SoftMidiAudioFileReader
-import com.yimei.zflow.util.ResultProtocol.Result
+import com.yimei.zflow.util.HttpResult.Result
 import com.yimei.zflow.util.config.CoreConfig
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 import com.yimei.zflow.util.organ.db.Entities._
