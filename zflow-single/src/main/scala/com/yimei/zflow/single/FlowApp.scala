@@ -22,7 +22,6 @@ object FlowApp extends {
   val username = coreConfig.getString("database.username")
   val password = coreConfig.getString("database.password")
 
-
   val flyway = new FlywayDB(jdbcUrl, username, password)
   flyway.drop()
   flyway.migrate()
