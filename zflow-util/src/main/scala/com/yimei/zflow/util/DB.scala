@@ -16,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 trait DB extends Core {
 
-  def log: LoggingAdapter
+  val log: LoggingAdapter
 
   val driver = slick.driver.MySQLDriver;
   import driver.api.Database;

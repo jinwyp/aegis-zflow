@@ -116,7 +116,8 @@ object BuildSettings {
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     libraryDependencies ++= appDependencies,
-    scalacOptions := buildScalaOptions
+    scalacOptions := buildScalaOptions,
+    fork in Test := true
   ) ++ Revolver.settings
 }
 

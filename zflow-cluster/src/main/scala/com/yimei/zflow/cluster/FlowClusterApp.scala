@@ -50,7 +50,7 @@ object FlowClusterApp {
     object AppRoute extends {
       implicit val coreSystem = system
     } with OrganRoute with EngineRoute {
-      override def log: LoggingAdapter = Logging(coreSystem, getClass)
+      override val log: LoggingAdapter = Logging(coreSystem, getClass)
 
       override val utaskTimeout: Timeout = Timeout(3 seconds)
       override val flowServiceTimeout: Timeout = Timeout(3 seconds)

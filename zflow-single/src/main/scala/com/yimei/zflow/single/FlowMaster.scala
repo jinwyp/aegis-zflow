@@ -1,17 +1,10 @@
 package com.yimei.zflow.single
 
-import java.util.UUID
-
 import akka.actor.{ActorRef, Props, Terminated}
-import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.util.id.IdBufferable
-
-import scala.concurrent.duration._
-import akka.util.Timeout
-import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow, CommandRunFlow}
-import com.yimei.zflow.engine.FlowRegistry
+import com.yimei.zflow.api.models.flow.Command
 import com.yimei.zflow.engine.flow.{MemoryFlow, PersistentFlow}
+import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 
 /**
   * Created by hary on 16/12/1.
@@ -28,17 +21,7 @@ object FlowMaster {
   */
 class FlowMaster(dependOn: Array[String], persist: Boolean = true)
   extends ModuleMaster(module_flow, dependOn)
-    with ServicableBehavior
-    with IdBufferable {
-
-  // IdBufferable need this
-  override val bufferSize: Int = 100
-  override val bufferKey: String = "flow"
-
-  override def myIdGenerator = modules(module_id)
-
-  implicit val myEc = context.system.dispatcher
-  implicit val myTimeout = Timeout(3 seconds)
+    with ServicableBehavior {
 
   def serving: Receive = {
 
