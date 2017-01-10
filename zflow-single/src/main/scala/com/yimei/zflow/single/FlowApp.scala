@@ -12,19 +12,16 @@ import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
 
-
-
 /**
   * Created by hary on 17/1/6.
   */
-
 object FlowApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
 } with App with FlowExceptionHandler with EngineRoute with OrganRoute {
 
-  override val utaskTimeout: Timeout = Timeout(3 seconds)
-  override val flowServiceTimeout: Timeout =  Timeout(3 seconds)
-  override val gtaskTimeout: Timeout =  Timeout(3 seconds)
+  override val utaskTimeout = Timeout(3 seconds)
+  override val flowServiceTimeout = Timeout(3 seconds)
+  override val gtaskTimeout = Timeout(3 seconds)
 
   val config = coreSystem.settings.config
   val jdbcUrl = config.getString("database.jdbcUrl")

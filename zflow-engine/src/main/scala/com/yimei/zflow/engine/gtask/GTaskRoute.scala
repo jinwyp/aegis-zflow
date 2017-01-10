@@ -7,6 +7,8 @@ import akka.http.scaladsl.server.Directives._
   * Created by hary on 17/1/7.
   */
 trait GTaskRoute extends SprayJsonSupport with GTaskService {
+
+
   /**
     * 查询组任务
     *

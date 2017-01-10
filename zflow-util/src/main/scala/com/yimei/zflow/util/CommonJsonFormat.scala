@@ -12,13 +12,18 @@ import spray.json.{DeserializationException, JsString, JsValue, RootJsonFormat}
 trait CommonJsonFormat {
 
   implicit object SqlTimestampFormat extends RootJsonFormat[Timestamp] {
-    val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-    override def write(obj: Timestamp) = JsString(formatter.format(obj))
+    override def write(obj: Timestamp) = {
+      val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+      JsString(formatter.format(obj))
+    }
 
-    override def read(json: JsValue) : Timestamp = json match {
-      case JsString(s) => new Timestamp(formatter.parse(s).getTime)
-      case _ => throw new DeserializationException("Error info you want here ...")
+    override def read(json: JsValue) : Timestamp = {
+      val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+      json match {
+        case JsString(s) => new Timestamp(formatter.parse(s).getTime)
+        case _ => throw new DeserializationException("Error info you want here ...")
+      }
     }
   }
 }

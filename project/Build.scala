@@ -13,6 +13,7 @@ object Dependencies {
   private val slick = "3.1.1"
   private val leveldb = "0.7"
   private val leveldbjniAll = "1.8"
+  private val akkaPersistenceRedis = "0.6.0"
   private val mysqlConnectorJava = "6.0.5"
   private val akkaHttpSession = "0.3.0"
   private val swaggerAkkaHttp = "0.7.2"
@@ -24,7 +25,6 @@ object Dependencies {
   private val commonsCompress = "1.2"
   private val commonsIO = "2.5"
   private val quicklens = "1.4.8"
-  private val akkaPersistenceRedis = "0.6.0"
   private val hikaricp = "2.4.5"
   private val camelJetty = "2.16.4"
   private val camelQuartz = "2.16.4"
@@ -164,7 +164,7 @@ object ApplicationBuild extends Build {
   lazy val zflowUtil    = Project("util",    file("zflow-util"),    settings = buildSettings ++ publishSettings)
   lazy val zflowEngine  = Project("engine",  file("zflow-engine"),  settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
   lazy val zflowSingle  = Project("single",  file("zflow-single"),  settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+  lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowUtil)
   lazy val zflowMoney   = Project("money",   file("zflow-money"),   settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
 
   lazy val root = Project( appName, file(".")).aggregate(zflowEngine, zflowUtil, zflowSingle, zflowCluster, zflowMoney)

@@ -7,8 +7,7 @@ import akka.http.scaladsl.server.Route
 /**
   * Created by hary on 17/1/7.
   */
-trait FlowRoute extends SprayJsonSupport with FlowService
-{
+trait FlowRoute extends SprayJsonSupport with FlowService {
 
   /**
     * 1. 创建流程
@@ -25,31 +24,31 @@ trait FlowRoute extends SprayJsonSupport with FlowService
   }
 
   /**
-   * 2. 查询流程          guiid, flowType, status为可选参数, 若page没指定,
-   * GET   /flow?guid=:guid&flowType=:flowType&status=:status&page=:page&pageSize=:pageSite
-  */
+    * 2. 查询流程 guid, flowType, status为可选参数, 若page没指定,
+    * GET   /flow?guid=:guid&flowType=:flowType&status=:status&page=:page&pageSize=:pageSite
+    */
   private def listFlow = get {
     path("flow") {
       parameters('guid, 'flowType, 'status, 'page.as[Int], 'pageSize.as[Int]) { (guid, flowType, status, page, pageSize) =>
-          complete(s"listFlow: guid=$guid, flowType=$flowType, status=$status, page=$page, pageSize=$pageSize")
+        complete(s"listFlow: guid=$guid, flowType=$flowType, status=$status, page=$page, pageSize=$pageSize")
       }
     }
   }
 
   /**
-   * 3. 查询指定流程
-   * GET /flow/:flowId
-   */
+    * 3. 查询指定流程
+    * GET /flow/:flowId
+    */
   private def queryFlow = get {
-    path("flow" / Segment) {  flowId =>
+    path("flow" / Segment) { flowId =>
       complete(s"queryFlow: flowId = $flowId")
     }
   }
 
   /**
-   * 4. 流程劫持(hijack)
-   * PUT /flow/:flowId?trigger=true
-   */
+    * 4. 流程劫持(hijack)
+    * PUT /flow/:flowId?trigger=true
+    */
   private def hijackFlow = put {
     path("flow" / Segment) { flowId =>
       complete(s"hijackFlow: flowId = $flowId")
