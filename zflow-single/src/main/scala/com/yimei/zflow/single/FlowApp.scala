@@ -1,10 +1,14 @@
 package com.yimei.zflow.single
 
 import akka.actor.ActorSystem
+import akka.event.Logging
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.LogEntry
 import akka.util.Timeout
+
 import scala.concurrent.duration._
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.EngineRoute
@@ -39,9 +43,14 @@ object FlowApp extends {
   val names = Array(module_auto, module_utask, module_flow, module_id, module_gtask)
   val daemon = coreSystem.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
+  def requestMethodAndResponseStatusAsInfo(req: HttpRequest): RouteResult => Option[LogEntry] = {
+    case RouteResult.Complete(res) => Some(LogEntry(req.method.name + ": " + res.status, Logging.InfoLevel))
+    case _                         => None // no log entries for rejections
+  }
+
   // prepare routes
   val route: Route =
-    logRequest("debug") {
+    logRequestResult(requestMethodAndResponseStatusAsInfo _) {
       pathPrefix("api") {
         engineRoute ~ organRoute
       }
@@ -53,5 +62,4 @@ object FlowApp extends {
   println(s"http is listening on ${config.getInt("http.port")}")
   Http().bindAndHandle(route, "0.0.0.0", config.getInt("http.port"))
 }
-
 
