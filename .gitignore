@@ -4,6 +4,7 @@
 tmp/
 zflow-single/data/
 zflow-cluster/data/
+data/
 
 # sbt specific
 .cache

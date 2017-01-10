@@ -13,16 +13,11 @@ import scala.concurrent.Future
 /**
   * Created by hary on 16/12/23.
   */
-class AutoActor(
-                 name: String,
+class AutoActor( name: String,
                  modules: Map[String, ActorRef],
-                 auto: CommandAutoTask => Future[Map[String, String]]
-               )
-  extends Actor
-    with ActorLogging {
+                 auto: CommandAutoTask => Future[Map[String, String]] ) extends Actor with ActorLogging {
 
-  import scala.concurrent.ExecutionContext
-  import ExecutionContext.Implicits.global
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   override def receive: Receive = {
     case task: CommandAutoTask =>

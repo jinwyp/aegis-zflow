@@ -10,11 +10,11 @@ import com.yimei.zflow.util.id.models.{CommandGetId, CommandQueryId, Id, State}
   */
 trait IdService {
 
-  def proxy: ActorRef;
+  val id: ActorRef;
 
   def idServiceTimeout: Timeout
 
-  def idGet(key: String, buffer: Int = 1) = (proxy ? CommandGetId(key, buffer))(idServiceTimeout).mapTo[Id]
+  def idGet(key: String, buffer: Int = 1) = (id ? CommandGetId(key, buffer))(idServiceTimeout).mapTo[Id]
 
-  def idState = (proxy ? CommandQueryId)(idServiceTimeout).mapTo[State]
+  def idState = (id ? CommandQueryId)(idServiceTimeout).mapTo[State]
 }
