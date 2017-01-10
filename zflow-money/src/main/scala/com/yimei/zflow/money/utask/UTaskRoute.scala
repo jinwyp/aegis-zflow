@@ -18,6 +18,10 @@ object UTaskRoute extends TaskAssignFriend
     getSwear ~ postSwear ~
     getUploadReceipt ~ postUploadReceipt ~
     getWifeApprove ~ postWifeApprove ~
-    getWriteFriendEvidence ~ postWriteFriendEvidence
-
+    getWriteFriendEvidence ~ postWriteFriendEvidence ~
+    get {
+      path("tasks") {
+        complete("AssignFriend, FillInApplyMessage, Swear, UploadReceipt, WifeApprove, WriteFriendEvidence")
+      }
+    }
 }

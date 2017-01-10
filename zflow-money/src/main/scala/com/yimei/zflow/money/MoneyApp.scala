@@ -21,9 +21,7 @@ object MoneyApp extends App {
 
   // 启动http服务
   val all = pathPrefix("api") {
-    pathPrefix("task") {
       UTaskRoute.utaskRoute
-    }
   }
   println(s"http is listening on ${config.getInt("http.port")}")
   Http().bindAndHandle(all, "0.0.0.0", config.getInt("http.port"))

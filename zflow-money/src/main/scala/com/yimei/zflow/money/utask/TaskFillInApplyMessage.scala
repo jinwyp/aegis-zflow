@@ -14,7 +14,6 @@ trait TaskFillInApplyMessage {
       complete("get task/FillInApplyMessage")
     }
   }
-
   def postFillInApplyMessage: Route = post {
     path("task" / "FillInApplyMessage") {
       complete("post task/FillInApplyMessage")
