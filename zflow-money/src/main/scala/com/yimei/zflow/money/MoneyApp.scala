@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import com.yimei.zflow.money.tasks.TaskRoute
+import com.yimei.zflow.money.utask.UTaskRoute
 import com.yimei.zflow.util.id.IdGenerator
 
 /**
@@ -22,7 +22,7 @@ object MoneyApp extends App {
   // 启动http服务
   val all = pathPrefix("api") {
     pathPrefix("task") {
-      TaskRoute.route
+      UTaskRoute.utaskRoute
     }
   }
   println(s"http is listening on ${config.getInt("http.port")}")

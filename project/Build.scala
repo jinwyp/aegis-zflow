@@ -9,6 +9,7 @@ object Resolvers {
 object Dependencies {
 
   private val akka = "2.4.11"
+  private val akkaHttp = "10.0.1"
   private val scalaTest = "3.0.0"
   private val slick = "3.1.1"
   private val leveldb = "0.7"

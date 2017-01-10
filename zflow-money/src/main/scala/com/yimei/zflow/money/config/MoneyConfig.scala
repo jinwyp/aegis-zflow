@@ -1,4 +1,4 @@
-package com.yimei.zflow.money
+package com.yimei.zflow.money.config
 
 /**
   * Created by hary on 17/1/9.

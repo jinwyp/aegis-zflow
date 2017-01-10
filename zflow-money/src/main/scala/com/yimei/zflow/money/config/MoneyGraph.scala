@@ -1,8 +1,8 @@
-package com.yimei.zflow.money
+package com.yimei.zflow.money.config
 
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow.{Arrow, _}
-import MoneyConfig._
+import com.yimei.zflow.money.config.MoneyConfig._
 
 import scala.concurrent.Future
 

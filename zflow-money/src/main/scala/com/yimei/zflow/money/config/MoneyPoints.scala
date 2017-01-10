@@ -1,4 +1,4 @@
-package com.yimei.zflow.money
+package com.yimei.zflow.money.config
 
 import com.wix.accord.Validator
 import com.wix.accord.dsl._
@@ -11,14 +11,23 @@ object MoneyPoints extends DefaultJsonProtocol {
 
   case class PointWife(name: String)
   implicit val pointWifeFormat = jsonFormat1(PointWife)
+
   case class PointSuccessRate()
+
   case class PointReason()
+
   case class PointAmount()
+
   case class PointLoanReceipt()
+
   case class PointFriend()
+
   case class PointFriendEvidence()
+
   case class PointRepaymentTime()
+
   case class PointUnequalTreaty()
+
   case class PointApprove()
 
   // validations
