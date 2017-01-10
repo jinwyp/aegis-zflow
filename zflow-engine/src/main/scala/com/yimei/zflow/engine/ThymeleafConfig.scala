@@ -21,7 +21,7 @@ import scala.concurrent.Future
 object ThymeleafConfig {
 
   val templateResolver = new FileTemplateResolver();
-  val prefix = "web/thymeleaf"
+  val prefix = "web/template"
 
   templateResolver.setPrefix(prefix); //区分环境
   templateResolver.setSuffix(".html");
