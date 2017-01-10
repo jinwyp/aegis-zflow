@@ -39,12 +39,13 @@ class GTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_gtask, dep
   var region: ActorRef = null
 
   override def initHook() = {
-    ClusterSharding(context.system).start(
+    region = ClusterSharding(context.system).start(
       typeName = gtaskShardName,
       entityProps = Props(new PersistentGTask(modules, 3)),
       settings = ClusterShardingSettings(context.system),
       extractEntityId = gtaskExtractEntityId,
       extractShardId = gtaskExtractShardId)
+    log.info("GTask Region started")
   }
 
   def serving: Receive = {

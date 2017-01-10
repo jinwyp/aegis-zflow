@@ -1,12 +1,13 @@
 package com.yimei.zflow.cluster
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.LogEntry
 import akka.http.scaladsl.server.{Route, RouteResult}
+import akka.pattern.{Backoff, BackoffSupervisor}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
@@ -45,7 +46,15 @@ object FlowClusterApp {
     GraphLoader.loadall()
 
     // start engines and services
-    val names = Array(module_auto, module_utask, module_flow, module_id, module_gtask)
+    val names = Array(module_auto, module_utask, module_flow, module_gtask)
+//    val supervisor = BackoffSupervisor.props(
+//      Backoff.onStop(
+//        DaemonMaster.props(names) ,
+//        childName = "DaemonMaster",
+//        minBackoff = 3.seconds,
+//        maxBackoff = 30.seconds,
+//        randomFactor = 0.2 // adds 20% "noise" to vary the intervals slightly
+//      ))
     val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
     // 路由
@@ -62,7 +71,7 @@ object FlowClusterApp {
     }
 
     def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
-      case RouteResult.Complete(res) => Some(LogEntry(req.method.name + ": " + res.status, Logging.InfoLevel))
+      case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri.path + " => " + res.status, Logging.InfoLevel))
       case _ => None // no log entries for rejections
     }
 
@@ -72,9 +81,7 @@ object FlowClusterApp {
       }
     }
 
-
     // 启动rest服务
-    Http().bindAndHandle(all, "0.0.0.0", config.getInt("rest.port"))
-
+    Http().bindAndHandle(all, "0.0.0.0", config.getInt("http.port"))
   }
 }

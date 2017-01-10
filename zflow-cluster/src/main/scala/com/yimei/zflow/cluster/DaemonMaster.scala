@@ -1,6 +1,6 @@
 package com.yimei.zflow.cluster
 
-import akka.actor.{Actor, ActorLogging, Props, Terminated}
+import akka.actor.{Actor, ActorLogging, Props, SupervisorStrategy, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.user.{Command => UserCommand}
 import com.yimei.zflow.cluster.flow.FlowProxy
@@ -21,11 +21,11 @@ object DaemonMaster {
     */
   def moduleProps(name: String, persistent: Boolean = true): Props = {
     name match {
-      case `module_flow` => FlowProxy.props(Array(module_utask, module_auto, module_gtask, module_id))
-      case `module_utask` => UTaskProxy.props(Array(module_flow, module_auto, module_gtask, module_id))
+      case `module_flow` => FlowProxy.props(Array(module_utask, module_auto, module_gtask))
+      case `module_utask` => UTaskProxy.props(Array(module_flow, module_auto, module_gtask))
       case `module_gtask` => GTaskProxy.props(Array(module_utask))
-      case `module_auto` => AutoMaster.props(Array(module_utask, module_flow, module_id))
-      case `module_id` => IdGenerator.props(name, 0, persistent)
+      case `module_auto` => AutoMaster.props(Array(module_utask, module_flow))
+//      case `module_id` => IdGenerator.props(name, 0, persistent)
     }
   }
 
@@ -40,6 +40,9 @@ object DaemonMaster {
 class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
 
   import DaemonMaster._
+
+
+  override def supervisorStrategy: SupervisorStrategy = super.supervisorStrategy
 
   val idPersistent = context.system.settings.config.getBoolean("flow.id.persistent")
 

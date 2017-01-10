@@ -40,12 +40,13 @@ class FlowProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, depen
 
   var region: ActorRef = null
   override def initHook() =  {
-    ClusterSharding(context.system).start(
+    region = ClusterSharding(context.system).start(
       typeName = flowShardName,
       entityProps = Props(new PersistentFlow(modules)),
       settings = ClusterShardingSettings(context.system),
       extractEntityId = flowExtractEntityId,
       extractShardId = flowExtractShardId)
+    log.info("Flow Region started")
   }
 
   def serving: Receive = {

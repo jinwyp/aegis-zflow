@@ -39,12 +39,13 @@ class UTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_utask, dep
   var region: ActorRef = null
 
   override def initHook() = {
-    ClusterSharding(context.system).start(
+    region = ClusterSharding(context.system).start(
       typeName = utaskShardName,
       entityProps = Props(new PersistentUTask(modules, 3)),
       settings = ClusterShardingSettings(context.system),
       extractEntityId = utaskExtractEntityId,
       extractShardId = utaskExtractShardId)
+    log.info("UTask Region started")
   }
 
   def serving: Receive = {
