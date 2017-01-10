@@ -4,6 +4,8 @@
 tmp/
 zflow-single/data/
 zflow-cluster/data/
+zflow-money/data/
+zflow-engine/data/
 data/
 
 # sbt specific
