@@ -19,9 +19,11 @@
   },
   "vertices": {
     "V0": { "description":"发起申请" },
+    "V1": { "description":"占卜判断" },
     "V3": { "description":"确认朋友真假" },
     "V4": { "description":"收集材料" },
-    "V5": { "description":"提交前的最后一个检查"}
+    "V5": { "description":"提交前的最后一个检查"},
+    "V6": { "description":"提交前的最后一个检查"}
   },
   "autoTasks": {
     "Divination" :{"description": "占卜",   "points": ["SuccessRate"]}

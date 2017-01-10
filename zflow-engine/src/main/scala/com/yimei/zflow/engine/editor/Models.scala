@@ -18,7 +18,4 @@ object Models extends DefaultJsonProtocol with CommonJsonFormat {
 
   case class DesignList(id: Long, name: String, ts_c: Timestamp)
   implicit val designListFormat = jsonFormat3(DesignList)
-
-
-
 }
