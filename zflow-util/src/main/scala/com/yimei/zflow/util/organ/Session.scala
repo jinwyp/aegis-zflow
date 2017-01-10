@@ -18,7 +18,10 @@ case class OrganSession(userName: String,
                         instanceId: String,
                         companyName: String)
 
-trait Session {
+trait Session extends DefaultJsonProtocol {
+
+  implicit val OrganSessionFormat = jsonFormat6(OrganSession)
+
   implicit val sessionManager = new SessionManager[OrganSession](SessionConfig.fromConfig())
 
   implicit def sessionSerializer: SessionSerializer[OrganSession, String] = new MultiValueSessionSerializer(
@@ -48,6 +51,3 @@ trait Session {
   val organInvalidateSession = invalidateSession(oneOff, usingCookies)
 }
 
-trait SessionProtocol extends DefaultJsonProtocol {
-  implicit val OrganSessionFormat = jsonFormat6(OrganSession)
-}
