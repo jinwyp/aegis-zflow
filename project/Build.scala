@@ -108,7 +108,7 @@ object BuildSettings {
   val appName = "aegis-zflow"
   val buildVersion = "0.0.1-SNAPSHOT"
   val buildScalaVersion = "2.11.8"
-  val buildScalaOptions = Seq("-unchecked", "-deprecation", "-encoding", "utf8")
+  val buildScalaOptions = Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
   import Dependencies._
 

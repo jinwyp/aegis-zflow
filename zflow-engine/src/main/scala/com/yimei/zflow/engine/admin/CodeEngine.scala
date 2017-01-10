@@ -1,13 +1,15 @@
-package com.yimei.zflow.engine.editor
+package com.yimei.zflow.engine.admin
 
 import java.io.{ByteArrayOutputStream, OutputStreamWriter}
+
 import freemarker.template.{Configuration, TemplateExceptionHandler}
+
 import scala.concurrent.Future
 
 /**
   * Created by hary on 17/1/10.
   */
-object TemplateEngine {
+object CodeEngine {
 
   val ftlConfig = new Configuration(Configuration.VERSION_2_3_23);
   ftlConfig.setClassLoaderForTemplateLoading(this.getClass.getClassLoader, "code")

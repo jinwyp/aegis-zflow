@@ -1,4 +1,4 @@
-package com.yimei.zflow.engine
+package com.yimei.zflow.engine.admin
 
 /**
   * Created by hary on 17/1/10.
