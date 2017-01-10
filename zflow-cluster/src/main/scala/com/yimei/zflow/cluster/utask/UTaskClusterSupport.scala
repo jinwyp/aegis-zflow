@@ -32,7 +32,7 @@ object UTaskProxy {
 /**
   * Flow依赖于user, group, id, auto
   */
-class UTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
+class UTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_utask, dependOn)
   with Actor
   with UTaskClusterSupport {
 

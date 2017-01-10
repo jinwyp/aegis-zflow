@@ -56,7 +56,7 @@ object Dependencies {
 
     // akka-http
     "com.github.swagger-akka-http" %% "swagger-akka-http" % swaggerAkkaHttp,
-    "com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession,
+//    "com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession,
 
     // database: slick and flyway
     "com.typesafe.slick" %% "slick" % slick,

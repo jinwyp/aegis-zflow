@@ -32,7 +32,7 @@ object GTaskProxy {
 /**
   * Flow依赖于user, group, id, auto
   */
-class GTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_flow, dependOn)
+class GTaskProxy(dependOn: Array[String]) extends ModuleMaster(module_gtask, dependOn)
   with Actor
   with GTaskClusterSupport {
 

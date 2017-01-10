@@ -43,14 +43,14 @@ object FlowApp extends {
   val names = Array(module_auto, module_utask, module_flow, module_id, module_gtask)
   val daemon = coreSystem.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
-  def requestMethodAndResponseStatusAsInfo(req: HttpRequest): RouteResult => Option[LogEntry] = {
+  def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
     case RouteResult.Complete(res) => Some(LogEntry(req.method.name + ": " + res.status, Logging.InfoLevel))
     case _                         => None // no log entries for rejections
   }
 
   // prepare routes
   val route: Route =
-    logRequestResult(requestMethodAndResponseStatusAsInfo _) {
+    logRequestResult(extractLogEntry _) {
       pathPrefix("api") {
         engineRoute ~ organRoute
       }

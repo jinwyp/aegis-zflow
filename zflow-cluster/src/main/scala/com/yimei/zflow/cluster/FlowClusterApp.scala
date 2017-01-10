@@ -3,8 +3,10 @@ package com.yimei.zflow.cluster
 import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.LogEntry
+import akka.http.scaladsl.server.{Route, RouteResult}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
@@ -59,7 +61,12 @@ object FlowClusterApp {
       def route = engineRoute ~ organRoute
     }
 
-    val all: Route = logRequest("debug") {
+    def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
+      case RouteResult.Complete(res) => Some(LogEntry(req.method.name + ": " + res.status, Logging.InfoLevel))
+      case _ => None // no log entries for rejections
+    }
+
+    val all: Route = logRequestResult(extractLogEntry _) {
       pathPrefix("api") {
         AppRoute.route
       }

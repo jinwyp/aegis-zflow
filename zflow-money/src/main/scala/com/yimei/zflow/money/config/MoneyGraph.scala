@@ -1,8 +1,10 @@
 package com.yimei.zflow.money.config
 
+import akka.http.scaladsl.server.Route
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow.{Arrow, _}
 import com.yimei.zflow.money.config.MoneyConfig._
+import com.yimei.zflow.money.utask.UTaskRoute
 
 import scala.concurrent.Future
 
@@ -39,5 +41,8 @@ object MoneyGraph {
     val rate: Double = ((new util.Random).nextInt(10)) / 10.0
     Map(point_SuccessRate -> rate.toString)
   }
+
+  // 这里可以加上其他的route
+  def route(): Route = UTaskRoute.utaskRoute
 
 }
