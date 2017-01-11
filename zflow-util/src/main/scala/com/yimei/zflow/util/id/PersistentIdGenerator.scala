@@ -5,13 +5,13 @@ import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess
 import com.yimei.zflow.util.id.models._
 
 object PersistentIdGenerator {
-  def props(name: String, nodeId: Int = 0): Props = Props(new PersistentIdGenerator(name, nodeId))
+  def props(name: String): Props = Props(new PersistentIdGenerator(name))
 }
 
 /**
   * Created by hary on 16/12/9.
   */
-class PersistentIdGenerator(name: String, nodeId: Int) extends AbstractIdGenerator with PersistentActor with ActorLogging {
+class PersistentIdGenerator(name: String) extends AbstractIdGenerator with PersistentActor with ActorLogging {
 
   override def persistenceId: String = name
 

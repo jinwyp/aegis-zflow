@@ -16,7 +16,7 @@ object Dependencies {
   private val leveldbjniAll = "1.8"
   private val akkaPersistenceRedis = "0.6.0"
   private val mysqlConnectorJava = "6.0.5"
-  private val akkaHttpSession = "0.3.0"
+
   private val swaggerAkkaHttp = "0.7.2"
   private val accordCore = "0.6"
   private val flywayCore = "3.2.1"
@@ -56,7 +56,7 @@ object Dependencies {
 
     // akka-http
     "com.github.swagger-akka-http" %% "swagger-akka-http" % swaggerAkkaHttp,
-//    "com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession,
+
 
     // database: slick and flyway
     "com.typesafe.slick" %% "slick" % slick,
@@ -163,11 +163,16 @@ object ApplicationBuild extends Build {
   import BuildSettings._
   import PublishSettings._
 
+  private val akkaHttpSession = "0.3.0"
+
   lazy val zflowUtil    = Project("util",    file("zflow-util"),    settings = buildSettings ++ publishSettings)
   lazy val zflowEngine  = Project("engine",  file("zflow-engine"),  settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
-  lazy val zflowSingle  = Project("single",  file("zflow-single"),  settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
   lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowUtil)
   lazy val zflowMoney   = Project("money",   file("zflow-money"),   settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+
+  val singleSettings = libraryDependencies ++= Seq("com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession)
+  lazy val zflowSingle  = Project("single", file("zflow-single"),
+    settings = buildSettings ++ publishSettings ++ singleSettings).dependsOn(zflowEngine)
 
   lazy val root = Project( appName, file(".")).aggregate(zflowEngine, zflowUtil, zflowSingle, zflowCluster, zflowMoney)
 

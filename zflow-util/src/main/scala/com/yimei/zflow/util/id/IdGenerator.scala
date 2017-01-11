@@ -7,11 +7,11 @@ import akka.actor.Props
   */
 // create IdGenerator Props
 object IdGenerator {
-  def props(name: String, nodeId: Int = 0, persist: Boolean = true) = persist match {
+  def props(name: String, persist: Boolean = true) = persist match {
 
     //  import akka.actor.{Actor, ActorLogging}
 
-    case true => Props(new PersistentIdGenerator(name, nodeId))
-    case false => Props(new MemoryIdGenerator(name, nodeId))
+    case true => Props(new PersistentIdGenerator(name))
+    case false => Props(new MemoryIdGenerator(name))
   }
 }

@@ -46,15 +46,7 @@ object FlowClusterApp {
     GraphLoader.loadall()
 
     // start engines and services
-    val names = Array(module_auto, module_utask, module_flow, module_gtask)
-//    val supervisor = BackoffSupervisor.props(
-//      Backoff.onStop(
-//        DaemonMaster.props(names) ,
-//        childName = "DaemonMaster",
-//        minBackoff = 3.seconds,
-//        maxBackoff = 30.seconds,
-//        randomFactor = 0.2 // adds 20% "noise" to vary the intervals slightly
-//      ))
+    val names = Array(module_auto, module_utask, module_flow, module_gtask, module_id)
     val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
     // 路由
