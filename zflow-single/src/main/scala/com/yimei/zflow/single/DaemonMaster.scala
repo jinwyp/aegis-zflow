@@ -23,7 +23,7 @@ object DaemonMaster {
       case `module_utask`  => UTaskMaster.props(Array(module_flow, module_auto, module_gtask, module_id))
       case `module_gtask` => GTaskMaster.props(Array(module_utask))
       case `module_auto`  => AutoMaster.props(Array(module_utask, module_flow, module_id))
-      case `module_id`    => IdGenerator.props(name, 0, persistent)
+      case `module_id`    => IdGenerator.props(name, persistent)
     }
   }
 

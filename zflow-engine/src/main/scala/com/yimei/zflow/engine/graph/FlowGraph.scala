@@ -23,7 +23,7 @@ trait FlowGraph {
   val autoTasks: Map[String, TaskInfo]
   val pointEdges: Map[String, String]
 
-  val routes: Seq[ActorRef => Route] = Seq()
+  val route: () => Route
 
   val blueprint: Graph = Graph(edges, vertices, None, points, userTasks, autoTasks)
 

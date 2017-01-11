@@ -11,7 +11,7 @@ import akka.util.Timeout
 
 import scala.concurrent.duration._
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.engine.EngineRoute
+import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
@@ -53,7 +53,7 @@ object FlowApp extends {
     logRequestResult(extractLogEntry _) {
       pathPrefix("api") {
         engineRoute ~ organRoute
-      }
+      } ~ FlowRegistry.routes
     }
 
   implicit val httpExecutionContext = coreSystem.dispatcher

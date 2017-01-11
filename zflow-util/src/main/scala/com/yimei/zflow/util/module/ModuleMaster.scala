@@ -41,7 +41,7 @@ abstract class ModuleMaster(moduleName: String, dependOn: Array[String], askWho:
     who ! GiveMeModule(name)
   }
 
-  context.setReceiveTimeout(50 millis)
+  context.setReceiveTimeout(50.millis)
 
   def ignoring: Receive = {
     case _: RegisterModule =>
@@ -70,13 +70,13 @@ abstract class ModuleMaster(moduleName: String, dependOn: Array[String], askWho:
         log.info(s"${moduleName} is servicable now dependOn = ${modules.keys}")
         context.setReceiveTimeout(Duration.Undefined)
       } else {
-        context.setReceiveTimeout(50 millis)
+        context.setReceiveTimeout(50.millis)
       }
 
     // 没有收到, 看还有那些模块没有拿到, 就重新请求parent
     case ReceiveTimeout =>
       dependOn.filter(!modules.contains(_)).foreach(who ! GiveMeModule(_))
-      context.setReceiveTimeout(50 millis)
+      context.setReceiveTimeout(50.millis)
 
     // identifying阶段, 不能处理消息
     case msg =>

@@ -1,6 +1,8 @@
 package com.yimei.zflow.engine
 
 import akka.actor.ActorRef
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow.State
 import com.yimei.zflow.api.models.group.CommandGroupTask
@@ -33,20 +35,26 @@ object FlowRegistry {
 
   }
 
-  @(volatile @getter)
+  @(volatile@getter)
   var auto: ActorRef = null
 
-  @(volatile @getter)
+  @(volatile@getter)
   var utask: ActorRef = null
 
-  @(volatile @getter)
+  @(volatile@getter)
   var gtask: ActorRef = null
 
-  @(volatile @getter)
+  @(volatile@getter)
   var flow: ActorRef = null
 
-  @(volatile @getter)
+  @(volatile@getter)
   var id: ActorRef = null
+
+  def routes: Route = registries.map { entry =>
+    pathPrefix(entry._1) {
+      entry._2.route()
+    }
+  }.reduceLeft((l, r) => l ~ r)
 
 
   /**
@@ -63,7 +71,7 @@ object FlowRegistry {
     }
   }
 
-  def gfetch(flowType:String, taskName: String, state: State, groupMaster: ActorRef, ggid:String, refetchIfExists: Boolean = false) = {
+  def gfetch(flowType: String, taskName: String, state: State, groupMaster: ActorRef, ggid: String, refetchIfExists: Boolean = false) = {
     if (refetchIfExists ||
       registries(flowType).userTasks(taskName).points.filter(!state.points.contains(_)).length > 0
     ) {
@@ -73,12 +81,12 @@ object FlowRegistry {
   }
 
 
-  def ufetch(flowType:String, taskName: String, state: State, userMaster: ActorRef, guid:String ,refetchIfExists: Boolean = false) = {
+  def ufetch(flowType: String, taskName: String, state: State, userMaster: ActorRef, guid: String, refetchIfExists: Boolean = false) = {
     if (refetchIfExists ||
-      registries(flowType).userTasks(taskName).points.filter(!state.points.filter(t=>(!t._2.used)).contains(_)).length > 0
+      registries(flowType).userTasks(taskName).points.filter(!state.points.filter(t => (!t._2.used)).contains(_)).length > 0
     ) {
       // println(s"ufetch with ${taskName}, ${state.guid}, ${state}")
-      userMaster ! CommandUserTask(state.flowId, guid, taskName,flowType)
+      userMaster ! CommandUserTask(state.flowId, guid, taskName, flowType)
     }
   }
 
@@ -86,7 +94,7 @@ object FlowRegistry {
   var registries = Map[String, FlowGraph]()
 
   def register(flowType: String, graph: FlowGraph) = {
-    if( registries.contains(flowType)) {
+    if (registries.contains(flowType)) {
       false
     } else {
       registries += (flowType -> graph)

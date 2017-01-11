@@ -47,7 +47,7 @@ class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
 
   // start all modules
   var modules = names.map { name =>
-    val m = context.actorOf(moduleProps(name, idPersistent))
+    val m = context.actorOf(moduleProps(name, idPersistent), name)
     context.watch(m)
     FlowRegistry.fillRouteActor(name, m)
     (name, m)

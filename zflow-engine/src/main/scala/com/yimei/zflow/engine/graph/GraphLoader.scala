@@ -106,7 +106,7 @@ object GraphLoader extends GraphConfigProtocol {
     // graph intial vertex
     val initial = graphConfig.initial
 
-    val jarRoutes = getRoutes(mclass, graphJar)
+    val jarRoute = getRoutes(mclass, graphJar)
 
     // 返回流程
     val g = new FlowGraph {
@@ -166,7 +166,7 @@ object GraphLoader extends GraphConfigProtocol {
 
       override val moduleJar: AnyRef = graphJar
 
-      override val routes = jarRoutes
+      override val route = jarRoute
     }
 
     g
@@ -200,15 +200,12 @@ object GraphLoader extends GraphConfigProtocol {
     }.toMap
   }
 
-  def getRoutes(m: Class[_], module: AnyRef): Seq[ActorRef => Route] = {
+  def getRoutes(m: Class[_], module: AnyRef): () => Route = {
     m.getMethods.filter { method =>
-      val ptypes = method.getParameterTypes
-      ptypes.length == 1 &&
-        ptypes(0) == classOf[ActorRef] &&
+      method.getName == "moduleRoute" &&
         method.getReturnType == classOf[Route]
     }.map { am =>
-      (proxy: ActorRef) =>
-        am.invoke(module, proxy).asInstanceOf[Route]
-    }.toSeq
+      () => am.invoke(module).asInstanceOf[Route]
+    }.head
   }
 }
