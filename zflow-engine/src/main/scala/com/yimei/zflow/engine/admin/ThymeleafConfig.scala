@@ -34,7 +34,6 @@ object ThymeleafConfig {
 
   def th(template: String, context: Context) = {
     import scala.concurrent.ExecutionContext.Implicits.global
-    println(s"begin redner $template")
     val src = Source.fromFuture(Future {
       ByteString(templateEngine.process(template, context))
     })
@@ -43,3 +42,4 @@ object ThymeleafConfig {
 
   def context: Context = new Context()
 }
+

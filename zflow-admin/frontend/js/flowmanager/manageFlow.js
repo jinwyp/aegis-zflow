@@ -363,7 +363,7 @@
 
         var app = {
             init : function(){
-                jQuery.getJSON('./json/data99.json', function(resultData){
+                jQuery.getJSON('/zflow/static/json/data99.json', function(resultData){
                     formattedData = resultData;
                     
                 })

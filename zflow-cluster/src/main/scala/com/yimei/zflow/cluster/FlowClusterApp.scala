@@ -1,18 +1,18 @@
 package com.yimei.zflow.cluster
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.LogEntry
 import akka.http.scaladsl.server.{Route, RouteResult}
-import akka.pattern.{Backoff, BackoffSupervisor}
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.EngineRoute
+import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.FlywayDB
 import com.yimei.zflow.util.organ.OrganRoute
@@ -39,7 +39,7 @@ object FlowClusterApp {
     implicit val materializer = ActorMaterializer()
 
     // node-1 responsible for migration
-    if ( nodeId == 1) {
+    if (nodeId == 1) {
       val flyway = new FlywayDB(config.getString("database.jdbcUrl"), config.getString("database.username"), config.getString("database.password"))
       flyway.drop()
       flyway.migrate()
@@ -55,25 +55,28 @@ object FlowClusterApp {
     // 路由
     object AppRoute extends {
       implicit val coreSystem = system
-    } with OrganRoute with EngineRoute {
+    } with OrganRoute with EngineRoute with AdminRoute {
       override val log: LoggingAdapter = Logging(coreSystem, getClass)
 
-      override val utaskTimeout: Timeout = Timeout(3 seconds)
-      override val flowServiceTimeout: Timeout = Timeout(3 seconds)
-      override val gtaskTimeout: Timeout = Timeout(3 seconds)
+      override val utaskTimeout: Timeout = Timeout(3.seconds)
+      override val flowServiceTimeout: Timeout = Timeout(3.seconds)
+      override val gtaskTimeout: Timeout = Timeout(3.seconds)
 
-      def route = engineRoute ~ organRoute
+      def route: Route =
+        pathPrefix("zflow") { adminRoute } ~
+          pathPrefix("zflow" / "api") { engineRoute } ~
+          pathPrefix("organ" / "api") { organRoute }
     }
+
 
     def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
       case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri + " => " + res.status, Logging.InfoLevel))
       case _ => None // no log entries for rejections
     }
 
+    // prepare routes
     val all: Route = logRequestResult(extractLogEntry _) {
-      pathPrefix("api") {
-        AppRoute.route
-      }
+      AppRoute.route
     }
 
     // 启动rest服务

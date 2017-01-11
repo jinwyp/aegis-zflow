@@ -1,6 +1,6 @@
 package com.yimei.zflow.cluster
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.{ActorRef, Props, SupervisorStrategy}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.engine.FlowRegistry
@@ -26,13 +26,10 @@ class AutoMaster(dependOn: Array[String]) extends ModuleMaster(module_auto, depe
       actors(flowType)(actorName) forward get
   }
 
+  override def supervisorStrategy: SupervisorStrategy = super.supervisorStrategy
+
   // create all child actors
   override def initHook(): Unit = {
-    startActors
-  }
-
-  def startActors() = {
-
     FlowRegistry.registries.foreach { e =>
       val flowType = e._1
       val graph = e._2
