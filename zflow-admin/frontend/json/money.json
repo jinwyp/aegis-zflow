@@ -1,0 +1,203 @@
+{
+  "userTasks": {
+    "FillInApplyMessage": {
+      "description": "填写申请信息",
+      "points": [
+        "Reason",
+        "Amount"
+      ]
+    },
+    "Swear": {
+      "description": "确认还钱时间，并且签订不平等条约",
+      "points": [
+        "RepaymentTime",
+        "UnequalTreaty"
+      ]
+    },
+    "AssignFriend": {
+      "description": "指定一个小伙伴作证",
+      "points": [
+        "Friend"
+      ]
+    },
+    "WifeApprove": {
+      "description": "是否批准",
+      "points": [
+        "Approve"
+      ]
+    },
+    "UploadReceipt": {
+      "description": "上传",
+      "points": [
+        "LoanReceipt"
+      ]
+    },
+    "WriteFriendEvidence": {
+      "description": "小伙伴填写证词",
+      "points": [
+        "FriendEvidence"
+      ]
+    }
+  },
+  "state": {
+    "guid": "001!hary1",
+    "flowType": "money",
+    "points": {
+      "SuccessRate": {
+        "used": true,
+        "timestamp": 10,
+        "id": "4c854050-21a8-4154-b212-6db3b5b9823c",
+        "operator": "Divination",
+        "value": "0.1"
+      }
+    },
+    "flowId": "money!001!hary1!201",
+    "ending": "fail",
+    "edges": {},
+    "histories": [
+      "E1",
+      "start"
+    ]
+  },
+  "autoTasks": {
+    "Divination": {
+      "description": "占卜",
+      "points": [
+        "SuccessRate"
+      ]
+    }
+  },
+  "points": {
+    "Reason": "申请经费原因",
+    "Approve": "是否批准",
+    "Friend": "小伙伴（证人）",
+    "UnequalTreaty": "不平等条约",
+    "Amount": "申请钱数",
+    "LoanReceipt": "借条",
+    "FriendEvidence": "小伙伴的证词",
+    "Wife": "妻子",
+    "RepaymentTime": "还款时间",
+    "SuccessRate": "申请成功率"
+  },
+  "edges": {
+    "fail": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "fail",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "success"
+    },
+    "success": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "success",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "success"
+    },
+    "E3": {
+      "userTasks": [
+        "AssignFriend"
+      ],
+      "partGTasks": [],
+      "begin": "V1",
+      "name": "E3",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "V3"
+    },
+    "E2": {
+      "userTasks": [
+        "FillInApplyMessage",
+        "UploadReceipt"
+      ],
+      "partGTasks": [],
+      "begin": "V1",
+      "name": "E2",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "V4"
+    },
+    "E1": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "V0",
+      "name": "E1",
+      "partUTasks": [],
+      "autoTasks": [
+        "Divination"
+      ],
+      "end": "V1"
+    },
+    "E6": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "V5",
+      "name": "E6",
+      "partUTasks": [
+        {
+          "guidKey": "Wife",
+          "tasks": [
+            "WifeApprove"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "V6"
+    },
+    "E5": {
+      "userTasks": [
+        "Swear"
+      ],
+      "partGTasks": [],
+      "begin": "V4",
+      "name": "E5",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "V5"
+    },
+    "E7": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "V6",
+      "name": "E6",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "V4"
+    },
+    "start": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "start",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "V0"
+    },
+    "E4": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "V3",
+      "name": "E4",
+      "partUTasks": [
+        {
+          "guidKey": "Friend",
+          "tasks": [
+            "WriteFriendEvidence"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "V4"
+    }
+  },
+  "vertices": {
+    "V0": "发起申请",
+    "V3": "确认朋友真假",
+    "V4": "收集材料",
+    "V5": "提交前的最后一个检查"
+  }
+}

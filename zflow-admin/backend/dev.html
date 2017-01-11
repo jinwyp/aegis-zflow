@@ -52,7 +52,7 @@
     </table>
 </div>
 
-<script type="text/javascript" src="../lib/jquery.js"></script>
+<script type="text/javascript" src="/zflow/static/lib/jquery.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
@@ -98,7 +98,7 @@
                 var temp = "<table id=\"tb1\"> <tr> <th>flowId</th> <th>guid<\/th> <th>taskname</th> <th>操作</th> </tr>";
                 for (var key in data.tasks)
                 {
-                    var url = "/flow/detail.html?className="+className+"&companyId="+
+                    var url = "/zflow/admin/task?className="+className+"&companyId="+
                         companyId+"&userId="+userId+"&taskName="+data.tasks[key].taskName +
                         "&taskId="+key+"&flowId="+data.tasks[key].flowId+"&flowType="+data.tasks[key].flowType;
                     temp = temp + "<tr><td>"+data.tasks[key].flowId+"</td>" +

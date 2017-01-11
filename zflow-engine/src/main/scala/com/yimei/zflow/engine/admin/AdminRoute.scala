@@ -9,6 +9,18 @@ import ThymeleafConfig._
   */
 trait AdminRoute {
 
+  def devView: Route = get {
+    path("dev") {
+      th("dev", context)
+    }
+  }
+
+  def taskView: Route = get {
+    path("task") {
+      th("task", context)
+    }
+  }
+
   def deployView: Route = get {
     path("deploy") {
       th("deploy", context)
@@ -35,7 +47,7 @@ trait AdminRoute {
 
   def adminRoute: Route =
     pathPrefix("admin") {
-      deployView ~ editorView ~ graphView ~ indexView
+      devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView
     } ~ pathPrefix("static") {
       getFromDirectory("../zflow-admin/static")
     }
