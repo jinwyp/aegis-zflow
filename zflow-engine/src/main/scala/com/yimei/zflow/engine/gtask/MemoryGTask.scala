@@ -37,11 +37,11 @@ class MemoryGTask(modules:Map[String,ActorRef]) extends AbstractGTask with Actor
     // todo 如果用mobile在线, 给mobile推送采集任务!!!!!!!!!!!!!!!!!!!!
 
     // 收到用户claim请求
-    case command@CommandClaimTask(ggid: String, taskId: String, userId: String) =>
+    case command@CommandClaimTask(ggid, taskId, guid) =>
       log.info(s"claim的请求: $command")
       val task = state.tasks(taskId)
       updateState(TaskDequeue(taskId))
-      modules(module_utask) ! CommandUserTask(task.flowId,s"${ggid}",task.taskName,task.flowType)
+      modules(module_utask) ! CommandUserTask(task.flowId, guid, task.taskName,task.flowType)
       sender() ! state
   }
 

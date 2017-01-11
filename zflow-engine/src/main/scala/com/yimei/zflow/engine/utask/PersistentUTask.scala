@@ -20,14 +20,14 @@ class PersistentUTask(modules: Map[String, ActorRef],
   println(s"create persistenter user with guid = $guid")
 
   // 用户id与用户类型
-  val regex = "([^!]+)!(.*)".r
-  val (userType, userId) = guid match {
-    case regex(utype, uid) => (utype, uid)
-  }
+  //  val regex = "([^!]+)!(.*)".r
+  //  val (userType, userId) = guid match {
+  //    case regex(utype, uid) => (utype, uid)
+  //  }
 
   override def persistenceId = guid
 
-  var state: State = State(userId, userType, Map[String, CommandUserTask]()) // 用户的状态不断累积!!!!!!!!
+  var state: State = State(guid, Map[String, CommandUserTask]()) // 用户的状态不断累积!!!!!!!!
 
   // 超时
   context.setReceiveTimeout(passivateTimeout.seconds)

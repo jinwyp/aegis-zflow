@@ -49,7 +49,7 @@ object FlowClusterApp {
     GraphLoader.loadall()
 
     // start engines and services
-    val names = Array(module_auto, module_utask, module_flow, module_gtask, module_id)
+    val names = Array(module_auto, module_utask, module_flow, module_gtask, module_id, module_updater)
     val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
     // 路由

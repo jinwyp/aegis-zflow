@@ -15,12 +15,12 @@ class MemoryUTask(modules: Map[String, ActorRef]) extends AbstractUTask with Act
   val guid = self.path.name;
 
   // 用户id与用户类型
-  val regex = "([^!]+)!(.*)".r
-  val (userType, userId) = guid match {
-    case regex(uid, gid) => (uid, gid)
-  }
+  //  val regex = "([^!]+)!(.*)".r
+  //  val (userType, userId) = guid match {
+  //    case regex(uid, gid) => (uid, gid)
+  //  }
 
-  var state: State = State(userId, userType, Map[String, CommandUserTask]()) // 用户的状态不断累积!!!!!!!!
+  var state: State = State(guid, Map[String, CommandUserTask]()) // 用户的状态不断累积!!!!!!!!
 
   // 生成任务id
   def uuid() = UUID.randomUUID().toString;

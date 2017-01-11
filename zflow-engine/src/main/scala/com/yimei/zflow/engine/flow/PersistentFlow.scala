@@ -5,8 +5,10 @@ import java.util.{Date, UUID}
 import akka.actor.{ActorRef, Props, ReceiveTimeout}
 import akka.event.Logging
 import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess, SnapshotOffer}
+import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.FlowProtocol
 import com.yimei.zflow.engine.FlowRegistry
+import com.yimei.zflow.engine.updater.Updater.{FlowStateUpdate, FlowVertexUpdate}
 
 import scala.concurrent.duration._
 
@@ -28,7 +30,7 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
   val flowId = self.path.name
 
   // flowType!guid!pid
-  val regex = "([^!]+)!([^!]+![^!]+)!(.*)".r
+  val regex = "([^!]+)!([^!]+)!(.*)".r
   val (flowType, guid, pid, graph) = flowId match {
     case regex(xflowType, xguid, xpid) => (xflowType, xguid, xpid, FlowRegistry.flowGraph(xflowType))
     case _ => throw new Exception("xxxxx")
@@ -68,11 +70,18 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
 
   // 命令处理
   val serving: Receive = {
-    case cmd@CommandRunFlow(flowId) =>
+    case cmd@CommandCreateFlow(flowType, guid, initData) =>
       log.info(s"received ${cmd}")
-      saveSnapshot(state)
-      sender() ! state
+      if (initData.size > 0 ) {
+        val points = initData.map { entry =>
+          (entry._1, DataPoint(entry._2, None, None, "sys", new Date().getTime))
+        }
+        persist(PointsUpdated(points)) { event =>
+          updateState(event)
+        }
+      }
       makeDecision(state.edges.keys.head) // 用当前的edges开始决策!!!!
+      sender() ! state
 
     case cmd: CommandPoint =>
       log.info(s"received ${cmd.name}")
@@ -151,18 +160,13 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
       persist(EdgeCompleted(name)) { event =>
         updateState(event)
 
-        //val temp: Boolean =  state.points.filter(t=>(!t._2.used)).contains("wang")
-
-        lazy val edgesNotHasInEdge = !graph.inEdges(e.end).exists(state.edges.contains(_))
-        //        lazy val historyHasInEdge = graph.inEdges(e.end).foldLeft(true)((b,s)=>b&&state.histories.contains(s))
-        //        lazy val allPointDataCollected = graph.inEdges(e.end)
-        //          .map(graph.edges(_))
-        //          .map(_.getAllDataPointsName(state))
-        //          .foldLeft(true)((b,s) => b && s.foldLeft(true)((b1,s1)=> b1&&state.points.filter(t=>(!t._2.used)).contains(s1)))
+        lazy val edgesNotHasInEdge =
+          !graph.inEdges(e.end)
+          .exists(state.edges.contains(_))
 
         lazy val allPointDataCollected = graph.inEdges(e.end)
-          .map(graph.edges(_)).foldLeft(true)((b, s) => b && s.check(state))
-
+          .map(graph.edges(_))
+          .foldLeft(true)((b, s) => b && s.check(state))
 
         if (edgesNotHasInEdge && allPointDataCollected) {
           make(e)
@@ -180,13 +184,8 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
 
     val arrows = graph.deciders(e.end)(state)
 
-    //更新当前到达点
-//    val udState = flowInstance.filter(f =>
-//      f.flow_id === state.flowId
-//    ).map(f => (f.state)).update(
-//      e.end
-//    )
-//    dbrun(udState)
+    // 更新节点
+    modules(module_updater) ! FlowVertexUpdate(state, e.end)
 
     persist(DecisionUpdated(e.end, arrows)) { event =>
 
@@ -198,15 +197,7 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
           case Arrow(name, None) =>
             logState(s"$name 结束")
             saveSnapshot(state)
-
-//            // 更新数据库 todo王琦
-//            val pu = flowInstance.filter(f =>
-//              f.flow_id === state.flowId
-//            ).map(f => (f.data, f.finished)).update(
-//              state.toJson.toString, 1
-//            )
-//
-//            dbrun(pu)
+            modules(module_updater) ! FlowStateUpdate(state)
 
           case a@Arrow(j, Some(nextEdge)) =>
             val ne = graph.edges(nextEdge)

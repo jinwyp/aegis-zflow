@@ -46,7 +46,7 @@ case class TaskDequeue(taskId: String) extends Event
 ////////////////////////////////////////////////////
 // 状态
 ////////////////////////////////////////////////////
-case class State(userId: String, userType: String, tasks: Map[String, CommandUserTask])
+case class State(guid: String, tasks: Map[String, CommandUserTask])
 
 trait UserProtocol extends DefaultJsonProtocol with FlowProtocol {
 
@@ -64,7 +64,7 @@ trait UserProtocol extends DefaultJsonProtocol with FlowProtocol {
 
   implicit val userCommandUserTaskFormat = jsonFormat4(CommandUserTask)
 
-  implicit val userStateFormat = jsonFormat3(State)
+  implicit val userStateFormat = jsonFormat2(State)
 
 
 

@@ -39,9 +39,10 @@ object FlowApp extends {
 
   // load flow
   GraphLoader.loadall()
+  // FlowRegistry.register("cang", CangGraph)
 
   // start engines and services
-  val names = Array(module_auto, module_utask, module_flow, module_id, module_gtask)
+  val names = Array(module_auto, module_utask, module_flow, module_gtask, module_id, module_updater)
   val daemon = coreSystem.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
   def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {

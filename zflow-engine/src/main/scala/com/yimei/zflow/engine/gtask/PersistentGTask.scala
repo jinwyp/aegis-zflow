@@ -61,7 +61,7 @@ class PersistentGTask(modules: Map[String, ActorRef], timeout: Int) extends Abst
       }
 
     // todo: 王琦, userId should be guid, we don't know userType, also ggid不应该被split为 userType + gid
-    case command@CommandClaimTask(ggid: String, taskId: String, guid: String) =>
+    case command@CommandClaimTask(ggid, taskId, guid) =>
       log.info(s"claim的请求: $command")
       state.tasks.get(taskId) match {
         case Some(task) => persist(TaskDequeue(taskId)) {
