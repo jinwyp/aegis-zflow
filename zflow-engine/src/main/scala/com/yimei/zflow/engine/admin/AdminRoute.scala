@@ -49,7 +49,7 @@ trait AdminRoute {
     pathPrefix("admin") {
       devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView
     } ~ pathPrefix("static") {
-      getFromDirectory("../zflow-admin/static")
+      getFromDirectory("zflow-admin/static")
     }
 
 }

@@ -8,14 +8,14 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.LogEntry
 import akka.util.Timeout
-
-import scala.concurrent.duration._
 import com.yimei.zflow.api.GlobalConfig._
+import com.yimei.zflow.engine.EngineRoute
 import com.yimei.zflow.engine.admin.AdminRoute
-import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
+
+import scala.concurrent.duration._
 
 /**
   * Created by hary on 17/1/6.
@@ -46,15 +46,21 @@ object FlowApp extends {
 
   def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
     case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri + " => " + res.status, Logging.InfoLevel))
-    case _                         => None // no log entries for rejections
+    case _ => None // no log entries for rejections
   }
 
   // prepare routes
   val route: Route =
     logRequestResult(extractLogEntry _) {
-      pathPrefix("zflow" / "api") { engineRoute } ~
-      pathPrefix("organ" / "api") { organRoute  } ~
-      pathPrefix("zflow") { adminRoute  }
+      pathPrefix("zflow" / "api") {
+        engineRoute
+      } ~
+        pathPrefix("organ" / "api") {
+          organRoute
+        } ~
+        pathPrefix("zflow") {
+          adminRoute
+        }
       // ~ FlowRegistry.routes
     }
 
