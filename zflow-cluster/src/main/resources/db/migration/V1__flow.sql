@@ -28,3 +28,23 @@ create table flow_task(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 -- flow_id和task_id唯一索引
 CREATE UNIQUE INDEX flowId_taskid_index ON flow_task(flow_id,task_id);
+
+-- 用户流程设计
+create table design(
+  id BIGINT not null auto_increment,
+  name varchar(64) not null,
+  json text(65532),
+  meta text(65532) not null,
+  ts_c timestamp default current_timestamp,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 流程部署
+create table deploy(
+  id BIGINT not null auto_increment,
+  flow_type varchar(64) not null,
+  jar blob(104857600) not null,   -- 100M
+  enable bool not null,           -- 激活
+  ts_c timestamp default current_timestamp,
+  PRIMARY KEY (`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;

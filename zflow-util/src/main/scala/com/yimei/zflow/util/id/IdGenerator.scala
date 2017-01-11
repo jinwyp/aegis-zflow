@@ -9,8 +9,15 @@ import akka.actor.Props
 object IdGenerator {
   def props(name: String, persist: Boolean = true) = persist match {
 
-    //  import akka.actor.{Actor, ActorLogging}
-
+    // 加backoff
+    //    case true => BackoffSupervisor.props(
+    //      Backoff.onStop(
+    //        Props(new PersistentIdGenerator(name)),
+    //        childName = "idg",
+    //        minBackoff = 3.seconds,
+    //        maxBackoff = 30.seconds,
+    //        randomFactor = 0.2 // adds 20% "noise" to vary the intervals slightly
+    //      ))
     case true => Props(new PersistentIdGenerator(name))
     case false => Props(new MemoryIdGenerator(name))
   }
