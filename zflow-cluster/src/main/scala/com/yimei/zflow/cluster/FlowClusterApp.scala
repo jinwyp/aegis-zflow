@@ -38,9 +38,12 @@ object FlowClusterApp {
     implicit val system = ActorSystem("FlowCluster", config)
     implicit val materializer = ActorMaterializer()
 
-    val flyway = new FlywayDB(config.getString("database.jdbcUrl"), config.getString("database.username"), config.getString("database.password"))
-    flyway.drop()
-    flyway.migrate()
+    // node-1 responsible for migration
+    if ( nodeId == 1) {
+      val flyway = new FlywayDB(config.getString("database.jdbcUrl"), config.getString("database.username"), config.getString("database.password"))
+      flyway.drop()
+      flyway.migrate()
+    }
 
     // load flow
     GraphLoader.loadall()

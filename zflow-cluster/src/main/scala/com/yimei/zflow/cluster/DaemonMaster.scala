@@ -21,11 +21,11 @@ object DaemonMaster {
     */
   def moduleProps(name: String, persistent: Boolean = true): Props = {
     name match {
-      case `module_flow` => FlowProxy.props(Array(module_utask, module_auto, module_gtask))
+      case `module_flow`  => FlowProxy.props(Array(module_utask, module_auto, module_gtask))
       case `module_utask` => UTaskProxy.props(Array(module_flow, module_auto, module_gtask))
       case `module_gtask` => GTaskProxy.props(Array(module_utask))
-      case `module_auto` => AutoMaster.props(Array(module_utask, module_flow))
-      case `module_id` => IdGenerator.props(name, persistent)
+      case `module_auto`  => AutoMaster.props(Array(module_utask, module_flow))
+      case `module_id`    => IdGenerator.props(name, persistent)
     }
   }
 
@@ -41,11 +41,11 @@ class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
 
   import DaemonMaster._
 
-
   override def supervisorStrategy: SupervisorStrategy = super.supervisorStrategy
 
   val idPersistent = context.system.settings.config.getBoolean("flow.id.persistent")
 
+  // start all modules
   var modules = names.map { name =>
     val m = context.actorOf(moduleProps(name, idPersistent))
     context.watch(m)
@@ -69,7 +69,5 @@ class DaemonMaster(names: Array[String]) extends Actor with ActorLogging {
         modules = modules + (entry._1 -> m)
       }
   }
-
-
 }
 
