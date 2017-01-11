@@ -1,6 +1,7 @@
 package com.yimei.zflow.engine
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import com.yimei.zflow.engine.admin.{DeployRoute, EditorRoute}
 import com.yimei.zflow.engine.auto.AutoRoute
 import com.yimei.zflow.engine.flow.FlowRoute
@@ -17,11 +18,13 @@ trait EngineRoute extends EditorRoute
   with UTaskRoute
   with AutoRoute {
 
-  def engineRoute = gtaskRoute ~
-    utaskRoute ~
-    autoRoute ~
-    flowRoute ~
-    editorRoute ~
-    deployRoute
+  def engineRoute: Route = pathPrefix("api") {
+    gtaskRoute ~
+      utaskRoute ~
+      autoRoute ~
+      flowRoute ~
+      editorRoute ~
+      deployRoute
+  }
 }
 

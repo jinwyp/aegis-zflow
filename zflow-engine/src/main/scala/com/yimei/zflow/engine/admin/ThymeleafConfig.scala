@@ -21,19 +21,20 @@ import scala.concurrent.Future
 object ThymeleafConfig {
 
   val templateResolver = new FileTemplateResolver();
-  val prefix = "zflow-admin/backend/"
+  val prefix = "../zflow-admin/backend/"
 
   templateResolver.setPrefix(prefix);
   templateResolver.setSuffix(".html");
   templateResolver.setTemplateMode(TemplateMode.HTML);
   templateResolver.setCacheTTLMs(3600000L);
-  templateResolver.setCacheable(true);
+  templateResolver.setCacheable(false);
 
   val templateEngine = new TemplateEngine();
   templateEngine.setTemplateResolver(templateResolver);
 
   def th(template: String, context: Context) = {
     import scala.concurrent.ExecutionContext.Implicits.global
+    println(s"begin redner $template")
     val src = Source.fromFuture(Future {
       ByteString(templateEngine.process(template, context))
     })

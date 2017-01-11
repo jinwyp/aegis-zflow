@@ -45,15 +45,17 @@ object FlowApp extends {
   val daemon = coreSystem.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
   def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
-    case RouteResult.Complete(res) => Some(LogEntry(req.method.name + ": " + res.status, Logging.InfoLevel))
+    case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri + " => " + res.status, Logging.InfoLevel))
     case _                         => None // no log entries for rejections
   }
 
   // prepare routes
   val route: Route =
     logRequestResult(extractLogEntry _) {
-      pathPrefix("api") { engineRoute ~ organRoute } ~
-      pathPrefix("admin") { adminRoute }
+      pathPrefix("zflow" / "api") { engineRoute } ~
+      pathPrefix("organ" / "api") { organRoute  } ~
+      pathPrefix("zflow") { adminRoute  }
+      // ~ FlowRegistry.routes
     }
 
   implicit val httpExecutionContext = coreSystem.dispatcher

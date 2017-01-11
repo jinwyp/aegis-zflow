@@ -66,7 +66,7 @@ object FlowClusterApp {
     }
 
     def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
-      case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri.path + " => " + res.status, Logging.InfoLevel))
+      case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri + " => " + res.status, Logging.InfoLevel))
       case _ => None // no log entries for rejections
     }
 

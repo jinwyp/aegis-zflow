@@ -10,7 +10,7 @@ import ThymeleafConfig._
 trait AdminRoute {
 
   def deployView: Route = get {
-    path( "deploy") {
+    path("deploy") {
       th("deploy", context)
     }
   }
@@ -28,15 +28,16 @@ trait AdminRoute {
   }
 
   def indexView: Route = get {
-      pathEndOrSingleSlash {
-        th("index", context)
-      }
+    pathEndOrSingleSlash {
+      th("index", context)
+    }
   }
 
-  // 测试用, 生产可能在nginx上
-  def static: Route = pathPrefix("static") {
-    getFromDirectory("zflow-admin/frontend")
-  }
+  def adminRoute: Route =
+    pathPrefix("admin") {
+      deployView ~ editorView ~ graphView ~ indexView
+    } ~ pathPrefix("static") {
+      getFromDirectory("../zflow-admin/static")
+    }
 
-  def adminRoute: Route = deployView ~ editorView ~ graphView ~ indexView ~ static
 }

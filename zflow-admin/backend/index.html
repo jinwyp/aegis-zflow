@@ -1,10 +1,10 @@
 <!DOCTYPE html>  <!-- HTML5 document type -->
 <html>
 <head>
-    <link rel="stylesheet" href="../../frontend/lib/angletheme/bootstrap.css">
-    <link rel="stylesheet" href="../../frontend/lib/angletheme/app.css">
-    <link rel="stylesheet" href="../../frontend/css/index.css">
-    <link rel="stylesheet" href="../../frontend/css/pagination.css">
+    <link rel="stylesheet" href="/zflow/static/lib/angletheme/bootstrap.css">
+    <link rel="stylesheet" href="/zflow/static/lib/angletheme/app.css">
+    <link rel="stylesheet" href="/zflow/static/css/index.css">
+    <link rel="stylesheet" href="/zflow/static/css/pagination.css">
 </head>
 
 <body>
@@ -123,7 +123,7 @@
                 <% }else if(item.finished===1){ %>
                 <td>已完成</td>
                 <% } %>
-                <td><a href="/graph.html?id=<%= item.flow_id %>">查看</a></td>
+                <td><a href="/zflow/admin/graph?id=<%= item.flow_id %>">查看</a></td>
             </tr>
             <% }) %>
         </table>
@@ -132,10 +132,10 @@
 </script>
 
 
-<script src='../../frontend/lib/jquery.js'></script>
-<script src='../../frontend/lib/pagination.js'></script>
-<script src='../../frontend/lib/ejs.min.js'></script>
-<script src="../../frontend/lib/cytoscape/dagre.js"></script>
-<script src='../../frontend/js/index.js'></script>
+<script src='/zflow/static/lib/jquery.js'></script>
+<script src='/zflow/static/lib/pagination.js'></script>
+<script src='/zflow/static/lib/ejs.min.js'></script>
+<script src="/zflow/static/lib/cytoscape/dagre.js"></script>
+<script src='/zflow/static/js/index.js'></script>
 </body>
 </html>

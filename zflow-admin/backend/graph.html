@@ -1,103 +1,103 @@
 <!DOCTYPE html>  <!-- HTML5 document type -->
 <html>
-	<head>
-        <link rel="stylesheet" href="../../frontend/css/jquery.qtip.css"/>
-        <link rel="stylesheet" href="../../frontend/css/fc.css">
-	</head>
-	<body>
-    <header>
-        <a href='/'><img src="../../frontend/img/logo.png" alt="logo" /></a>
-    </header>
-    <div class="fcContainer">
-        <h5 class='pageTitle'>详情页面</h5>
-        <ul id='fcDetail'>
-            <!--tmpl_fcDetail-->
-        </ul>
-        <div class="cyContainer">
-            <div id="cy"></div>
-            <div id="ptDetail">
-                <p class='title'><label>属性key</label><span>值key</span></p>
-                <div>
-                    <!--tmpl_ptDetail-->
-                </div>
+<head>
+    <link rel="stylesheet" href="/zflow/static/css/jquery.qtip.css"/>
+    <link rel="stylesheet" href="/zflow/static/css/fc.css">
+</head>
+<body>
+<header>
+    <a href='/'><img src="./img/logo.png" alt="logo" /></a>
+</header>
+<div class="fcContainer">
+    <h5 class='pageTitle'>详情页面</h5>
+    <ul id='fcDetail'>
+        <!--tmpl_fcDetail-->
+    </ul>
+    <div class="cyContainer">
+        <div id="cy"></div>
+        <div id="ptDetail">
+            <p class='title'><label>属性key</label><span>值key</span></p>
+            <div>
+                <!--tmpl_ptDetail-->
             </div>
         </div>
     </div>
-    <div id="historyContainer">
-        <!--tmpl_historyContainer-->
-    </div>
+</div>
+<div id="historyContainer">
+    <!--tmpl_historyContainer-->
+</div>
 
-    <script id='tmpl_fcDetail' type='text/template'>
-        <li>
-            <p><label for="">流程 I D：</label><span><%= fcDetail.id %></span></p>
-            <p><label for="">用户 I D：</label><span><%= fcDetail.uid %></span></p>
-        </li>
-        <li>
-            <p><label for="">流程类型：</label><span><%= fcDetail.type %></span></p>
-            <p><label for="">用户类型：</label><span><%= fcDetail.utype %></span></p>
-            <p><label for="">状态：</label><span><%= fcDetail.status %></span></p>
-        </li>
-    </script>
+<script id='tmpl_fcDetail' type='text/template'>
+    <li>
+        <p><label for="">流程 I D：</label><span><%= fcDetail.id %></span></p>
+        <p><label for="">用户 I D：</label><span><%= fcDetail.uid %></span></p>
+    </li>
+    <li>
+        <p><label for="">流程类型：</label><span><%= fcDetail.type %></span></p>
+        <p><label for="">用户类型：</label><span><%= fcDetail.utype %></span></p>
+        <p><label for="">状态：</label><span><%= fcDetail.status %></span></p>
+    </li>
+</script>
 
-    <script id='tmpl_ptDetail' type='text/template'>
-    
-        <ul class='<%= (points.length>0)?"hascontent":"" %> <%= (task.classes["isProcessing"])?task.type:"" %>'> 
-            <% points.forEach(function(p, i){ %>
-            <li>
-                <label><%= p.key %></label>
-                <% if(p.value.url){ %>
+<script id='tmpl_ptDetail' type='text/template'>
+
+    <ul class='<%= (points.length>0)?"hascontent":"" %> <%= (task.classes["isProcessing"])?task.type:"" %>'>
+        <% points.forEach(function(p, i){ %>
+        <li>
+            <label><%= p.key %></label>
+            <% if(p.value.url){ %>
                 <span>
                     <a href='<%= p.value.url %>' target='_blank'><%= p.value.text %></a>
                 </span>
-                <% }else{ %>
+            <% }else{ %>
                 <span data='<%= p.value %>' class='<%= (p.value.length>18)?"hastip":"" %>'>
                     <%= (p.value.length>18)?(p.value.substr(0,16) + '...' ): p.value %>
                 </span>
-                <% } %>
-                
-            </li>
-            <% }) %>
-        </ul>
-        <% if((task.type == 'autoTasks')&&(task.classes['isProcessing'])){ %>
-            <p class='refresh'><span data='<%= task.id %>' id="refreshBtn">重新执行</span></p>                    
-        <% } %>
-    </script>
-    <script id='tmpl_historyContainer' type='text/template'>
-        <ul>
-            <li class='title'>
-                <span>属性</span><span>值</span><span>采集人</span><span>采集时间</span><span>描述</span><span>备注</span>
-            </li>
-            <% historyPoints.forEach(function(p, i){ %>
-            <li>
-                <span><%= p.name %></span>
-                <% if(p.value.url){ %>
+            <% } %>
+
+        </li>
+        <% }) %>
+    </ul>
+    <% if((task.type == 'autoTasks')&&(task.classes['isProcessing'])){ %>
+    <p class='refresh'><span data='<%= task.id %>' id="refreshBtn">重新执行</span></p>
+    <% } %>
+</script>
+<script id='tmpl_historyContainer' type='text/template'>
+    <ul>
+        <li class='title'>
+            <span>属性</span><span>值</span><span>采集人</span><span>采集时间</span><span>描述</span><span>备注</span>
+        </li>
+        <% historyPoints.forEach(function(p, i){ %>
+        <li>
+            <span><%= p.name %></span>
+            <% if(p.value.url){ %>
                 <span>
                     <a href='<%= p.value.url %>' target='_blank'><%= p.value.text %></a>
                 </span>
-                <% }else{ %>
-                <span><%= p.value %></span>
-                <% } %>
-                <span><%= p.user %></span>
-                <span><%= p.timestamp %></span>
-                <span><%= p.description %></span>
-                <span><%= p.comment %></span>
-            </li>
-            <% }) %>
-        </ul>
-    </script>
+            <% }else{ %>
+            <span><%= p.value %></span>
+            <% } %>
+            <span><%= p.user %></span>
+            <span><%= p.timestamp %></span>
+            <span><%= p.description %></span>
+            <span><%= p.comment %></span>
+        </li>
+        <% }) %>
+    </ul>
+</script>
 
-     <script src='../../frontend/lib/jquery.js'></script>
-     <script src='../../frontend/lib/ejs.min.js'></script>
-     <script src="../../frontend/lib/cytoscape/jquery.qtip.js"></script>
-     <script src='../../frontend/lib/cytoscape/cytoscape.js'></script>
-     <script src="../../frontend/lib/cytoscape/cytoscape-qtip.js"></script>
-     <script src="../../frontend/lib/cytoscape/dagre.js"></script>
-     <script src="../../frontend/lib/cytoscape/cytoscape-dagre.js"></script>
-     <!--<script src="lib/cytoscape/layout/cytoscape-spread.js"></script>-->
-     <!--<script src="lib/cytoscape/layout/cola.js"></script>
-     <script src="lib/cytoscape/layout/cytoscape-cola.js"></script>-->
-     <script src="lib/cytoscape/layout/cytoscape-cose-bilkent.js"></script>
-     <script src='../../frontend/js/drawFlowChart.js'></script>
-     <script src='../../frontend/js/fc.js'></script>
-	</body>
+<script src='/zflow/static/lib/jquery.js'></script>
+<script src='/zflow/static/lib/ejs.min.js'></script>
+<script src="/zflow/static/lib/cytoscape/jquery.qtip.js"></script>
+<script src='/zflow/static/lib/cytoscape/cytoscape.js'></script>
+<script src="/zflow/static/lib/cytoscape/cytoscape-qtip.js"></script>
+<script src="/zflow/static/lib/cytoscape/dagre.js"></script>
+<script src="/zflow/static/lib/cytoscape/cytoscape-dagre.js"></script>
+<!--<script src="lib/cytoscape/layout/cytoscape-spread.js"></script>-->
+<!--<script src="lib/cytoscape/layout/cola.js"></script>
+<script src="lib/cytoscape/layout/cytoscape-cola.js"></script>-->
+<!--<script src="/zflow/static/lib/cytoscape/layout/cytoscape-cose-bilkent.js"></script>-->
+<script src='/zflow/static/js/drawFlowChart.js'></script>
+<script src='/zflow/static/js/fc.js'></script>
+</body>
 </html>
