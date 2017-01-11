@@ -31,7 +31,7 @@ object MoneyApp extends App {
   // 启动http服务
   val all = logRequestResult(extractLogInfo _) {
     pathPrefix("api") {
-      UTaskRoute.utaskRoute
+      UTaskRoute.utaskRoute  // 可以添加其他非
     }
   }
   println(s"http is listening on ${config.getInt("http.port")}")

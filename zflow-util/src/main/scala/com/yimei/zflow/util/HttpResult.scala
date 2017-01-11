@@ -7,7 +7,7 @@ import spray.json.{DefaultJsonProtocol, JsonFormat}
   */
 object HttpResult extends DefaultJsonProtocol {
 
-  case class Result[T](data: Option[T], success: Boolean = true, error: Error = null, meta: PagerInfo = null)
+  case class Result[T](data: Option[T], success: Boolean = true, error: Option[Error] = None, meta: Option[PagerInfo] = None)
 
   case class PagerInfo(total: Int, count: Int, offset: Int, page: Int)
 

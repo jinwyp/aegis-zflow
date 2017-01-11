@@ -18,13 +18,11 @@ trait EngineRoute extends EditorRoute
   with UTaskRoute
   with AutoRoute {
 
-  def engineRoute: Route = pathPrefix("api") {
-    gtaskRoute ~
-      utaskRoute ~
-      autoRoute ~
-      flowRoute ~
-      editorRoute ~
-      deployRoute
-  }
+  def engineRoute: Route = gtaskRoute ~
+    utaskRoute ~
+    autoRoute ~
+    flowRoute ~
+    editorRoute ~
+    deployRoute
 }
 
