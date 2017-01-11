@@ -1,0 +1,141 @@
+<!DOCTYPE html>  <!-- HTML5 document type -->
+<html>
+<head>
+    <link rel="stylesheet" href="../../frontend/lib/angletheme/bootstrap.css">
+    <link rel="stylesheet" href="../../frontend/lib/angletheme/app.css">
+    <link rel="stylesheet" href="../../frontend/css/index.css">
+    <link rel="stylesheet" href="../../frontend/css/pagination.css">
+</head>
+
+<body>
+<div class="wrapper">
+    <!-- Page content-->
+    <div class="content-wrapper">
+        <!--<header><img src="/img/logo.png" alt=""></header>-->
+
+        <!-- START row-->
+        <!--<div class="row">-->
+        <!--<div class="col-md-12">-->
+        <!-- START panel-->
+        <div class="panel panel-default panel-main">
+            <div class="panel-heading search-title">
+                查询条件
+                <div class="search-border"></div>
+            </div>
+
+            <div class="panel-body search-body">
+
+                <div class="search-user">
+                    <label class="">公司类型:&nbsp;&nbsp;</label>
+                    <input id="input-company-type" type="text" placeholder="公司类型" >
+                    <label class="ml-10">公司ID:&nbsp;&nbsp;</label>
+                    <input id="input-company-id" type="text" placeholder="公司ID" >
+                    <label class="ml-10">用户ID:&nbsp;&nbsp;</label>
+                    <input id="input-user-id" type="text" placeholder="用户ID" >
+                    <!--<label for="input-user-id" class="">用户类型:&nbsp;&nbsp;</label>-->
+                    <!--<div class="search-user-type">-->
+                        <!--<div class="search-input">-->
+                            <!--<input id="input-user-type" type="text" placeholder="用户类型" >-->
+                            <!--<span class="arrow-down"></span>-->
+                        <!--</div>-->
+                        <!--<ul class="search-ul user-type-ul hidden">-->
+                            <!--<li>用户类型1</li>-->
+                            <!--<li>用户类型2</li>-->
+                            <!--<li>用户类型3</li>-->
+                            <!--<li>用户类型4</li>-->
+                            <!--<li>用户类型5</li>-->
+                            <!--<li>用户类型6</li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                </div>
+                <div class="search-flow">
+                    <label class="">流程ID:&nbsp;&nbsp;</label>
+                    <input id="input-flow-id" type="text" placeholder="流程ID" >
+
+                    <label class="ml-10">流程类型:&nbsp;&nbsp;</label>
+                    <input id="input-flow-type" type="text" placeholder="流程类型" >
+                    <label class="ml-10">流程状态:&nbsp;&nbsp;</label>
+                    <input id="input-flow-state" type="text" placeholder="流程状态" >
+
+                    <!--<label class="ml-10">流程类型:&nbsp;&nbsp;</label>-->
+                    <!--<div class="search-flow-type">-->
+                        <!--<div class="search-input">-->
+                            <!--<input id="input-flow-type" type="text" placeholder="流程类型" >-->
+                            <!--<span class="arrow-down"></span>-->
+                        <!--</div>-->
+                        <!--<ul class="search-ul flow-type-ul hidden">-->
+                            <!--<li>money</li>-->
+                            <!--<li>ying</li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                    <!--<label class="ml-10">状态:&nbsp;&nbsp;</label>-->
+                    <!--<div class="search-status">-->
+                        <!--<div class="search-input">-->
+                            <!--<input id="input-status" type="text" placeholder="状态" >-->
+                            <!--<span class="arrow-down"></span>-->
+                        <!--</div>-->
+                        <!--<ul class="search-ul status-ul hidden">-->
+                            <!--<li>0</li>-->
+                            <!--<li>1</li>-->
+                        <!--</ul>-->
+                    <!--</div>-->
+                    <!--<input type="submit" class="btn ml-10 btn-submit" value="查询">-->
+                    <div class="btn ml-10 btn-submit"><span class="search-icon"></span><span class="btn-text">查询</span></div>
+                    <input type="button" class="btn ml-10 btn-clear" value="清除">
+                </div>
+            </div>
+
+
+            <div class="panel-body panel-table" id="table-list">
+
+            </div>
+
+            <div id="panel-pagination"></div>
+        </div>
+        <!-- END panel-->
+        <!--</div>-->
+        <!--</div>-->
+        <!-- END row-->
+    </div>
+</div>
+<script id='tmpl_table' type='text/template'>
+    <!-- START table-responsive-->
+    <div class="table-responsive">
+        <table class="table table-striped  table-hover text-center">
+            <tr class="tr-title">
+                <th class="text-center">公司类型</th>
+                <th class="text-center">公司ID</th>
+                <th class="text-center">用户ID</th>
+                <th class="text-center">流程ID</th>
+                <th class="text-center">流程类型</th>
+                <th class="text-center">状态</th>
+                <th class="text-center">操作</th>
+            </tr>
+            <% flows.forEach(function(item, i){ %>
+            <tr>
+                <td><%= item.company_type || '--'%></td>
+                <td><%= item.company_id || '--'%></td>
+                <td><%= item.user_id || '--' %></td>
+                <td><%= item.flow_id || '--'%></td>
+                <td><%= item.flow_type %></td>
+                <% if(item.finished===0){ %>
+                <td>进行中</td>
+                <% }else if(item.finished===1){ %>
+                <td>已完成</td>
+                <% } %>
+                <td><a href="/graph.html?id=<%= item.flow_id %>">查看</a></td>
+            </tr>
+            <% }) %>
+        </table>
+    </div>
+    <!-- END table-responsive -->
+</script>
+
+
+<script src='../../frontend/lib/jquery.js'></script>
+<script src='../../frontend/lib/pagination.js'></script>
+<script src='../../frontend/lib/ejs.min.js'></script>
+<script src="../../frontend/lib/cytoscape/dagre.js"></script>
+<script src='../../frontend/js/index.js'></script>
+</body>
+</html>

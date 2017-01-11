@@ -7,9 +7,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
-import com.yimei.zflow.engine.db.DesignTable
-import com.yimei.zflow.engine.db.Entities.DesignEntity
+import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
 import com.yimei.zflow.engine.admin.Models._
+import com.yimei.zflow.engine.admin.db.DesignTable
 
 import scala.concurrent.Future
 

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>table</title>
+    <style type="text/css">
+        *{margin:0;padding: 0;list-style: none;}
+        body{background: #f6f6f6;}
+        .warp{width: 1000px;height:500px;margin: 0 auto;font-size: 16px;background: #ffffff;padding:100px 20px;}
+        table{width: 100%;margin-top: 30px;line-height: 40px; border-collapse:collapse;}
+        table th{text-align: center;border: 1px solid #e4e4e4;background: #f5f5f5;}
+        table td{text-align: center;border: 1px solid #e4e4e4;}
+        a{text-decoration: none;color: #23b7e5;}
+        .type, .userId{display: inline-block;margin-right: 20px;}
+        label{display: inline-block;line-height: 40px;}
+        .type select{width: 170px;height: 30px;font-size: 14px;background: #ffffff;border: 1px solid #e4e4e4;}
+        input[type="text"]{width: 170px;height: 30px;line-height: 30px;padding-left: 10px;font-size: 14px;border: 1px solid #e4e4e4;}
+        .submit{width: 90px;height: 30px;line-height: 30px;background: #23b7e5;border: 0;color: #ffffff;font-size: 14px;border-radius: 2px;outline: none;cursor: pointer;}
+
+    </style>
+</head>
+<body>
+<div class="warp">
+    <!--<div class="type">-->
+        <!--<label for="type">用户类型：</label>-->
+        <!--<select name="type" id="type">-->
+            <!--<option value="全部">全部</option>-->
+        <!--</select>-->
+    <!--</div>-->
+    <div class="userId">
+        <label for="userId">类别：</label>
+        <input type="text" id="className">
+        <label for="userId">：公司ID</label>
+        <input type="text" id="companyId">
+        <label for="userId">用户ID：</label>
+        <input type="text" id="userId">
+    </div>
+    <input type="button" value="查询" class="submit">
+    <table id="tb1" >
+        <tr>
+            <th>flowId</th>
+            <th>guid</th>
+            <th>taskman</th>
+            <th>操作</th>
+        </tr>
+        <!--<tr>-->
+            <!--<td>11</td>-->
+            <!--<td>11</td>-->
+            <!--<td>11</td>-->
+            <!--<td><a href="">查看</a></td>-->
+        <!--</tr>-->
+    </table>
+</div>
+
+<script type="text/javascript" src="../lib/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        var className = $("#className").val();
+        var companyId = $("#companyId").val();
+        var userId = $("#userId").val();
+
+        //页面打开获取列表
+        $.ajax({
+            method: "GET",
+            url:"",
+            dataType:'json'
+        }).done(function(data){
+            if (data.success){
+                console.log(data);
+            }else{
+                console.log(error)
+            }
+        }).fail(function(){
+            // console.log(error);
+        });
+
+        //输入搜索条件后的列表
+        var guid = '';
+        $(".submit").on('click',function(){
+
+            var className = $("#className").val();
+            var companyId = $("#companyId").val();
+            var userId = $("#userId").val();
+
+            $.ajax({
+                method: "get",
+                url:"/api/utask/"+className+"/"+companyId+"/"+userId,
+                dataType:'json'
+            }).done(function(data){
+
+
+//                var className = $("#className").val();
+//                var companyId = $("#companyId").val();
+//                var userId = $("#userId").val();
+
+                var table = document.getElementById("tb1");
+                var temp = "<table id=\"tb1\"> <tr> <th>flowId</th> <th>guid<\/th> <th>taskname</th> <th>操作</th> </tr>";
+                for (var key in data.tasks)
+                {
+                    var url = "/flow/detail.html?className="+className+"&companyId="+
+                        companyId+"&userId="+userId+"&taskName="+data.tasks[key].taskName +
+                        "&taskId="+key+"&flowId="+data.tasks[key].flowId+"&flowType="+data.tasks[key].flowType;
+                    temp = temp + "<tr><td>"+data.tasks[key].flowId+"</td>" +
+                    "<td>"+ data.tasks[key].guid +"</td>"+"<td>"+data.tasks[key].taskName+"</td>"+
+                        "<td><a href=\""+url+"\" target=\"_blank\" >查看</a></td></tr>";
+                }
+                temp = temp + "</table>";
+                table.innerHTML = temp
+
+            }).fail(function(){
+                // console.log(error);
+            })
+        })
+
+    })
+</script>
+</body>
+</html>

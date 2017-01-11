@@ -1,0 +1,34 @@
+body{
+    background:#3c5b78;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
+}
+
+
+
+.form-group .help-block {
+    display: none;
+}
+
+.form-group.has-error .help-block {
+    display: block;
+}
+
+
+.manage-flow{
+    min-width:1000px;
+}
+
+#chart{
+    float: left;
+    width:600px; height:2000px;
+}
+
+#panel-settings {
+    float: right;
+    width : 400px;
+    height: 500px;
+
+}

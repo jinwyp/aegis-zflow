@@ -20,7 +20,7 @@ class FlowRouteTest extends WordSpec with Matchers with ScalatestRouteTest with 
   override def flowState(flowId: String): Future[State] = super.flowState(flowId)
   override def flowUpdatePoints(flowId: String, updatePoint: Map[String, String], trigger: Boolean): Future[State] = super.flowUpdatePoints(flowId, updatePoint, trigger)
   override def flowHijack(flowId: String, updatePoints: Map[String, DataPoint], decision: Option[String], trigger: Boolean): Future[State] = super.flowHijack(flowId, updatePoints, decision, trigger)
-  override val flowServiceTimeout: Timeout = Timeout(1 seconds)
+  override val flowServiceTimeout: Timeout = Timeout(1.seconds)
 
   "FlowRoute" should {
     "query flow" in {

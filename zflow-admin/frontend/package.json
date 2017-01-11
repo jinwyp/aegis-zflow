@@ -1,0 +1,20 @@
+{
+  "name": "cyflow",
+  "version": "1.0.0",
+  "description": "flow chart with cytoscape",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run webpackserver",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpackserver": "webpack-dev-server -d --config ./webpack.config.js"
+  },
+  "author": "Jin",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "dependencies": {
+    "angular": "^1.6.1"
+  }
+}

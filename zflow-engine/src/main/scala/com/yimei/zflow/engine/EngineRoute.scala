@@ -1,8 +1,8 @@
 package com.yimei.zflow.engine
 
 import akka.http.scaladsl.server.Directives._
-import com.yimei.zflow.engine.auto.AutoRoute
 import com.yimei.zflow.engine.admin.{DeployRoute, EditorRoute}
+import com.yimei.zflow.engine.auto.AutoRoute
 import com.yimei.zflow.engine.flow.FlowRoute
 import com.yimei.zflow.engine.gtask.GTaskRoute
 import com.yimei.zflow.engine.utask.UTaskRoute

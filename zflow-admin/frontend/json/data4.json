@@ -1,0 +1,341 @@
+{
+    "userTasks": {
+        "TKPG1": {
+            "description": "描述TKPG1",
+            "points": [
+                "KPG1"
+            ]
+        },
+        "TKPU1": {
+            "description": "描述TKPU1",
+            "points": [
+                "KPU1" 
+            ]
+        },
+        "PU": {
+            "description": "描述PU",
+            "points": [
+                "PU1",
+                "PU2"
+            ]
+        },
+        "PU3": {
+            "description": "描述PU3",
+            "points": [
+                "PU3"
+            ]
+        },
+        "PG3": {
+            "description": "描述PG3",
+            "points": [
+                "PG3"
+            ]
+        },
+        "PG": {
+            "description": "描述PU",
+            "points": [
+                "PG1",
+                "PG2"
+            ]
+        },
+        "UATESTAT": {
+            "description": "描述UATESTAT",
+            "points": [
+                "UATESTAT1",
+                "UATESTAT2"
+            ]
+        }
+    },
+    "state": {
+        "guid": "001-hary1",
+        "flowType": "ying",
+        "ending": "success",
+        "points": {
+            "E": {
+                "used": false,
+                "timestamp": 10,
+                "id": "ada1e4dd-62ba-4a92-8624-022fa8afa7bd",
+                "operator": "DEF",
+                "value": "50"
+            },
+            "F": {
+                "used": false,
+                "timestamp": 10,
+                "id": "3fd98ba0-cbd6-4e6f-a2e6-fb972eeb1b20",
+                "operator": "DEF",
+                "value": "50"
+            },
+            "ATESTAT": {
+                "used": true,
+                "timestamp": 10,
+                "id": "79315428-5714-4ff4-bcf3-79e6be7f84c9",
+                "operator": "ATESTAT",
+                "value":"5079315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e67f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c979315428-5714-4ff4-bcf3-79e6be7f84c9"
+            },
+            "PG1": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "9b19591b-0b24-40c4-98d7-860e0a24cb84",
+                "operator": "fund1-wangqiId1",
+                "value": "50505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050",
+                "memo": "userdata"
+            },
+            "PU1": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "9b19591b-0b24-40c4-98d7-860e0a24cb84",
+                "operator": "fund1-wangqiId1",
+                "value": "50505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050505050",
+                "memo": "userdata"
+            },
+            "B": {
+                "used": true,
+                "timestamp": 10,
+                "id": "b0f244de-0450-47e0-aa22-16210e858167",
+                "operator": "B",
+                "value": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                "memo": "img"
+            },
+            "PG2": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "d8293e46-2203-4d8e-8767-114427582ab2",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "PG3": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "d8293e46-2203-4d8e-8767-114427582ab2",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "C": {
+                "used": true,
+                "timestamp": 10,
+                "id": "df9781db-d01c-46df-9978-b0875ba46f90",
+                "operator": "C",
+                "value": "http://www.pdf995.com/samples/pdf.pdf",
+                "memo": "pdf"
+            },
+            "KPU1": {
+                "used": false,
+                "timestamp": 1482288576179,
+                "id": "239b04fe-8618-4b31-9b7e-a8beb131aa9b",
+                "operator": "001-hary1",
+                "value": "fund1-wangqiId1",
+                "memo": "userdata"
+            },
+            "KPG1": {
+                "used": false,
+                "timestamp": 1482288576180,
+                "id": "32349ba3-4c02-41cb-97fd-1c739619fa78",
+                "operator": "001-hary1",
+                "value": "fund1-wqGroup1",
+                "memo": "userdata"
+            },
+            "D": {
+                "used": false,
+                "timestamp": 10,
+                "id": "c193812a-87bf-427d-8cd2-dc573bf8db6a",
+                "operator": "DEF",
+                "value": "采集结果采集结果，采集结果，采集结果采集结果采集结果采集结果采集结果采集结果采集结果，，采集结果"
+            }
+        },
+        "flowId": "ying-001-hary1-1",
+        "edges": {"E4":true},
+        "histories": [
+            "E3",
+            "E2",
+            "E1",
+            "start"
+        ]
+    },
+    "autoTasks": {
+        "ATESTAT": {
+            "description": "描述TKPG1",
+            "points": [
+                "ATESTAT", "B", "C", "D", "E", "F", "PU1", "PU2", "PG1", "PG2"
+            ]
+        },
+        "B": {
+            "description": "描述TKPG1",
+            "points": [
+                "B"
+            ]
+        },
+        "C": {
+            "description": "描述TKPG1",
+            "points": [
+                "C"
+            ]
+        },
+        "DEF": {
+            "description": "描述TKPG1",
+            "points": [
+                "D",
+                "E",
+                "F"
+            ]
+        }
+    },
+    "points": {
+        "E": "征信平分5",
+        "PU2": "partition user1 采集数据点2",
+        "PU1": "partition user1 采集数据点1",
+        "PU3": "partition user1 采集数据点3",
+        "F": "征信平分6",
+        "ATESTAT": "征信平分1",
+        "PG1": "partition group1 采集数据点1",
+        "UATESTAT2": "用户提交ATESTAT2",
+        "B": "征信平分2",
+        "PG2": "partition group1 采集数据点2",
+        "PG3": "partition group1 采集数据点3",
+        "C": "征信平分3",
+        "UATESTAT1": "用户提交ATESTAT1",
+        "KPU1": "设置资金方 user1",
+        "KPG1": "设置融资方 group1",
+        "D": "征信平分4"
+    },
+    "edges": {
+        "fail": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "fail",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "fail"
+        },
+        "success": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "success",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "success"
+        },
+        "E3": {
+            "userTasks": [],
+            "partGTasks": [
+                {
+                    "ggidKey": "KPG1",
+                    "tasks": [
+                        "PG"
+                    ]
+                }
+            ],
+            "begin": "V2",
+            "name": "E3",
+            "partUTasks": [
+                {
+                    "guidKey": "KPU1",
+                    "tasks": [
+                        "PU"
+                    ]
+                }
+            ],
+            "autoTasks": [],
+            "end": "V3"
+        },
+        "E7": {
+            "userTasks": [],
+            "partGTasks": [
+                {
+                    "ggidKey": "KPG1",
+                    "tasks": [
+                        "PG3"
+                    ]
+                }
+            ],
+            "begin": "V2",
+            "name": "E7",
+            "partUTasks": [
+                {
+                    "guidKey": "KPU1",
+                    "tasks": [
+                        "PU3"
+                    ]
+                }
+            ],
+            "autoTasks": [],
+            "end": "V3"
+        },
+        "E2": {
+            "userTasks": [
+                "TKPU1",
+                "TKPG1"
+            ],
+            "partGTasks": [],
+            "begin": "V1",
+            "name": "E2",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V2"
+        },
+        "E1": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V0",
+            "name": "E1",
+            "partUTasks": [],
+            "autoTasks": [
+                "ATESTAT",
+                "B",
+                "C"
+            ],
+            "end": "V1"
+        },
+        "E6": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V5",
+            "name": "E6",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V3"
+        },
+        "E5": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V4",
+            "name": "E5",
+            "partUTasks": [],
+            "autoTasks": [
+                "DEF"
+            ],
+            "end": "V5"
+        },
+        "start": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "start",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V0"
+        },
+        "E4": {
+            "userTasks": [
+                "UATESTAT"
+            ],
+            "partGTasks": [],
+            "begin": "V3",
+            "name": "E4",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V4"
+        }
+    },
+    "vertices": {
+        "V4": "V4描述描述",
+        "V3": "V3描述描述",
+        "V2": "V2描述描述",
+        "V1": "V1描述描述",
+        "V5": "V5描述描述",
+        "V0": "V0描述描述"
+    }
+}

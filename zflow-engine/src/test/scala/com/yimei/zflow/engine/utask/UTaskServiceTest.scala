@@ -26,6 +26,6 @@ class UTaskServiceTest extends WordSpec with Matchers with UTaskService {
     }
   }
 
-  override val utaskTimeout: Timeout = Timeout(2 seconds)
+  override val utaskTimeout: Timeout = Timeout(2.seconds)
 }
 

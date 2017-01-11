@@ -1,0 +1,292 @@
+{
+    "userTasks": {
+        "TKPG1": [
+            "KPG1"
+        ],
+        "TKPU1": [
+            "KPU1"
+        ],
+        "PU": [
+            "PU1",
+            "PU2"
+        ],
+        "PG": [
+            "PG1",
+            "PG2"
+        ],
+        "UA": [
+            "UA1",
+            "UA2"
+        ]
+    },
+    "state": {
+        "guid": "001-hary1",
+        "flowType": "ying",
+        "points": {
+            "E": {
+                "used": false,
+                "timestamp": 10,
+                "id": "ada1e4dd-62ba-4a92-8624-022fa8afa7bd",
+                "operator": "DEF",
+                "value": "50"
+            },
+            "PU2": {
+                "used": false,
+                "timestamp": 1482288581168,
+                "id": "9b65687e-03ce-4c4e-ab3d-0f60a17fb689",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "PU1": {
+                "used": false,
+                "timestamp": 1482288581168,
+                "id": "b764d561-24d4-4274-8b94-00458fbe696c",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "F": {
+                "used": false,
+                "timestamp": 10,
+                "id": "3fd98ba0-cbd6-4e6f-a2e6-fb972eeb1b20",
+                "operator": "DEF",
+                "value": "50"
+            },
+            "A": {
+                "used": true,
+                "timestamp": 10,
+                "id": "79315428-5714-4ff4-bcf3-79e6be7f84c9",
+                "operator": "A",
+                "value": "50"
+            },
+            "PG1": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "9b19591b-0b24-40c4-98d7-860e0a24cb84",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "UA2": {
+                "used": false,
+                "timestamp": 1482288591168,
+                "id": "39117f49-796c-426a-9d86-b299c33a7c1d",
+                "operator": "001-hary1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "B": {
+                "used": true,
+                "timestamp": 10,
+                "id": "b0f244de-0450-47e0-aa22-16210e858167",
+                "operator": "B",
+                "value": "50"
+            },
+            "PG2": {
+                "used": false,
+                "timestamp": 1482288586178,
+                "id": "d8293e46-2203-4d8e-8767-114427582ab2",
+                "operator": "fund1-wangqiId1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "C": {
+                "used": true,
+                "timestamp": 10,
+                "id": "df9781db-d01c-46df-9978-b0875ba46f90",
+                "operator": "C",
+                "value": "50"
+            },
+            "UA1": {
+                "used": false,
+                "timestamp": 1482288591168,
+                "id": "8292092c-7d07-47f9-87dc-ea33494a2756",
+                "operator": "001-hary1",
+                "value": "50",
+                "memo": "userdata"
+            },
+            "KPU1": {
+                "used": false,
+                "timestamp": 1482288576179,
+                "id": "239b04fe-8618-4b31-9b7e-a8beb131aa9b",
+                "operator": "001-hary1",
+                "value": "fund1-wangqiId1",
+                "memo": "userdata"
+            },
+            "KPG1": {
+                "used": false,
+                "timestamp": 1482288576180,
+                "id": "32349ba3-4c02-41cb-97fd-1c739619fa78",
+                "operator": "001-hary1",
+                "value": "fund1-wqGroup1",
+                "memo": "userdata"
+            },
+            "D": {
+                "used": false,
+                "timestamp": 10,
+                "id": "c193812a-87bf-427d-8cd2-dc573bf8db6a",
+                "operator": "DEF",
+                "value": "50"
+            }
+        },
+        "flowId": "ying-001-hary1-1",
+        "edges": {},
+        "histories": [
+            "E5",
+            "E4",
+            "E3",
+            "E2",
+            "E1",
+            "start"
+        ]
+    },
+    "autoTasks": {
+        "A": [
+            "A"
+        ],
+        "B": [
+            "B"
+        ],
+        "C": [
+            "C"
+        ],
+        "DEF": [
+            "D",
+            "E",
+            "F"
+        ]
+    },
+    "points": {
+        "E": "征信平分5",
+        "PU2": "partition user1 采集数据点2",
+        "PU1": "partition user1 采集数据点1",
+        "F": "征信平分6",
+        "A": "征信平分1",
+        "PG1": "partition group1 采集数据点1",
+        "UA2": "用户提交A2",
+        "B": "征信平分2",
+        "PG2": "partition group1 采集数据点2",
+        "C": "征信平分3",
+        "UA1": "用户提交A1",
+        "KPU1": "设置资金方 user1",
+        "KPG1": "设置融资方 group1",
+        "D": "征信平分4"
+    },
+    "edges": {
+        "fail": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "fail",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "fail"
+        },
+        "success": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "success",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "success"
+        },
+        "E3": {
+            "userTasks": [],
+            "partGTasks": [
+                {
+                    "ggidKey": "KPG1",
+                    "tasks": [
+                        "PG"
+                    ]
+                }
+            ],
+            "begin": "V2",
+            "name": "E3",
+            "partUTasks": [
+                {
+                    "guidKey": "KPU1",
+                    "tasks": [
+                        "PU"
+                    ]
+                }
+            ],
+            "autoTasks": [],
+            "end": "V3"
+        },
+        "E2": {
+            "userTasks": [
+                "TKPU1",
+                "TKPG1"
+            ],
+            "partGTasks": [],
+            "begin": "V1",
+            "name": "E2",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V2"
+        },
+        "E1": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V0",
+            "name": "E1",
+            "partUTasks": [],
+            "autoTasks": [
+                "A",
+                "B",
+                "C"
+            ],
+            "end": "V1"
+        },
+        "E6": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V5",
+            "name": "E6",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V3"
+        },
+        "E5": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "V4",
+            "name": "E5",
+            "partUTasks": [],
+            "autoTasks": [
+                "DEF"
+            ],
+            "end": "V5"
+        },
+        "start": {
+            "userTasks": [],
+            "partGTasks": [],
+            "begin": "God",
+            "name": "start",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V0"
+        },
+        "E4": {
+            "userTasks": [
+                "UA"
+            ],
+            "partGTasks": [],
+            "begin": "V3",
+            "name": "E4",
+            "partUTasks": [],
+            "autoTasks": [],
+            "end": "V4"
+        }
+    },
+    "vertices": {
+        "V4": "V4",
+        "V3": "V3",
+        "V2": "V2",
+        "V1": "V1",
+        "V5": "V5",
+        "V0": "V0"
+    }
+}

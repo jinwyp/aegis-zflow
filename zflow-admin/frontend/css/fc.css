@@ -1,0 +1,239 @@
+*{
+    margin:0; padding:0; 
+}
+ul{
+    list-style:none;
+}
+#cy{
+    width:855px; height:510px; background-color: #d8dee4;
+}
+#cy>canvas{
+    visibility: hidden;
+}
+.qtip.qtip-default{
+    max-width: 1000px;
+}
+.edgeTip{
+    width: 400px; min-height:100px; max-height:400px; overflow-y:auto;
+}
+.taskTitle{
+    line-height:30px;
+}
+.edgeTip ul{
+    list-style: none; margin:0; padding:0;
+}
+.edgeTip>ul.taskList{
+    margin-bottom:10px;
+}
+.edgeTip ul.taskList{
+    line-height:24px; border:1px solid gray;
+}
+.edgeTip ul.taskList>li{
+    border-bottom:1px solid gray;
+}
+.edgeTip ul.taskList>li:last-child{
+    border-bottom:none;
+}
+.edgeTip span.task, .edgeTip .taskItem{
+    display:inline-block; *display:inline; zoom:1; vertical-align:middle;
+}
+.edgeTip span.task{
+    width:20%; text-indent:10px; 
+}
+.edgeTip ul.taskItem{
+    width:78%; border-left:1px solid gray;
+}
+.edgeTip ul.taskItem span.point, .edgeTip ul.taskItem span.pointState{
+    display:inline-block; *display:inline; zoom:1; vertical-align:middle;
+    text-indent: 10px;
+}
+.edgeTip ul.taskItem span.point{
+    width:70%; border-right:1px solid gray;
+}
+.edgeTip ul.taskItem span.pointState{
+    width:28%; 
+}
+
+.edgeTip ul.part.taskList span.part, .edgeTip ul.part.taskList ul.taskList{
+    display:inline-block; *display:inline; zoom:1; vertical-align:middle;
+}
+.edgeTip ul.part.taskList span.part{
+    width:10%; text-indent:10px;
+}
+.edgeTip ul.part.taskList ul.taskList{
+    width:79%; border-width:0 0 0 1px;
+}
+
+.edgeTip .pointState i{
+    font-style:normal; 
+}
+.edgeTip .pointState i.success{
+    color:green;
+}
+.edgeTip .pointState i.ing{
+    color:orange;
+}
+.edgeTip .pointState i.result{
+    color:red;
+}
+.qtip h5{
+    font-size:15px;
+}
+
+body{
+    background:#3c5b78; font-family: Microsoft YaHei; font-size:14px;
+    padding-bottom:40px;
+}
+header, .fcContainer, #historyContainer{
+    width:1200px; margin:0 auto;
+}
+header{
+    height:100px;
+}
+.fcContainer, #historyContainer{
+    background:#fff;
+}
+.fcContainer{
+    width:1160px; padding:0 20px 40px;
+}
+.fcContainer .pageTitle{
+    font-size:18px; color:#3c5a78; line-height:48px; border-bottom:1px solid #d8dee4;
+}
+#fcDetail{
+    margin:15px 0;
+}
+#fcDetail li{
+    line-height:36px; 
+}
+#fcDetail p{
+    display:inline-block; *display:inline; zoom:1; width:310px; 
+    color:#3c5a78;
+}
+#fcDetail p label{
+    opacity:0.5; filter:alpha(opacity=50); margin-right:10px;
+}
+.cyContainer{
+    overflow:hidden; width:1170px;
+}
+.cyContainer #cy{
+    float:left;
+}
+.cyContainer #ptDetail{
+    position:relative;
+    float:right; width:305px; height:510px;
+    background:#f9efea;
+}
+.cyContainer #ptDetail ul.hascontent{
+    height:470px; background:#f5faff; overflow-y:auto;
+}
+.cyContainer #ptDetail ul.hascontent li{
+    border-bottom:1px solid #e1eaf2; line-height:18px; padding:15px 0;
+    color:#3c5a78; overflow:hidden;
+}
+.cyContainer #ptDetail ul.hascontent li:hover{
+    background:#3a5c79; color:#fff;
+}
+.cyContainer #ptDetail ul li label{
+    word-wrap: break-word; word-break: break-all;
+}
+.cyContainer #ptDetail ul.hascontent li label, .cyContainer #ptDetail ul.hascontent li span{
+    text-align:center;
+}
+.cyContainer #ptDetail ul.hascontent.autoTasks{
+    height:410px; 
+}
+.cyContainer #ptDetail .refresh{
+    position:absolute; bottom:0; left:0; border-top:1px solid #e1eaf2;
+    width:305px; height:60px; background:#f5faff;
+}
+.cyContainer #ptDetail .refresh span{
+    display:block; width:140px; height:40px; line-height:40px; margin:10px auto; 
+    background:#5ac5d5; color:#fff; text-align:center; cursor:pointer;
+}
+.cyContainer #ptDetail .refresh span.disabled{
+    background:gray;
+}
+.cyContainer #ptDetail .title{
+    height:40px; background:#e8f1f9; color:#909fac;
+}
+.cyContainer #ptDetail li label, .cyContainer #ptDetail li span, .cyContainer #ptDetail .title label, .cyContainer #ptDetail .title span{
+    float:left; width:50%;
+}
+.cyContainer #ptDetail li span a{
+    color:orange;
+}
+.cyContainer #ptDetail .title label, .cyContainer #ptDetail .title span{
+    text-align:center; height:40px; line-height:40px; 
+}
+
+#historyContainer{
+    margin-top:10px; padding-bottom:20px;
+}
+#historyContainer ul li{
+    overflow: hidden;
+    color:#3c5a78; margin:0 20px; border-bottom:1px solid #d8dee4; padding:20px 0;
+}
+#historyContainer ul li.title{
+    background:#e8f1f9; color:#909fac; height:40px; line-height:40px; margin:0; padding:0;
+}
+#historyContainer ul li.title span{
+    text-align:center; 
+}
+#historyContainer ul li.title span:first-child{
+    text-align:left; text-indent:20px; width:100px; padding:0;
+}
+#historyContainer ul li span:first-child{
+    padding:0;
+}
+#historyContainer ul li span{
+    float:left; padding:0 15px;
+    word-wrap: break-word;
+    word-break: break-all; 
+}
+#historyContainer ul li>span:first-child{
+    width:80px; 
+}
+#historyContainer ul li>span:nth-child(2){
+    width:300px;
+}
+#historyContainer ul li>span:nth-child(3){
+    width:140px; text-align:center;
+}
+#historyContainer ul li>span:nth-child(4){
+    width:180px; text-align:center;
+}
+#historyContainer ul li>span:nth-child(5){
+    width:240px; text-align:center;
+}
+#historyContainer ul li>span:nth-child(6){
+    width:70px;
+}
+#historyContainer ul li span a{
+    color:orange;
+}
+
+.qtip.tip-pointtext{
+    width:250px; height:180px; background:transparent;
+    border:none; border-radius:0; box-shadow:none;
+}
+.qtip.tip-pointtext .qtip-tip{
+    visibility:hidden;
+}
+.qtip.tip-pointtext .qtip-content{
+    padding:0; position:relative; background:transparent;
+    width:250px; height:180px; overflow:visible;
+}
+.qtip.tip-pointtext .qtip-content .pointer{
+    width: 0; opacity: 0.7; height: 0; display: block; border-color: #e86e81 transparent transparent; position: absolute; bottom: -24px; right: 50px; border-style: solid; border-width: 12px 12px;
+}
+.qtip.tip-pointtext .qtip-content .tip-pointtext-contentbg{
+    position:absolute; top:0; left:0; width:250px; height:180px; border-radius:8px;
+    background:#e86e81; opacity:0.7; filter:alpha(opacity=70);
+}
+.qtip.tip-pointtext .qtip-content .tip-pointtextcontent{
+    position:absolute; top:10px; left:10px; width:230px; height:160px; color:#fff; overflow-y:auto;
+}
+.successTip{
+    display:none;
+    width: 305px; position: absolute; bottom: 56px; height: 40px; line-height: 40px; text-align: center; background: pink; color: #3c5a78;
+}

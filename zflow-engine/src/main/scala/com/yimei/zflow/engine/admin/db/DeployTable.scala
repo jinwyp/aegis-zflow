@@ -1,8 +1,8 @@
-package com.yimei.zflow.engine.db
+package com.yimei.zflow.engine.admin.db
 
 import java.sql.{Blob, Timestamp}
 
-import com.yimei.zflow.engine.db.Entities.DeployEntity
+import com.yimei.zflow.engine.admin.db.Entities.DeployEntity
 import com.yimei.zflow.util.DB
 
 /**

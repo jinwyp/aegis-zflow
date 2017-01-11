@@ -21,9 +21,9 @@ import scala.concurrent.Future
 object ThymeleafConfig {
 
   val templateResolver = new FileTemplateResolver();
-  val prefix = "web/template"
+  val prefix = "zflow-admin/backend/"
 
-  templateResolver.setPrefix(prefix); //区分环境
+  templateResolver.setPrefix(prefix);
   templateResolver.setSuffix(".html");
   templateResolver.setTemplateMode(TemplateMode.HTML);
   templateResolver.setCacheTTLMs(3600000L);
@@ -39,4 +39,6 @@ object ThymeleafConfig {
     })
     complete(HttpResponse(status = StatusCodes.OK, entity = HttpEntity(`text/html(UTF-8)`, src)))
   }
+
+  def context: Context = new Context()
 }

@@ -30,5 +30,5 @@ class FlowServiceTest extends WordSpec with Matchers with FlowService {
     }
   }
 
-  override val flowServiceTimeout: Timeout = Timeout(2 seconds)
+  override val flowServiceTimeout: Timeout = Timeout(2.seconds)
 }

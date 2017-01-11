@@ -41,7 +41,7 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
   val timeout = graph.timeout
 
   log.info(s"timeout is $timeout")
-  context.setReceiveTimeout(timeout seconds)
+  context.setReceiveTimeout(timeout.seconds)
 
   override var state = State(flowId, guid, Map(), Map("start" -> true), Nil, graph.flowType)
 

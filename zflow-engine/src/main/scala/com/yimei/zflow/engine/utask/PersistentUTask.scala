@@ -30,7 +30,7 @@ class PersistentUTask(modules: Map[String, ActorRef],
   var state: State = State(userId, userType, Map[String, CommandUserTask]()) // 用户的状态不断累积!!!!!!!!
 
   // 超时
-  context.setReceiveTimeout(passivateTimeout seconds)
+  context.setReceiveTimeout(passivateTimeout.seconds)
 
   // 恢复
   def receiveRecover = {

@@ -96,7 +96,7 @@ abstract class ModuleMaster(moduleName: String, dependOn: Array[String], askWho:
       // dependent module died
       case Terminated(ref) =>
         log.error(s"$moduleName restart because of ${ref.path.name} died")
-        context.setReceiveTimeout(50 millis)
+        context.setReceiveTimeout(50.millis)
         context.become(identify) // re-enter the identify
         context.children.foreach(context.stop(_)) // stop all child
 

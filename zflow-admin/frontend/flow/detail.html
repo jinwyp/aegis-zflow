@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>form</title>
+    <style type="text/css">
+        *{margin:0;padding: 0;list-style: none;}
+        body{background: #f6f6f6;}
+        .warp{width: 1000px;height:500px;margin: 0 auto;font-size: 16px;background: #ffffff;padding:50px 20px;}
+        /*.inputDiv{ display: inline-block;}*/
+        /*form label{display: inline-block;line-height: 40px;width: 95px;text-align: right;}*/
+        /*.type select{width: 170px;height: 30px;font-size: 14px;background: #ffffff;border: 1px solid #e4e4e4;}*/
+        input[type="text"]{width: 170px;height: 30px;line-height: 30px;padding-left: 10px;font-size: 14px;border: 1px solid #e4e4e4;}
+        table{width: 95%;margin-top: 50px; border-collapse:collapse;}
+        table td{text-align: center;border: 1px solid #e4e4e4;padding:10px 0;}
+        table td span{display: inline-block;width: 170px;height: 30px;line-height: 30px;padding-left: 10px;font-size: 14px;border: 1px solid #e4e4e4;text-align: left;}
+        .btn{text-align: center;margin-top: 50px;}
+        .submit{width: 90px;height: 35px;line-height: 35px;background: #23b7e5;border: 0;color: #ffffff;font-size: 14px;border-radius: 2px;outline: none;cursor: pointer;}
+        /*.marginB60{margin-bottom: 60px;}*/
+        .description span{color: #333333;font-weight: normal;}
+        .description{color:#23b7e5;font-weight: bold;font-family: Arial;line-height: 28px;}
+    </style>
+</head>
+<body>
+<div class="warp">
+    <form>
+        <div class="description">
+            description:&nbsp;&nbsp;<span class="desC">暂无</span>
+        </div>
+        <table class="table" id="tb1">
+            <tr>
+                <td><span>key</span></td>
+                <td><input type="text" placeholder="value" /></td>
+            </tr>
+        </table>
+        <!-- <div id="dataView"></div> -->
+        <div class="btn"><input type="button" class="submit" value="提交"></div>
+    </form>
+</div>
+<script type="text/javascript" src="../lib/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        //从URL中获取参数
+        function GetQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+            var r = window.location.search.substr(1).match(reg);
+            var context = "";
+            if (r != null)
+                context = r[2];
+            reg = null;
+            r = null;
+            return context == null || context == "" || context == "undefined" ? "" : context;
+        }
+       // className=rz&
+        // companyId=1&
+        // userId=husbandId&
+        // taskName=FillInApplyMessage&
+        // taskId=e51bb4d8-060b-47dd-9069-82c92aa8b296&
+        // flowId=money!rz-1!husbandId!4
+        //flowType=money
+
+        var className = GetQueryString("className");
+        var companyId = GetQueryString("companyId");
+        var userId = GetQueryString("userId");
+        var taskName = GetQueryString("taskName");
+        var taskId = GetQueryString("taskId");
+        var flowId = GetQueryString("flowId");
+        var flowType = GetQueryString("flowType");
+
+
+
+
+        var points = [];
+        var inputs = [];
+        var newArr = {};
+        //var temp = [];
+        var index = 0;
+
+        ///api/graph/money/FillInApplyMessage
+
+        $.ajax({
+            method: "GET",
+            url:"/api/graph/"+flowType+"/"+taskName,
+            dataType:'json'
+        }).done(function(data){
+            $(".desC").html(data.description);
+
+            points =data.points;
+
+//            {
+//                "RepaymentTime": {
+//                "value": "2017/01/01"
+//            },
+//                "UnequalTreaty":{
+//                "value":"han...!!!!."
+//            }
+//            }
+
+            var table = document.getElementById("tb1");
+            var temp = "<tr><td><span>数据点</span></td>" +
+                "<td><span>数据</span></td>" +
+                "<td><span>memo</span></td></tr>";
+            for (var key in data.points)         //这要改
+            {   inputs[index] = data.points[key];
+                index = index + 1;
+                temp = temp + "<tr><td><span id='s"+data.points[key]+"' >"+data.points[key]+"</span></td>" +
+                        "<td><input id='val"+data.points[key]+"' type=\"text\" name='value' placeholder=\"value\"/></td>" +
+                        "<td><input id='mval"+data.points[key]+"' type=\"text\" name='memo' placeholder=\"value\"/></td></tr>";
+            }
+            table.innerHTML = temp;
+        }).fail(function(){
+            // console.log(error);
+        });
+
+
+        function arrAdd(){
+            for(var key in inputs){
+                var t = {};
+                t.value = $("#val"+inputs[key]).val();
+                t.memo = $("#mval"+inputs[key]).val();
+                newArr[inputs[key]] = t;
+            }
+//            var txt = $( "tr" );
+//            for(var i = 0; i < txt.length; i++){
+//                inputs.push(txt.eq(i).val());
+//            }
+//            for(var i = 0; i < points.length; i++){
+//                newArr[points[i]] = inputs[i];
+//            }
+        }
+
+//        pathPrefix("utaskmap" / Segment / Segment / Segment / Segment /Segment /Segment ) {
+//            (party,instance_id,user_id,task_id,flowId,taskName) =
+//        }>
+//            entity(as[Map[String,UserSubmitMap]]) { data =>
+
+
+        $(".submit").click(function(){
+            arrAdd();
+            console.log(newArr);
+
+            $.ajax({
+                method: "Put",
+                url:"/api/utaskmap/"+className+"/"+companyId+"/"+userId+"/"+taskId+"/"+flowId+"/"+taskName,
+                data:JSON.stringify(newArr),
+                contentType: "application/json; charset=utf-8"
+            }).done(function(){
+                alert("提交成功！");
+            }).fail(function(){
+                // console.log(error);
+            })
+        })
+
+
+    })
+</script>
+</body>
+</html>

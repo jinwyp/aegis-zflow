@@ -1,0 +1,122 @@
+body{
+    background:#3c5b78;
+}
+header, .container{
+    width:1200px; margin:0 auto;
+}
+.container{
+    background-color: white;
+}
+.panel-main{
+    width:1200px;
+    margin:0 auto;
+    text-align: center;
+}
+.panel-heading.search-title{ color:#3c5a78; }
+.panel-heading .search-border{
+    width:100%;
+    height:1px;
+    margin-top:10px;
+    border-bottom: 1px solid #d8dee4;
+}
+.panel-heading,.panel-body{
+    text-align: left;
+}
+.ml-10{  margin-left: 10px;  }
+.search-body label{
+    width:66px;
+    margin-bottom:0;
+    vertical-align: middle;
+}
+.search-user>input,.search-flow>input,.search-input>input{
+    height:32px;
+    line-height: 32px;
+    padding:0 10px;
+    border:1px solid #8494a4;
+    background-color: #f6f9ff;
+}
+.search-user .search-user-type input,.search-flow .search-flow-type input,.search-flow .search-status input{
+    border: none;
+}
+.search-user{
+    z-index: 10;
+}
+.search-user .search-user-type,.search-flow .search-flow-type,.search-flow .search-status{
+    position: relative;
+    display: inline-block;
+}
+.search-user .search-user-type .search-input,.search-flow .search-flow-type .search-input,.search-flow .search-status .search-input{
+    border:1px solid #8494a4;
+    background-color: #f6f9ff;
+}
+.search-user .search-user-type .search-ul,.search-flow .search-flow-type .search-ul,.search-flow .search-status .search-ul{
+    width: 100%;
+    padding:0 10px;
+    list-style: none;
+    background-color: #f6f9ff;
+    position: absolute;
+    left:0;
+    top:34px;
+    border-left:#8494a4 1px solid;
+    border-right:#8494a4 1px solid;
+    border-bottom:#8494a4 1px solid;
+}
+.search-user .search-user-type .search-ul li:hover,.search-flow .search-flow-type .search-ul li:hover,.search-flow .search-status .search-ul li:hover{
+    background-color: #e8f1f9;
+}
+.search-user .search-user-type .search-ul li,.search-flow .search-flow-type .search-ul li,.search-flow .search-status .search-ul li{
+    padding: 6px 0;
+}
+.search-user .search-user-type .arrow-down,.search-flow .search-flow-type .arrow-down,.search-flow .search-status .arrow-down{
+    background-image: url("../img/arrow_down.png");
+    display: inline-block;
+    margin-right:10px;
+    width:10px;
+    height:10px;
+}
+.search-flow{
+    margin-top:20px;
+    margin-bottom:20px;
+    z-index: 1;
+}
+.search-flow #input-flow-id,.search-flow .search-flow-type,.search-flow .search-status{
+    vertical-align: middle;
+}
+.search-flow input.btn,.search-flow div.btn{
+    width:120px;
+    height:34px;
+    vertical-align: middle;
+}
+.search-flow input.btn-submit,.search-flow div.btn-submit  {
+    border: 1px solid #5ac5d2;
+    background-color: #5ac5d2;
+    color: #fff;
+}
+.search-flow input.btn-clear{
+    border: 1px solid #a8b6c3;
+    background-color: #a8b6c3;
+    color: #fff;
+}
+.btn-text{
+    vertical-align: middle;
+    margin-left:10px;
+}
+.search-icon{
+    background-image: url("../img/search_icon.png");
+    display: inline-block;
+    width:20px;
+    height:20px;
+    vertical-align: middle;
+}
+
+.table-striped{
+    color: #3c5a78;
+}
+.table-striped tbody tr.tr-title{
+    background-color: #e8f1f9;
+    color: #909fac;
+}
+
+#panel-pagination{
+    display: inline-block;
+}

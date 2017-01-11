@@ -28,7 +28,7 @@ class PersistentGTask(modules: Map[String, ActorRef], timeout: Int) extends Abst
   override var state: State = State(ggid, Map[String, CommandGroupTask]()) // group的状态不断累积!!!!!!!!
 
   // 超时
-  context.setReceiveTimeout(timeout seconds)
+  context.setReceiveTimeout(timeout.seconds)
 
 
   // 恢复

@@ -11,6 +11,7 @@ import akka.util.Timeout
 
 import scala.concurrent.duration._
 import com.yimei.zflow.api.GlobalConfig._
+import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.organ.OrganRoute
@@ -21,11 +22,11 @@ import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
   */
 object FlowApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
-} with App with FlowExceptionHandler with EngineRoute with OrganRoute {
+} with App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute {
 
-  override val utaskTimeout = Timeout(3 seconds)
-  override val flowServiceTimeout = Timeout(3 seconds)
-  override val gtaskTimeout = Timeout(3 seconds)
+  override val utaskTimeout = Timeout(3.seconds)
+  override val flowServiceTimeout = Timeout(3.seconds)
+  override val gtaskTimeout = Timeout(3.seconds)
 
   val config = coreSystem.settings.config
   val jdbcUrl = config.getString("database.jdbcUrl")
@@ -51,9 +52,8 @@ object FlowApp extends {
   // prepare routes
   val route: Route =
     logRequestResult(extractLogEntry _) {
-      pathPrefix("api") {
-        engineRoute ~ organRoute
-      } ~ FlowRegistry.routes
+      pathPrefix("api") { engineRoute ~ organRoute } ~
+      pathPrefix("admin") { adminRoute }
     }
 
   implicit val httpExecutionContext = coreSystem.dispatcher
