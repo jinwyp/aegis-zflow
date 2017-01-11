@@ -11,6 +11,7 @@ import com.yimei.zflow.engine.graph.FlowGraph
 import com.yimei.zflow.api.GlobalConfig._
 
 import scala.annotation.meta.getter
+import scala.collection.immutable.Iterable
 
 /**
   * Created by hary on 16/12/7.
@@ -50,11 +51,19 @@ object FlowRegistry {
   @(volatile@getter)
   var id: ActorRef = null
 
-  def routes: Route = registries.map { entry =>
-    pathPrefix(entry._1) {
-      entry._2.route()
+  def routes: Route = {
+
+    val empty: Route = get {
+      path("impossible") {
+        complete("impossible")
+      }
     }
-  }.reduceLeft((l, r) => l ~ r)
+    registries.map { entry =>
+      pathPrefix(entry._1) {
+        entry._2.route()
+      }
+    }.foldLeft(empty)((l, r) => l ~ r)
+  }
 
 
   /**

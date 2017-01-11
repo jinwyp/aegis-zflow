@@ -24,9 +24,7 @@ object GraphLoader extends GraphConfigProtocol {
 
   def getClassLoader(flowType: String) = {
     flowType match {
-//      case "ying" => YingGraphJar.getClass.getClassLoader
-//      case "money" => MoneyGraphJar.getClass.getClassLoader
-//      case "cang" => CangGraphJar.getClass.getClassLoader
+      case "money" => this.getClass.getClassLoader
 //      case "zhou" =>
 //        // todo xj
 //        // 改为从数据库deploy表里读取jar文件 写入/tmp/$flowType.jar
@@ -64,7 +62,7 @@ object GraphLoader extends GraphConfigProtocol {
           FlowRegistry.register(flowType, loadGraph(flowType, classLoader))
         } catch {
           case e: Throwable =>
-            println(flowType + "!!!!!!!" + e.getMessage)
+            println(flowType + "!!!!!!! error:" + e.getMessage)
 
             false
         }
@@ -76,9 +74,7 @@ object GraphLoader extends GraphConfigProtocol {
     import spray.json._
 
     val jsonFile = gFlowType match {
-      case "ying" => "ying.json"
       case "money" => "money.json"
-      case "cang" => "cang.json"
       case _ => "flow.json"
     }
 

@@ -35,7 +35,7 @@ trait IdBufferable {
 
   private def getBuffer() = {
     val fpid = (myIdGenerator ? CommandGetId(bufferKey, bufferSize)).mapTo[Id]
-    curId = Await.result(fpid, 2 seconds).id
+    curId = Await.result(fpid, 2.seconds).id
     max = curId + bufferSize;
   }
 }

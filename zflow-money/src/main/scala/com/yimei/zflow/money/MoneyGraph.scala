@@ -1,4 +1,4 @@
-package com.yimei.zflow.money.config
+package com.yimei.zflow.money
 
 import akka.http.scaladsl.server.Route
 import com.yimei.zflow.api.models.auto.CommandAutoTask
@@ -43,6 +43,6 @@ object MoneyGraph {
   }
 
   // 这里可以加上其他的route
-  def route(): Route = UTaskRoute.utaskRoute
+  def moduleRoute(): Route = UTaskRoute.utaskRoute
 
 }

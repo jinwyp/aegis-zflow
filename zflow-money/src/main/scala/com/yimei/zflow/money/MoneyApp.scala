@@ -24,8 +24,9 @@ object MoneyApp extends App {
   val idGenerator = system.actorOf(IdGenerator.props("IdGenerator"))
 
   def extractLogInfo(req: HttpRequest): RouteResult => Option[LogEntry] = {
-    case RouteResult.Complete(res) => Some(LogEntry(req.method.name +  " " + req.uri.path + " : " + res.status, Logging.InfoLevel))
-    case _                         => None // no log entries for rejections
+    case RouteResult.Complete(res) =>
+      Some(LogEntry(req.method.name +  " " + req.uri.path + " : " + res.status, Logging.InfoLevel))
+    case _ => None // no log entries for rejections
   }
 
   // 启动http服务

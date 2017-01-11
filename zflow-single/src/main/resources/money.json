@@ -1,0 +1,110 @@
+{
+  "initial": "V0",
+  "groupId": "com.yimei.zflow",
+  "artifact": "money",
+  "entry": "MoneyGraph",
+  "timeout": 100,
+  "persistent": true,
+  "points": {
+    "Wife":"妻子",
+    "SuccessRate" : "申请成功率",
+    "Reason" : "申请经费原因",
+    "Amount" : "申请钱数",
+    "LoanReceipt" : "借条",
+    "Friend" : "小伙伴（证人）",
+    "FriendEvidence" : "小伙伴的证词",
+    "RepaymentTime" : "还款时间",
+    "UnequalTreaty" : "不平等条约",
+    "Approve" : "是否批准"
+  },
+  "vertices": {
+    "V0": { "description":"发起申请" },
+    "V1": { "description":"占卜判断" },
+    "V3": { "description":"确认朋友真假" },
+    "V4": { "description":"收集材料" },
+    "V5": { "description":"提交前的最后一个检查"},
+    "V6": { "description":"提交前的最后一个检查"}
+  },
+  "autoTasks": {
+    "Divination" :{"description": "占卜",   "points": ["SuccessRate"]}
+  },
+  "userTasks": {
+    "FillInApplyMessage"    :{"description": "填写申请信息", "points": ["Reason", "Amount"]},
+    "UploadReceipt" :{"description": "上传", "points": [ "LoanReceipt" ]},
+    "AssignFriend" :{"description": "指定一个小伙伴作证", "points": [ "Friend" ]},
+    "WriteFriendEvidence"    :{"description": "小伙伴填写证词", "points": [ "FriendEvidence"]},
+    "Swear"    :{"description": "确认还钱时间，并且签订不平等条约", "points": [ "RepaymentTime", "UnequalTreaty"]},
+    "WifeApprove" : {"description":"是否批准", "points":["Approve"]}
+  },
+  "edges": {
+    "E1": {
+      "name": "E1",
+      "begin": "V0",
+      "end": "V1",
+      "userTasks": [],
+      "partGTasks": [],
+      "partUTasks": [],
+      "autoTasks": ["Divination"]
+    },
+    "E2": {
+      "name": "E2",
+      "begin": "V1",
+      "end": "V4",
+      "userTasks": ["FillInApplyMessage", "UploadReceipt"],
+      "partGTasks": [],
+      "partUTasks": [],
+      "autoTasks": []
+    },
+    "E3": {
+      "name": "E3",
+      "begin": "V1",
+      "end": "V3",
+      "userTasks": ["AssignFriend"],
+      "autoTasks": [],
+      "partGTasks": [],
+      "partUTasks": []
+    },
+    "E4": {
+      "name": "E4",
+      "begin": "V3",
+      "end": "V4",
+      "userTasks": [],
+      "partGTasks": [],
+      "partUTasks": [{
+        "guidKey": "Friend",
+        "tasks": ["WriteFriendEvidence"]
+      }],
+      "autoTasks": []
+    },
+    "E5": {
+      "name": "E5",
+      "begin": "V4",
+      "end": "V5",
+      "userTasks": ["Swear"],
+      "partGTasks": [],
+      "partUTasks": [],
+      "autoTasks": []
+    },
+    "E6": {
+      "name": "E6",
+      "begin": "V5",
+      "end": "V6",
+      "userTasks": [],
+      "partGTasks": [],
+      "partUTasks": [{
+        "guidKey": "Wife",
+        "tasks": ["WifeApprove"]
+      }],
+      "autoTasks": []
+    },
+    "E7": {
+      "name": "E6",
+      "begin": "V6",
+      "end": "V4",
+      "userTasks": [],
+      "partGTasks": [],
+      "partUTasks": [],
+      "autoTasks": []
+    }
+  }
+}

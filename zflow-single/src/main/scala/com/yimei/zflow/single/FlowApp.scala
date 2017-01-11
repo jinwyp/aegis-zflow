@@ -9,7 +9,7 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.LogEntry
 import akka.util.Timeout
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.engine.EngineRoute
+import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.organ.OrganRoute
@@ -52,16 +52,10 @@ object FlowApp extends {
   // prepare routes
   val route: Route =
     logRequestResult(extractLogEntry _) {
-      pathPrefix("zflow" / "api") {
-        engineRoute
-      } ~
-        pathPrefix("organ" / "api") {
-          organRoute
-        } ~
-        pathPrefix("zflow") {
-          adminRoute
-        }
-      // ~ FlowRegistry.routes
+      pathPrefix("zflow" / "api") { engineRoute } ~
+      pathPrefix("organ" / "api") { organRoute } ~
+      pathPrefix("zflow") { adminRoute } ~
+      FlowRegistry.routes
     }
 
   implicit val httpExecutionContext = coreSystem.dispatcher
