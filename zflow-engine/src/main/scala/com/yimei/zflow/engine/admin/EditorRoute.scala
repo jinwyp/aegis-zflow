@@ -5,8 +5,7 @@ import java.nio.file.Paths
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
-import akka.http.scaladsl.model.headers.{`Content-Disposition`, ContentDispositionTypes}
-
+import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -18,10 +17,9 @@ import com.yimei.zflow.engine.admin.Models._
 import com.yimei.zflow.engine.admin.db.DesignTable
 import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
 import com.yimei.zflow.util.Archiver
-import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
-import org.apache.commons.compress.utils.IOUtils
 
 import scala.concurrent.Future
+import scala.io.BufferedSource
 
 /**
   * Created by hary on 16/12/28.
@@ -70,13 +68,13 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
     path("download" / LongNumber) { id =>
       onSuccess(genTar(id)) {
         case (source, name) =>
-        complete(
-          HttpResponse(
-            status = StatusCodes.OK,
-            entity = HttpEntity(`application/octet-stream`, source),
-            headers = List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" -> name)))
+          complete(
+            HttpResponse(
+              status = StatusCodes.OK,
+              entity = HttpEntity(`application/octet-stream`, source),
+              headers = List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" -> name)))
+            )
           )
-        )
       }
     }
   }
@@ -90,20 +88,25 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
     */
   private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
 
-    // todo 测试!!!
-    import spray.json._
-    val graphConfig = scala.io.Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json"))
-      .mkString
-      .parseJson
-      .convertTo[GraphConfig]
-
-    CodeEngine.genAll(graphConfig)(coreSystem).map { entry =>
-      val root = entry._1
-      val name = entry._2
-      val srcPath = root + File.separator + name
-      Archiver.archive(srcPath, srcPath + ".tar")
-      (FileIO.fromPath(Paths.get(root + File.separator + name + ".tar")), name + ".tar")
+    // 用id从design表中将json字段读取出来
+    val fjson: Future[String] = Future {
+      scala.io.Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json")).mkString
     }
+
+    import spray.json._
+    val fconfig = fjson.map(_.parseJson.convertTo[GraphConfig])
+
+    // todo 测试!!!
+    for {
+      config <- fconfig
+      result <- CodeEngine.genAll(config)(coreSystem).map { entry =>
+        val root = entry._1
+        val name = entry._2
+        val srcPath = root + File.separator + name
+        Archiver.archive(srcPath, srcPath + ".tar")
+        (FileIO.fromPath(Paths.get(root + File.separator + name + ".tar")), name + ".tar")
+      }
+    } yield result
   }
 
 
