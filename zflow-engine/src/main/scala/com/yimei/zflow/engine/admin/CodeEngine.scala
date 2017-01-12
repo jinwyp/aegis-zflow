@@ -28,37 +28,17 @@ object CodeEngine {
   ftlConfig.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
   ftlConfig.setLogTemplateExceptions(false);
 
-  case class CodeMeta(groupId: String, artifact: String, entry: String, filename: String)
-  case class CodeConfig( points: JMap[String, String],
-                         vertices: JMap[String, String],
-                         edges: JMap[String, Edge],
-                         utasks: JMap[String, TaskInfo],
+  case class CodeMeta(groupId: String, artifact: String, entry: String)
+
+  case class CodeConfig(points: JMap[String, String],
+                        vertices: JMap[String, String],
+                        edges: JMap[String, Edge],
+                        utasks: JMap[String, TaskInfo],
                         auto: JMap[String, TaskInfo]
                        )
+
   case class CodePoints(points: JMap[String, String])
 
-  /*
-  package #{groupId}.#{artifact}.config
-
-  object #{entry}Config {
-
-    // points
-    val point_#{point} = "#{point}"  //  #{desc}
-
-    // vertices
-    val vertex_#{vertex} = "#{vertex}"  // #{desc}
-
-    // edges
-    val edge_#{edge} = "#{edge}"
-
-    // user tasks
-    val utask_#{utask}  = "#{utask}"
-
-    // auto tasks
-    val auto_#{auto} = "#{auto}"
-
-  }
-  */
 
   def process(template: String, tdata: JMap[String, AnyRef]): Future[String] = {
     Future {
@@ -72,26 +52,28 @@ object CodeEngine {
   def genFile(template: String, tdata: JMap[String, AnyRef], root: String, project: String)(implicit materializer: ActorMaterializer) = {
     val meta = tdata.get("meta").asInstanceOf[CodeMeta]
     val entries = template.split("\\.").toList.init
-    val dirs: List[String] = root :: project :: "src" :: "main" :: "scala" :: (
+
+    val sets =  if (template.endsWith("Test.ftl")) "test" else "main"
+    val dirs: List[String] = root :: project :: "src" :: sets :: "scala" :: (
       meta.groupId.split("\\.").toList ++: (meta.artifact :: {
         if (entries.size == 1) Nil else entries.init
-      })
-      )
+      }))
+
     val dir = dirs.reduceLeft((a, b) => a + File.separator + b)
-    val outputFile = dir + File.separator + meta.filename
-      FileUtils.forceMkdir(new File(dir))
+    val outputFile = dir + File.separator + tdata.get("file")
+    FileUtils.forceMkdir(new File(dir))
 
     val fsrc: Source[ByteString, NotUsed] = Source.fromFuture(process(template, tdata).map(ByteString(_)))
     val sink = FileIO.toPath(Paths.get(outputFile), Set(CREATE, WRITE))
     val runnable = fsrc.toMat(sink)(Keep.right)
 
-    runnable.run().map(result => (meta.filename, result))
+    runnable.run().map(result => (tdata.get("file"), result))
   }
 
-//  def genAll() = {
-//    val models = List(
-//      new JMap[String, AnyRef](){ put("meta", null); put("models", models)}
-//    )
-//    // Future.traverse()
-//  }
+  //  def genAll() = {
+  //    val models = List(
+  //      new JMap[String, AnyRef](){ put("meta", null); put("models", models)}
+  //    )
+  //    // Future.traverse()
+  //  }
 }

@@ -1,20 +1,20 @@
-package #{groupId}.#{artifact}.utask
+package ${meta.groupId()}.${meta.artifact()}.utask
 
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
-import #{groupId}.#{artifact}.utask.Models._
+import ${meta.groupId()}.${meta.artifact()}.code.Models._
 
-trait Task#{utask} {
+trait Task${code} {
 
-  def get#{utask}: Route = get {
-    path("task" / "#{utask}" ) {
-      complete("get task/#{utask}")
+  def get${code}: Route = get {
+    path("task" / "${code}" ) {
+      complete("get task/${code}")
     }
   }
 
-  def post#{utask}: Route = post {
-    path("task" / "#{utask}") {
-      complete("post task/#{utask}")
+  def post${code}: Route = post {
+    path("task" / "${code}") {
+      complete("post task/${code}")
     }
   }
 

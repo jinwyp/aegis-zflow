@@ -3,19 +3,19 @@ package ${meta.groupId()}.${meta.artifact()}.utask
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalatest.{Matchers, WordSpec}
 
-class Task${utask}Test extends WordSpec  with Matchers with ScalatestRouteTest with Task${utask} {
+class Task${code}Test extends WordSpec  with Matchers with ScalatestRouteTest with Task${code} {
 
-  "Task${utask}Test" should {
+  "Task${code}Test" should {
 
     "getAssignFriend" in {
-      Get("/task/${utask}") ~> get${utask} ~> check {
-        responseAs[String] shouldBe "get task/${utask}"
+      Get("/task/${code}") ~> get${code} ~> check {
+        responseAs[String] shouldBe "get task/${code}"
       }
     }
 
-    "post${utask}" in {
-      Post("/task/${utask}") ~> post${utask} ~> check {
-        responseAs[String] shouldBe "post task/${utask}"
+    "post${code}" in {
+      Post("/task/${code}") ~> post${code} ~> check {
+        responseAs[String] shouldBe "post task/${code}"
       }
     }
   }
