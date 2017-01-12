@@ -60,7 +60,7 @@ object CodeEngine extends GraphConfigProtocol {
     var dir: String = null
     var outputFile: String = null
 
-    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties") {
+    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties" || template.endsWith(".conf")) {
       dir = root + File.separator + project + File.separator + "project"
       outputFile = dir + File.separator + template
     } else {
@@ -104,6 +104,9 @@ object CodeEngine extends GraphConfigProtocol {
 
     val all =
       m("Build.scala", "Build.scala", null) ::
+      m("application.conf", "application.conf", null) ::
+      m("persistence-leveldb.conf", "persistence-leveldb.conf", null) ::
+      m("persistence-redis.conf", "persistence-redis.conf", null) ::
       m("build.properties", "build.properties", null) ::
       m("plugins.sbt", "pluings.sbt", null) ::
       m("XFlowApp.ftl", s"${gc.entry}App.scala", getAppCode(gc)) ::
