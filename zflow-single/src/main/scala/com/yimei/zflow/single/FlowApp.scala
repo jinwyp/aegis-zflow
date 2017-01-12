@@ -56,13 +56,7 @@ object FlowApp extends {
     case _ => None // no log entries for rejections
   }
 
-  import spray.json._
-  val graphConfig = Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json"))
-    .mkString
-    .parseJson
-    .convertTo[GraphConfig]
 
-  CodeEngine.genAll(graphConfig)
 
   // prepare routes
   val route: Route =

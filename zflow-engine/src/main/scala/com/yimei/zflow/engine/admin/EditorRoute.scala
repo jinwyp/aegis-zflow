@@ -5,12 +5,15 @@ import java.nio.file.Paths
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
+import akka.http.scaladsl.model.headers.{`Content-Disposition`, ContentDispositionTypes}
+
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.IOResult
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
+import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
 import com.yimei.zflow.engine.admin.Models._
 import com.yimei.zflow.engine.admin.db.DesignTable
 import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
@@ -24,7 +27,7 @@ import scala.concurrent.Future
   * Created by hary on 16/12/28.
   */
 
-trait EditorRoute extends DesignTable with SprayJsonSupport {
+trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProtocol {
 
   import driver.api._
 
@@ -65,11 +68,13 @@ trait EditorRoute extends DesignTable with SprayJsonSupport {
   // 4> 下载模板项目:      GET /design/download/:id
   def download: Route = get {
     path("download" / LongNumber) { id =>
-      onSuccess(genTar(id)) { (source: Source[ByteString, Future[IOResult]]) =>
+      onSuccess(genTar(id)) {
+        case (source, name) =>
         complete(
           HttpResponse(
             status = StatusCodes.OK,
-            entity = HttpEntity(`application/octet-stream`, source)
+            entity = HttpEntity(`application/octet-stream`, source),
+            headers = List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" -> name)))
           )
         )
       }
@@ -83,30 +88,24 @@ trait EditorRoute extends DesignTable with SprayJsonSupport {
     *
     * 最终产生一个生成个文件的Future[ByteString]
     */
-  private def genTar(id: Long): Future[Source[ByteString, Future[IOResult]]] = {
-    CodeEngine.genAll(null)(coreSystem).map { entry =>
+  private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
+
+    // todo 测试!!!
+    import spray.json._
+    val graphConfig = scala.io.Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json"))
+      .mkString
+      .parseJson
+      .convertTo[GraphConfig]
+
+    CodeEngine.genAll(graphConfig)(coreSystem).map { entry =>
       val root = entry._1
       val name = entry._2
       val srcPath = root + File.separator + name
-      Archiver.archive(srcPath, root)
-      FileIO.fromPath(Paths.get(root + File.separator + name + ".tar"))
+      Archiver.archive(srcPath, srcPath + ".tar")
+      (FileIO.fromPath(Paths.get(root + File.separator + name + ".tar")), name + ".tar")
     }
   }
 
-  // 生成 tar.gz 文件
-  def addFileToCompression(tos: TarArchiveOutputStream, file: File, dir: String) {
-    val tae: TarArchiveEntry = new TarArchiveEntry(file, dir)
-    tos.putArchiveEntry(tae)
-    if (file.isDirectory()) {
-      tos.closeArchiveEntry()
-      file.listFiles().foreach(childFile => addFileToCompression(tos, childFile, dir + "/" + childFile.getName()))
-    } else {
-      val fis: FileInputStream = new FileInputStream(file)
-      IOUtils.copy(fis, tos)
-      tos.flush()
-      tos.closeArchiveEntry()
-    }
-  }
 
   // 总路由
   def editorRoute = pathPrefix("design") {

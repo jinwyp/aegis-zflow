@@ -14,7 +14,7 @@ object Archiver {
     * @param srcPath 源字符串路径
     * @param dstPath 目标字符串路径
     */
-  def archive(srcPath: String, dstPath: String) = {
+  def archive(srcPath: String, dstPath: String): Unit = {
     archive(new File(srcPath), dstPath)
   }
 
@@ -24,7 +24,7 @@ object Archiver {
     * @param dstPath  目标字符串路径
     * @return
     */
-  def archive(srcFile: File, dstPath: String) = {
+  def archive(srcFile: File, dstPath: String): Unit = {
     archive(srcFile, new File(dstPath))
   }
 
@@ -33,7 +33,7 @@ object Archiver {
     * @param srcFile 源文件路径
     * @param dstFile 目标文件路径
     */
-  def archive(srcFile: File, dstFile: File) = {
+  def archive(srcFile: File, dstFile: File): Unit = {
     val taos = new TarArchiveOutputStream(new FileOutputStream(dstFile))
     archive(srcFile, taos, "");
     taos.flush();
@@ -44,7 +44,7 @@ object Archiver {
     *
     * @param srcFile
     */
-  def archive(srcFile: File) = {
+  def archive(srcFile: File): Unit = {
     val name = srcFile.getName();
     val basePath = srcFile.getParent();
     val destPath = basePath + name + ".tar";
@@ -58,7 +58,7 @@ object Archiver {
     * @param taos
     * @param basePath
     */
-  private def archive(srcFile: File, taos: TarArchiveOutputStream, basePath: String) = {
+  private def archive(srcFile: File, taos: TarArchiveOutputStream, basePath: String): Unit = {
     if (srcFile.isDirectory()) {
       archiveDir(srcFile, taos, basePath);
     } else {
@@ -66,7 +66,7 @@ object Archiver {
     }
   }
 
-  private def archiveDir(dir: File, taos: TarArchiveOutputStream, basePath: String) = {
+  private def archiveDir(dir: File, taos: TarArchiveOutputStream, basePath: String): Unit = {
     val files: Array[File] = dir.listFiles();
 
     if (files.length < 1) {
@@ -76,10 +76,10 @@ object Archiver {
     }
 
     // 递归归档
-    files.foreach(archive(_, taos, basePath + dir.getName() + File.separator))
+    files.foreach((file: File) => archive(file, taos, basePath + dir.getName() + File.separator))
   }
 
-  private def archiveFile(file: File, taos: TarArchiveOutputStream, dir: String) = {
+  private def archiveFile(file: File, taos: TarArchiveOutputStream, dir: String): Unit = {
     val entry = new TarArchiveEntry(dir + file.getName());
     entry.setSize(file.length());
     taos.putArchiveEntry(entry);
@@ -88,7 +88,7 @@ object Archiver {
     var count = 0
     var data = new Array[Byte](1024)
 
-    while ((count = bis.read(data, 0, 1024)) != -1) {
+    while ( {count = bis.read(data, 0, 1024); count}  != -1) {
       taos.write(data, 0, count);
     }
     bis.close();
@@ -147,7 +147,7 @@ object Archiver {
   private def unarchive(dstFile: File,  tais:TarArchiveInputStream) {
 
     var entry: TarArchiveEntry = null
-    while ((entry = tais.getNextTarEntry()) != null) {
+    while ( {entry = tais.getNextTarEntry(); entry} != null) {
 
       // 文件
       val dir = dstFile.getPath() + File.separator + entry.getName();
@@ -209,7 +209,7 @@ object Archiver {
 
     var count = 0
     var data = new Array[Byte](1024);
-    while ((count = tais.read(data, 0, 1024)) != -1) {
+    while ( { count = tais.read(data, 0, 1024); count } != -1) {
       bos.write(data, 0, count);
     }
 
@@ -225,7 +225,7 @@ object Archiver {
     *
     * @param dirFile
     */
-  private def fileProber(dirFile: File) {
+  private def fileProber(dirFile: File): Unit = {
 
     val parentFile = dirFile.getParentFile();
     if (!parentFile.exists()) {

@@ -7,7 +7,7 @@ import ThymeleafConfig._
 /**
   * Created by hary on 17/1/11.
   */
-trait AdminRoute {
+trait AdminRoute extends EditorRoute {
 
   def devView: Route = get {
     path("dev") {
@@ -47,7 +47,7 @@ trait AdminRoute {
 
   def adminRoute: Route =
     pathPrefix("admin") {
-      devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView
+      devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView ~ editorRoute
     } ~ pathPrefix("static") {
       getFromDirectory("zflow-admin/static")
     }
