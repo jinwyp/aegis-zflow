@@ -1,15 +1,22 @@
 package com.yimei.zflow.engine.admin
 
+import java.io.{File, FileInputStream}
+import java.nio.file.Paths
+
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import akka.stream.scaladsl.Source
+import akka.stream.IOResult
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
 import com.yimei.zflow.engine.admin.Models._
 import com.yimei.zflow.engine.admin.db.DesignTable
+import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
+import com.yimei.zflow.util.Archiver
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
+import org.apache.commons.compress.utils.IOUtils
 
 import scala.concurrent.Future
 
@@ -58,12 +65,14 @@ trait EditorRoute extends DesignTable with SprayJsonSupport {
   // 4> 下载模板项目:      GET /design/download/:id
   def download: Route = get {
     path("download" / LongNumber) { id =>
-      complete(
-        HttpResponse(
-          status = StatusCodes.OK,
-          entity = HttpEntity(`application/octet-stream`, Source.fromFuture(genCode(id)))
+      onSuccess(genTar(id)) { (source: Source[ByteString, Future[IOResult]]) =>
+        complete(
+          HttpResponse(
+            status = StatusCodes.OK,
+            entity = HttpEntity(`application/octet-stream`, source)
+          )
         )
-      )
+      }
     }
   }
 
@@ -74,8 +83,29 @@ trait EditorRoute extends DesignTable with SprayJsonSupport {
     *
     * 最终产生一个生成个文件的Future[ByteString]
     */
-  private def genCode(id: Long): Future[ByteString] = {
-    Future.failed(new Exception("failed to gencode"))
+  private def genTar(id: Long): Future[Source[ByteString, Future[IOResult]]] = {
+    CodeEngine.genAll(null)(coreSystem).map { entry =>
+      val root = entry._1
+      val name = entry._2
+      val srcPath = root + File.separator + name
+      Archiver.archive(srcPath, root)
+      FileIO.fromPath(Paths.get(root + File.separator + name + ".tar"))
+    }
+  }
+
+  // 生成 tar.gz 文件
+  def addFileToCompression(tos: TarArchiveOutputStream, file: File, dir: String) {
+    val tae: TarArchiveEntry = new TarArchiveEntry(file, dir)
+    tos.putArchiveEntry(tae)
+    if (file.isDirectory()) {
+      tos.closeArchiveEntry()
+      file.listFiles().foreach(childFile => addFileToCompression(tos, childFile, dir + "/" + childFile.getName()))
+    } else {
+      val fis: FileInputStream = new FileInputStream(file)
+      IOUtils.copy(fis, tos)
+      tos.flush()
+      tos.closeArchiveEntry()
+    }
   }
 
   // 总路由

@@ -1,6 +1,6 @@
 package com.yimei.zflow.engine.admin
 
-import java.io.{ByteArrayOutputStream, File, OutputStreamWriter}
+import java.io._
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption._
 import java.util.{HashMap => JMap}
@@ -13,6 +13,7 @@ import akka.util.ByteString
 import com.yimei.zflow.api.models.flow.{Edge, TaskInfo}
 import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
 import freemarker.template.{Configuration, TemplateExceptionHandler}
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.FileUtils
 
 import scala.concurrent.Future
@@ -72,7 +73,7 @@ object CodeEngine extends GraphConfigProtocol {
     runnable.run().map(result => (tdata.get("file"), result))
   }
 
-  def genAll(gc: GraphConfig)(implicit system: ActorSystem) = {
+  def genAll(gc: GraphConfig)(implicit system: ActorSystem): Future[(String, String)] = {
     import java.util.{HashMap => JMap}
 
     val httpExecutionContext = system.dispatcher
@@ -103,10 +104,10 @@ object CodeEngine extends GraphConfigProtocol {
 
     Future.traverse(all) { entry =>
       CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")
-    }.foreach(_.foreach {
-      case (filename, result) =>
-        println(s"${filename} => ${result.status}, ${result.count} bytes read.")
-    })
+    }.map { fs =>
+      fs.foreach { case (filename, result) => println(s"${filename} => ${result.status}, ${result.count} bytes read.") }
+      ("/tmp", s"aegis-zflow-${gc.artifact}")
+    }
   }
 
   def getAppCode(graphConfig: GraphConfig) = null
