@@ -1,9 +1,10 @@
-import com.trueaccord.scalapb.{ScalaPbPlugin => PB}
+import com.trueaccord.scalapb.{ScalaPbPlugin, ScalaPbPlugin => PB}
 import sbt.Keys._
 import sbt._
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 object Resolvers {
+  resolvers += "yimei.com" at "http://maven.yimei180.com/content/groups/public/"
 }
 
 object Dependencies {
@@ -113,16 +114,17 @@ object Dependencies {
 
     // backend template
     "org.freemarker" % "freemarker" % freemarker,
-    "org.thymeleaf" % "thymeleaf" % thymeleaf
+    "org.thymeleaf" % "thymeleaf" % thymeleaf,
 
+    "com.yimei" %% "engine" % "0.0.1-SNAPSHOT"
   )
 }
 
 object BuildSettings {
 
-  val buildOrganization = "com.yimei"
-  val appName = "aegis-zflow"
-  val buildVersion = "0.0.2"
+  val buildOrganization = s"${meta.groupId()}"
+  val appName = s"aegis-zflow-${meta.artifact()}"
+  val buildVersion = "0.0.1-SNAPSHOT"
   val buildScalaVersion = "2.11.8"
   val buildScalaOptions = Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
@@ -138,23 +140,17 @@ object BuildSettings {
   ) ++ Revolver.settings
 }
 
-
 object PublishSettings {
 
   // publish settings
   val publishSettings = Seq(
     credentials += Credentials("Sonatype Nexus Repository Manager", "maven.yimei180.com", "admin", "admin123"),
+    publishTo := Some("Sonatype Nexus Repository Manager" at "http://maven.yimei180.com/content/repositories/snapshots"),
     publishMavenStyle := true,
-    isSnapshot := false,
+    isSnapshot := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { (repo: MavenRepository) => false },
-    pomExtra := pomXml,
-    publishTo := {
-      if (isSnapshot.value)
-        Some("Sonatype Nexus Repository Manager" at "http://maven.yimei180.com/content/repositories/snapshots")
-      else
-        Some("Sonatype Nexus Repository Manager" at "http://maven.yimei180.com/content/repositories/releases")
-    }
+    pomExtra := pomXml
   )
 
   lazy val pomXml = {
@@ -184,19 +180,5 @@ object ApplicationBuild extends Build {
 
   import BuildSettings._
   import PublishSettings._
-
-
-  lazy val zflowUtil = Project("util", file("zflow-util"), settings = buildSettings ++ publishSettings)
-  lazy val zflowEngine = Project("engine", file("zflow-engine"), settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
-  lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-
-  lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowSingle = Project("single", file("zflow-single"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowMoney)
-
-  //  val singleSettings = libraryDependencies ++= Seq("com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession)
-  //  lazy val zflowSingle  = Project("single", file("zflow-single"),
-  //    settings = buildSettings ++ publishSettings ++ singleSettings).dependsOn(zflowEngine)
-
-  lazy val root = Project(appName, file(".")).aggregate(zflowEngine, zflowUtil, zflowSingle, zflowCluster, zflowMoney)
-
+  lazy val root = Project(appName, file("."), settings = buildSettings ++ publishSettings)
 }

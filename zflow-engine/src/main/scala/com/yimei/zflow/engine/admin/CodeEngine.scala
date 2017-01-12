@@ -3,7 +3,8 @@ package com.yimei.zflow.engine.admin
 import java.io._
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption._
-import java.util.{HashMap => JMap}
+import java.util.{Map => JMap}
+import scala.collection.JavaConversions.mapAsJavaMap
 
 import akka.NotUsed
 import akka.actor.ActorSystem
@@ -11,7 +12,7 @@ import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
 import com.yimei.zflow.api.models.flow.{Edge, TaskInfo}
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
+import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol, Vertex}
 import freemarker.template.{Configuration, TemplateExceptionHandler}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.FileUtils
@@ -34,7 +35,7 @@ object CodeEngine extends GraphConfigProtocol {
   case class CodeMeta(groupId: String, artifact: String, entry: String)
 
   case class CodeConfig(points: JMap[String, String],
-                        vertices: JMap[String, String],
+                        vertices: JMap[String, Vertex],
                         edges: JMap[String, Edge],
                         utasks: JMap[String, TaskInfo],
                         auto: JMap[String, TaskInfo]
@@ -56,14 +57,23 @@ object CodeEngine extends GraphConfigProtocol {
     val meta = tdata.get("meta").asInstanceOf[CodeMeta]
     val entries = template.split("\\.").toList.init
 
-    val sets = if (template.endsWith("Test.ftl")) "test" else "main"
-    val dirs: List[String] = root :: project :: "src" :: sets :: "scala" :: (
-      meta.groupId.split("\\.").toList ++: (meta.artifact :: {
-        if (entries.size == 1) Nil else entries.init
-      }))
+    var dir: String = null
+    var outputFile: String = null
 
-    val dir = dirs.reduceLeft((a, b) => a + File.separator + b)
-    val outputFile = dir + File.separator + tdata.get("file")
+    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties") {
+      dir = root + File.separator + project + File.separator + "project"
+      outputFile = dir + File.separator + template
+    } else {
+
+      // 看是main SourceSets 还是 test SourceSets
+      val sets = if (template.endsWith("Test.ftl")) "test" else "main"
+      val dirs: List[String] = root :: project :: "src" :: sets :: "scala" :: (
+        meta.groupId.split("\\.").toList ++: (meta.artifact :: {
+          if (entries.size == 1) Nil else entries.init
+        }))
+      dir = dirs.reduceLeft((a, b) => a + File.separator + b)
+      outputFile = dir + File.separator + tdata.get("file")
+    }
     FileUtils.forceMkdir(new File(dir))
 
     val fsrc: Source[ByteString, NotUsed] = Source.fromFuture(process(template, tdata).map(ByteString(_)))
@@ -93,14 +103,17 @@ object CodeEngine extends GraphConfigProtocol {
       }))
 
     val all =
+      m("Build.scala", "Build.scala", null) ::
+      m("build.properties", "build.properties", null) ::
+      m("plugins.sbt", "pluings.sbt", null) ::
       m("XFlowApp.ftl", s"${gc.entry}App.scala", getAppCode(gc)) ::
-        m("XFlowGraph.ftl", s"${gc.entry}Graph.scala", getGraphCode(gc)) ::
-        m("utask.XFlowModels.ftl", s"${gc.entry}Models.scala", getModelsCode(gc)) ::
-        m("XFlowGraph.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
-        m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
-        m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
-        (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++
-          ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
+      m("XFlowGraph.ftl", s"${gc.entry}Graph.scala", getGraphCode(gc)) ::
+      m("utask.XFlowModels.ftl", "Models.scala", getModelsCode(gc)) ::
+      m("config.XFlowConfig.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
+      m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
+      m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
+      (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++
+       ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
 
     Future.traverse(all) { entry =>
       CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")
@@ -111,46 +124,19 @@ object CodeEngine extends GraphConfigProtocol {
   }
 
   def getAppCode(graphConfig: GraphConfig) = null
-
-  def getGraphCode(graphConfig: GraphConfig) =
+  def getGraphCode(graphConfig: GraphConfig) = {
     CodeConfig(
-      new JMap[String, String] {
-        put("a", "a");
-        put("b", "b")
-      },
-      new JMap[String, String] {
-        put("V", "V");
-        put("W", "W")
-      },
-      new JMap[String, Edge] {
-        put("E1", Edge(name = "E1", end = "end"))
-      },
-      new JMap[String, TaskInfo] {
-        put("U1", TaskInfo("U1", List("a", "b", "c")))
-      },
-      new JMap[String, TaskInfo] {
-        put("A1", TaskInfo("A1", List("X", "Y", "Z")))
-      }
+      mapAsJavaMap(graphConfig.points),
+      mapAsJavaMap(graphConfig.vertices),
+      mapAsJavaMap(graphConfig.edges),
+      mapAsJavaMap(graphConfig.userTasks),
+      mapAsJavaMap(graphConfig.autoTasks)
     )
-
+  }
   def getModelsCode(graphConfig: GraphConfig) = (null)
-
   def getConfigCode(graphConfig: GraphConfig) = (getGraphCode(graphConfig))
-
-  def getPointsCode(graphConfig: GraphConfig) = (
-    CodePoints(new JMap[String, String] {
-      put("a", "a");
-      put("b", "b")
-    })
-    )
-
-  def getUTaskCode(graphConfig: GraphConfig) = {
-    List("TaskHello.scala" -> "Hello")
-  }
-
-  def getUTaskTestCode(graphConfig: GraphConfig) = {
-    List("TaskHelloTest.scala" -> "Hello")
-  }
-
-  def getUTaskRouteCode(graphConfig: GraphConfig) = (Array("T1", "T2"))
+  def getPointsCode(graphConfig: GraphConfig) = CodePoints(mapAsJavaMap(graphConfig.points))
+  def getUTaskCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.map(key => (s"Task${key}.scala" -> key)).toList
+  def getUTaskTestCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.map(key => (s"Task${key}Test.scala" -> key)).toList
+  def getUTaskRouteCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.toArray   // (Array("T1", "T2"))
 }

@@ -37,7 +37,7 @@
         <div class="btn"><input type="button" class="submit" value="提交"></div>
     </form>
 </div>
-<script type="text/javascript" src="../frontend/lib/jquery.js"></script>
+<script type="text/javascript" src="/zflow/static/lib/jquery.js"></script>
 <script type="text/javascript">
     $(document).ready(function(){
 
@@ -77,11 +77,10 @@
         //var temp = [];
         var index = 0;
 
-        ///api/graph/money/FillInApplyMessage
-
+        // /money/api/utask/FillInApplyMessage
         $.ajax({
             method: "GET",
-            url:"/api/graph/"+flowType+"/"+taskName,
+            url:"/money/api/utask/"+flowType+"/"+taskName,
             dataType:'json'
         }).done(function(data){
             $(".desC").html(data.description);
@@ -142,7 +141,7 @@
 
             $.ajax({
                 method: "Put",
-                url:"/api/utaskmap/"+className+"/"+companyId+"/"+userId+"/"+taskId+"/"+flowId+"/"+taskName,
+                url:"/zflow/api/utask/"+className+"/"+companyId+"/"+userId+"/"+taskId+"/"+flowId+"/"+taskName,
                 data:JSON.stringify(newArr),
                 contentType: "application/json; charset=utf-8"
             }).done(function(){

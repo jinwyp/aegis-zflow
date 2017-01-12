@@ -12,7 +12,7 @@ object ${meta.entry()}Config {
 
   // vertices
 <#list code.vertices()?keys as key>
-  val vertex_${key} = "${key}"  // ${code.vertices()[key]}
+  val vertex_${key} = "${key}"  // ${code.vertices()[key].description()}
 </#list>
 
   // edges-->

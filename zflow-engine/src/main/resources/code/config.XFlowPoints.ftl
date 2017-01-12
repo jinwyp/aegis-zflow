@@ -8,7 +8,7 @@ object ${meta.entry()}Points extends DefaultJsonProtocol {
 
 <#list code.points()?keys as point>
   case class Point${point}(name: String)
-  implicit val pointWifeFormat = jsonFormat1(Point${point})
+  implicit val Point${point}Format = jsonFormat1(Point${point})
 </#list>
 
   // validations

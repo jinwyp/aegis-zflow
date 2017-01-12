@@ -85,15 +85,9 @@
 
             $.ajax({
                 method: "get",
-                url:"/api/utask/"+className+"/"+companyId+"/"+userId,
+                url:"/zflow/api/utask/"+className+"!"+companyId+"!"+userId,
                 dataType:'json'
             }).done(function(data){
-
-
-//                var className = $("#className").val();
-//                var companyId = $("#companyId").val();
-//                var userId = $("#userId").val();
-
                 var table = document.getElementById("tb1");
                 var temp = "<table id=\"tb1\"> <tr> <th>flowId</th> <th>guid<\/th> <th>taskname</th> <th>操作</th> </tr>";
                 for (var key in data.tasks)

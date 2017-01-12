@@ -2,6 +2,7 @@ package ${meta.groupId()}.${meta.artifact()}.utask
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import ${meta.groupId()}.${meta.artifact()}.utask._
 
 <#assign first = code[0]>
 object UTaskRoute extends Task${first}
