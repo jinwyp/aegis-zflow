@@ -88,7 +88,8 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
     */
   private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
 
-    // 用id从design表中将json字段读取出来
+    // todo 测试!!!
+    // 用id从design表中将json字段读取出来, 目前是直接从money.json文件读取
     val fjson: Future[String] = Future {
       scala.io.Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json")).mkString
     }
@@ -96,7 +97,6 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
     import spray.json._
     val fconfig = fjson.map(_.parseJson.convertTo[GraphConfig])
 
-    // todo 测试!!!
     for {
       config <- fconfig
       result <- CodeEngine.genAll(config)(coreSystem).map { entry =>
