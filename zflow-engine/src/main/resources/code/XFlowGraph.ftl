@@ -16,11 +16,8 @@ object ${meta.entry()}Graph {
   val ArrowSuccess = Arrow("success", None)
 
 <#--case class Vertex(description: String, next: Option[Arrow])-->
-
-
 <#list code.vertices()?keys as v>
   // ${code.vertices()[v].description()}
-  // ${code.vertices()[v].next().toString()}
 <#if code.vertices()[v].next().toString() == "None">
   def ${v}(state: State) = ???
 <#else>

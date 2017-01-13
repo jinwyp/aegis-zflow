@@ -90,7 +90,6 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
   private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
 
     // todo 测试!!! 目前用id从design表中将json字段读取出来, 目前是直接从flow.json文件读取
-    import spray.json._
     val fconfig: Future[GraphConfig] = Future {
       GraphLoader.loadConfig("money", this.getClass.getClassLoader)
     }

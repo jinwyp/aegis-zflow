@@ -34,6 +34,8 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
   val TaskInfoManifest = classOf[TaskInfo].getName
   val GraphManifest = classOf[Graph].getName
   val ArrowManifest = classOf[Arrow].getName
+  val VertexManifest = classOf[Vertex].getName
+  val GraphConfigManifest = classOf[GraphConfig].getName
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
     case DataPointManifest => new String(bytes).parseJson.convertTo[DataPoint]
@@ -59,6 +61,8 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
     case TaskInfoManifest => new String(bytes).parseJson.convertTo[TaskInfo]
     case GraphManifest => new String(bytes).parseJson.convertTo[Graph]
     case ArrowManifest => new String(bytes).parseJson.convertTo[Arrow]
+    case VertexManifest => new String(bytes).parseJson.convertTo[Vertex]
+    case GraphConfigManifest => new String(bytes).parseJson.convertTo[GraphConfig]
   }
 
   override def manifest(o: AnyRef): String = o.getClass.getName
@@ -87,5 +91,7 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
     case e: TaskInfo => e.toJson.toString.getBytes
     case e: Graph => e.toJson.toString.getBytes
     case e: Arrow => e.toJson.toString.getBytes
+    case e: Vertex => e.toJson.toString.getBytes
+    case e: GraphConfig => e.toJson.toString.getBytes
   }
 }

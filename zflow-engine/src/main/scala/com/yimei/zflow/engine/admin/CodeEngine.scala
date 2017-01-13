@@ -5,17 +5,15 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption._
 import java.util.{Map => JMap}
 
-import scala.collection.JavaConversions.mapAsJavaMap
-import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
 import com.yimei.zflow.api.models.flow._
 import freemarker.template.{Configuration, TemplateExceptionHandler}
-import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.FileUtils
 
+import scala.collection.JavaConversions.mapAsJavaMap
 import scala.concurrent.Future
 
 /**
@@ -58,27 +56,35 @@ object CodeEngine extends FlowProtocol {
 
     var dir: String = null
     var outputFile: String = null
+    var fsrc: Source[ByteString, Any] = null
 
-    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties" ){
-      dir = root + File.separator + project + File.separator + "project"
-      outputFile = dir + File.separator + template
-    } else if(template.endsWith(".conf")) {
+    if (template == "flow.json") {
+      fsrc = FileIO.fromPath(Paths.get(root + File.separator + "flow.json"))
       dir = root + File.separator + project + File.separator + "src/main/resources"
       outputFile = dir + File.separator + template
     } else {
+      if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties") {
+        dir = root + File.separator + project + File.separator + "project"
+        outputFile = dir + File.separator + template
+      }
+      else if (template.endsWith(".conf")) {
+        dir = root + File.separator + project + File.separator + "src/main/resources"
+        outputFile = dir + File.separator + template
+      } else {
 
-      // 看是main SourceSets 还是 test SourceSets
-      val sets = if (template.endsWith("Test.ftl")) "test" else "main"
-      val dirs: List[String] = root :: project :: "src" :: sets :: "scala" :: (
-        meta.groupId.split("\\.").toList ++: (meta.artifact :: {
-          if (entries.size == 1) Nil else entries.init
-        }))
-      dir = dirs.reduceLeft((a, b) => a + File.separator + b)
-      outputFile = dir + File.separator + tdata.get("file")
+        // 看是main SourceSets 还是 test SourceSets
+        val sets = if (template.endsWith("Test.ftl")) "test" else "main"
+        val dirs: List[String] = root :: project :: "src" :: sets :: "scala" :: (
+          meta.groupId.split("\\.").toList ++: (meta.artifact :: {
+            if (entries.size == 1) Nil else entries.init
+          }))
+        dir = dirs.reduceLeft((a, b) => a + File.separator + b)
+        outputFile = dir + File.separator + tdata.get("file")
+      }
+      FileUtils.forceMkdir(new File(dir))
+      fsrc = Source.fromFuture(process(template, tdata).map(ByteString(_)))
     }
-    FileUtils.forceMkdir(new File(dir))
 
-    val fsrc: Source[ByteString, NotUsed] = Source.fromFuture(process(template, tdata).map(ByteString(_)))
     val sink = FileIO.toPath(Paths.get(outputFile), Set(CREATE, WRITE))
     val runnable = fsrc.toMat(sink)(Keep.right)
 
@@ -88,7 +94,7 @@ object CodeEngine extends FlowProtocol {
   def genAll(gc: GraphConfig)(implicit system: ActorSystem): Future[(String, String)] = {
     import java.util.{HashMap => JMap}
 
-    val httpExecutionContext = system.dispatcher
+    //val httpExecutionContext = system.dispatcher
     implicit val materializer = ActorMaterializer()
 
     val meta = CodeMeta(gc.groupId, gc.artifact, gc.entry)
@@ -105,20 +111,21 @@ object CodeEngine extends FlowProtocol {
       }))
 
     val all =
-      m("Build.scala", "Build.scala", null) ::
-      m("application.conf", "application.conf", null) ::
-      m("persistence-leveldb.conf", "persistence-leveldb.conf", null) ::
-      m("persistence-redis.conf", "persistence-redis.conf", null) ::
-      m("build.properties", "build.properties", null) ::
-      m("plugins.sbt", "pluings.sbt", null) ::
-      m("XFlowApp.ftl", s"${gc.entry}App.scala", getAppCode(gc)) ::
-      m("XFlowGraph.ftl", s"${gc.entry}Graph.scala", getGraphCode(gc)) ::
-      m("utask.XFlowModels.ftl", "Models.scala", getModelsCode(gc)) ::
-      m("config.XFlowConfig.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
-      m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
-      m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
-      (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++
-       ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
+      m("flow.json", "flow.json", null) ::
+        m("Build.scala", "Build.scala", null) ::
+        m("application.conf", "application.conf", null) ::
+        m("persistence-leveldb.conf", "persistence-leveldb.conf", null) ::
+        m("persistence-redis.conf", "persistence-redis.conf", null) ::
+        m("build.properties", "build.properties", null) ::
+        m("plugins.sbt", "pluings.sbt", null) ::
+        m("XFlowApp.ftl", s"${gc.entry}App.scala", getAppCode(gc)) ::
+        m("XFlowGraph.ftl", s"${gc.entry}Graph.scala", getGraphCode(gc)) ::
+        m("utask.XFlowModels.ftl", "Models.scala", getModelsCode(gc)) ::
+        m("config.XFlowConfig.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
+        m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
+        m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
+        (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++
+          ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
 
     Future.traverse(all) { entry =>
       CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")
@@ -129,6 +136,7 @@ object CodeEngine extends FlowProtocol {
   }
 
   def getAppCode(graphConfig: GraphConfig) = null
+
   def getGraphCode(graphConfig: GraphConfig) = {
     CodeConfig(
       mapAsJavaMap(graphConfig.points),
@@ -138,10 +146,16 @@ object CodeEngine extends FlowProtocol {
       mapAsJavaMap(graphConfig.autoTasks)
     )
   }
+
   def getModelsCode(graphConfig: GraphConfig) = (null)
+
   def getConfigCode(graphConfig: GraphConfig) = (getGraphCode(graphConfig))
+
   def getPointsCode(graphConfig: GraphConfig) = CodePoints(mapAsJavaMap(graphConfig.points))
+
   def getUTaskCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.map(key => (s"Task${key}.scala" -> key)).toList
+
   def getUTaskTestCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.map(key => (s"Task${key}Test.scala" -> key)).toList
-  def getUTaskRouteCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.toArray   // (Array("T1", "T2"))
+
+  def getUTaskRouteCode(graphConfig: GraphConfig) = graphConfig.userTasks.keys.toArray // (Array("T1", "T2"))
 }
