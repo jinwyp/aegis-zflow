@@ -15,16 +15,28 @@ object ${meta.entry()}Graph {
   val ArrowFail = Arrow("fail", None)
   val ArrowSuccess = Arrow("success", None)
 
-<#list code.vertices()?keys as vertex>
-  def ${vertex}(state: State) = ???
+<#--case class Vertex(description: String, next: Option[Arrow])-->
+
+
+<#list code.vertices()?keys as v>
+  // ${code.vertices()[v].description()}
+  // ${code.vertices()[v].next().toString()}
+<#if code.vertices()[v].next().toString() == "None">
+  def ${v}(state: State) = ???
+<#else>
+  def ${v}(state: State) = Seq(Arrow(vertex_${code.vertices()[v].next().get().end()}, edge_${code.vertices()[v].next().get().edge().get()}))
+</#if>
+
 </#list>
 
 <#list code.auto()?keys as auto>
+  // ${code.auto()[auto].description()}
   def ${auto}(cmd: CommandAutoTask): Future[Map[String, String]] = ???
+
 </#list>
 
   // 这里可以加上其他的route
   def moduleRoute(): Route = UTaskRoute.utaskRoute
 }
 
-<#--{ Seq(Arrow(vertex_${end}, Some(edge_${edge}))) }-->
+

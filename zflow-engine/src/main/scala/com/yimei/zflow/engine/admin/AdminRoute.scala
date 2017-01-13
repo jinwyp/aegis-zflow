@@ -45,11 +45,18 @@ trait AdminRoute extends EditorRoute {
     }
   }
 
+
+  val prefix = if ( System.getProperty("dev") != null) {
+    "../zflow-admin/frontend/"
+  } else {
+    "static"
+  }
+
   def adminRoute: Route =
     pathPrefix("admin") {
       devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView ~ editorRoute
     } ~ pathPrefix("static") {
-      getFromDirectory("../zflow-admin/frontend")
+      getFromDirectory(prefix)
     }
 
 }

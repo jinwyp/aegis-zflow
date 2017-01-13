@@ -90,12 +90,14 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
 
     // todo 测试!!!
     // 用id从design表中将json字段读取出来, 目前是直接从money.json文件读取
-    val fjson: Future[String] = Future {
-      scala.io.Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("money.json")).mkString
-    }
-
     import spray.json._
-    val fconfig = fjson.map(_.parseJson.convertTo[GraphConfig])
+    val config =
+      scala.io.Source
+        .fromInputStream(this.getClass.getClassLoader.getResourceAsStream("flow.json"))
+        .mkString
+        .parseJson.convertTo[GraphConfig]
+
+    val fconfig: Future[GraphConfig] = Future { config }
 
     for {
       config <- fconfig

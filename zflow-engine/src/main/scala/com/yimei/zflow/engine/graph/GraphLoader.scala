@@ -6,7 +6,7 @@ import akka.actor.ActorRef
 import akka.http.scaladsl.server.Route
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow._
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
+import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol, Vertex}
 import com.yimei.zflow.engine.FlowRegistry
 
 import scala.concurrent.Future
@@ -25,11 +25,11 @@ object GraphLoader extends GraphConfigProtocol {
   def getClassLoader(flowType: String) = {
     flowType match {
       case "money" => this.getClass.getClassLoader
-//      case "zhou" =>
-//        // todo xj
-//        // 改为从数据库deploy表里读取jar文件 写入/tmp/$flowType.jar
-//        // 然后再  new java.net.URLClassLoader(new File("/tmp/xxx.jar").toURI.toURL), this.getClass.getClassLoader)
-//        null
+      //      case "zhou" =>
+      //        // todo xj
+      //        // 改为从数据库deploy表里读取jar文件 写入/tmp/$flowType.jar
+      //        // 然后再  new java.net.URLClassLoader(new File("/tmp/xxx.jar").toURI.toURL), this.getClass.getClassLoader)
+      //        null
 
       case _ => val jars: Array[String] = (new File("flows/" + flowType))
         .listFiles()
@@ -73,10 +73,10 @@ object GraphLoader extends GraphConfigProtocol {
   def loadGraph(gFlowType: String, classLoader: ClassLoader): FlowGraph = {
     import spray.json._
 
-//    val jsonFile = gFlowType match {
-//      case "money" => "money.json"
-//      case _ => "flow.json"
-//    }
+    //    val jsonFile = gFlowType match {
+    //      case "money" => "money.json"
+    //      case _ => "flow.json"
+    //    }
 
     var graphConfig = Source.fromInputStream(classLoader.getResourceAsStream("flow.json"))
       .mkString
@@ -90,6 +90,23 @@ object GraphLoader extends GraphConfigProtocol {
         "fail" -> Edge(name = "fail", end = "success")
       )
     )
+
+    // 哪些vertex有next属性
+    val vnext = graphConfig.edges.values.groupBy(_.begin).filter{
+      case (begin, edges) => edges.size == 1
+    }.map {
+      case (begin, edges) => (begin, Some(Arrow(edges.head.end, Some(edges.head.name))))
+    }
+
+    // 调整
+    val vajust = graphConfig.vertices.map { v =>
+      if (vnext.contains(v._1)) {
+        (v._1, Vertex(v._2.description, vnext(v._1)))
+      } else {
+        v
+      }
+    }
+    graphConfig = graphConfig.copy(vertices = vajust)
 
     // graphJar class and graphJar object
     val mclass = classLoader.loadClass(s"${graphConfig.groupId}.${graphConfig.artifact}.${graphConfig.entry}" + "Graph$")

@@ -11,6 +11,7 @@ import scala.concurrent.Future
 object Updater {
 
   case class FlowStateUpdate(state: State)
+
   case class FlowVertexUpdate(state: State, vertex: String)
 
   def props(system: ActorSystem): Props = Props(new Updater(system))
@@ -42,9 +43,9 @@ class Updater(system: ActorSystem) extends {
 
     case FlowVertexUpdate(state, vertex) =>
       //更新当前到达点
-      val udState = flowInstance.filter(f=>
+      val udState = flowInstance.filter(f =>
         f.flow_id === state.flowId
-      ).map(f=>(f.state)).update(
+      ).map(f => (f.state)).update(
         vertex
       )
       dbrun(udState) // pipeTo sender()

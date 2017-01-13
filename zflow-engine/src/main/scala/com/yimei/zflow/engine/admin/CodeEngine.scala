@@ -4,14 +4,14 @@ import java.io._
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption._
 import java.util.{Map => JMap}
-import scala.collection.JavaConversions.mapAsJavaMap
 
+import scala.collection.JavaConversions.mapAsJavaMap
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
-import com.yimei.zflow.api.models.flow.{Edge, TaskInfo}
+import com.yimei.zflow.api.models.flow.{Arrow, Edge, TaskInfo}
 import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol, Vertex}
 import freemarker.template.{Configuration, TemplateExceptionHandler}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
