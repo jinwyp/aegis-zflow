@@ -4,6 +4,9 @@ import akka.actor.{Actor, ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
 import com.yimei.zflow.api.models.flow.{FlowProtocol, State}
 import com.yimei.zflow.engine.db.FlowInstanceTable
+import akka.pattern.pipe
+
+import scala.concurrent.Future
 
 object Updater {
 
@@ -35,7 +38,7 @@ class Updater(system: ActorSystem) extends {
         state.toJson.toString, 1
       )
 
-      dbrun(pu)
+      dbrun(pu) //pipeTo sender()
 
     case FlowVertexUpdate(state, vertex) =>
       //更新当前到达点
@@ -44,6 +47,6 @@ class Updater(system: ActorSystem) extends {
       ).map(f=>(f.state)).update(
         vertex
       )
-      dbrun(udState)
+      dbrun(udState) // pipeTo sender()
   }
 }

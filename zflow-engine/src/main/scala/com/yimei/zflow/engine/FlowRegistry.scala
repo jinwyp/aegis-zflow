@@ -7,7 +7,7 @@ import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow.State
 import com.yimei.zflow.api.models.group.CommandGroupTask
 import com.yimei.zflow.api.models.user.CommandUserTask
-import com.yimei.zflow.engine.graph.FlowGraph
+import com.yimei.zflow.engine.graph.{FlowGraph, GraphLoader}
 import com.yimei.zflow.api.GlobalConfig._
 
 import scala.annotation.meta.getter
@@ -109,6 +109,10 @@ object FlowRegistry {
       registries += (flowType -> graph)
       true
     }
+  }
+
+  def registerJar(flowType: String, graphJar: AnyRef) = {
+    registries += (flowType -> GraphLoader.loadGraph(flowType, this.getClass.getClassLoader))
   }
 
   def flowGraph(flowType: String) = registries(flowType)

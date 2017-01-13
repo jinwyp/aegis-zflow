@@ -60,8 +60,11 @@ object CodeEngine extends GraphConfigProtocol {
     var dir: String = null
     var outputFile: String = null
 
-    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties" || template.endsWith(".conf")) {
+    if (template == "Build.scala" || template == "plugins.sbt" || template == "build.properties" ){
       dir = root + File.separator + project + File.separator + "project"
+      outputFile = dir + File.separator + template
+    } else if(template.endsWith(".conf")) {
+      dir = root + File.separator + project + File.separator + "src/main/resources"
       outputFile = dir + File.separator + template
     } else {
 
@@ -121,7 +124,7 @@ object CodeEngine extends GraphConfigProtocol {
     Future.traverse(all) { entry =>
       CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")
     }.map { fs =>
-      fs.foreach { case (filename, result) => println(s"${filename} => ${result.status}, ${result.count} bytes read.") }
+      fs.foreach { case (filename, result) => printf(s"%-40s => %-10s | %20s bytes read\n", filename, result.status, result.count) }
       ("/tmp", s"aegis-zflow-${gc.artifact}")
     }
   }

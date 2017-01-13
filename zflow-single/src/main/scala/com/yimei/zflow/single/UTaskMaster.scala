@@ -1,6 +1,6 @@
 package com.yimei.zflow.single
 
-import akka.actor.{Props, Terminated}
+import akka.actor.{Props, ReceiveTimeout, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.user.{CommandCreateUser, CommandQueryUser, CommandUserTask, Command => UserCommand}
 import com.yimei.zflow.engine.utask.{MemoryUTask, PersistentUTask}
@@ -43,6 +43,8 @@ class UTaskMaster(dependOn: Array[String])
 
     case Terminated(child) =>
       log.info(s"${child.path.name} terminated")
+
+    case ReceiveTimeout =>
   }
 
   private def create(guid: String) = {

@@ -5,36 +5,69 @@ import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.RouteResult
+import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.LogEntry
-import akka.stream.ActorMaterializer
-import com.yimei.zflow.money.utask.UTaskRoute
-import com.yimei.zflow.util.id.IdGenerator
+import akka.util.Timeout
+import com.yimei.zflow.api.GlobalConfig._
+import com.yimei.zflow.engine.admin.AdminRoute
+import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
+import com.yimei.zflow.single.DaemonMaster
+import com.yimei.zflow.util.organ.OrganRoute
+import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
+
+import scala.concurrent.duration._
 
 /**
   * Created by hary on 17/1/9.
   */
-object MoneyApp extends App {
+object MoneyApp extends {
+  implicit val coreSystem = ActorSystem("FlowSystem")
+} with App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute {
 
-  implicit val system = ActorSystem("MoneyFlow")
-  implicit val materializer = ActorMaterializer()
-  val config = system.settings.config
+  override val utaskTimeout = Timeout(3.seconds)
+  override val flowServiceTimeout = Timeout(3.seconds)
+  override val gtaskTimeout = Timeout(3.seconds)
 
-  // 启动id生成器
-  val idGenerator = system.actorOf(IdGenerator.props("IdGenerator"))
+  val config = coreSystem.settings.config
+  val jdbcUrl = config.getString("database.jdbcUrl")
+  val username = config.getString("database.username")
+  val password = config.getString("database.password")
 
-  def extractLogInfo(req: HttpRequest): RouteResult => Option[LogEntry] = {
-    case RouteResult.Complete(res) =>
-      Some(LogEntry(req.method.name +  " " + req.uri.path + " : " + res.status, Logging.InfoLevel))
+  val flyway = new FlywayDB(jdbcUrl, username, password)
+  flyway.drop()
+  flyway.migrate()
+
+  // load flow
+  FlowRegistry.registerJar("money", MoneyGraph)
+
+  // start engines and services
+  val names = Array(module_auto, module_utask, module_flow, module_gtask, module_id, module_updater)
+  val daemon = coreSystem.actorOf(DaemonMaster.props(names), "DaemonMaster")
+
+  def extractLogEntry(req: HttpRequest): RouteResult => Option[LogEntry] = {
+    case RouteResult.Complete(res) => Some(LogEntry(req.method.name + " " + req.uri + " => " + res.status, Logging.InfoLevel))
     case _ => None // no log entries for rejections
   }
 
-  // 启动http服务
-  val all = logRequestResult(extractLogInfo _) {
-    pathPrefix("api") {
-      UTaskRoute.utaskRoute  // 可以添加其他非
+
+  // prepare routes
+  val route: Route =
+    logRequestResult(extractLogEntry _) {
+      pathPrefix("zflow" / "api") {
+        engineRoute
+      } ~
+        pathPrefix("organ" / "api") {
+          organRoute
+        } ~
+        pathPrefix("zflow") {
+          adminRoute
+        } ~
+        FlowRegistry.routes
     }
-  }
+
+  // start http server
+  implicit val httpExecutionContext = coreSystem.dispatcher
   println(s"http is listening on ${config.getInt("http.port")}")
-  Http().bindAndHandle(all, "0.0.0.0", config.getInt("http.port"))
+  Http().bindAndHandle(route, "0.0.0.0", config.getInt("http.port"))
 }
+

@@ -1,8 +1,8 @@
 {
   "initial": "V0",
-  "groupId": "com.yimei.zflow.money",
+  "groupId": "com.yimei.zflow",
   "artifact": "money",
-  "entry": "MoneyGraph",
+  "entry": "Money",
   "timeout": 100,
   "persistent": true,
   "points": {

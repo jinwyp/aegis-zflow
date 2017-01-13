@@ -11,6 +11,7 @@ import com.yimei.zflow.engine.FlowRegistry
 import com.yimei.zflow.engine.updater.Updater.{FlowStateUpdate, FlowVertexUpdate}
 
 import scala.concurrent.duration._
+import akka.pattern._
 
 object PersistentFlow {
   def props(modules: Map[String, ActorRef]) = Props(new PersistentFlow(modules))

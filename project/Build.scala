@@ -122,7 +122,7 @@ object BuildSettings {
 
   val buildOrganization = "com.yimei"
   val appName = "aegis-zflow"
-  val buildVersion = "0.0.2"
+  val buildVersion = "0.0.4"
   val buildScalaVersion = "2.11.8"
   val buildScalaOptions = Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 
@@ -188,10 +188,10 @@ object ApplicationBuild extends Build {
 
   lazy val zflowUtil = Project("util", file("zflow-util"), settings = buildSettings ++ publishSettings)
   lazy val zflowEngine = Project("engine", file("zflow-engine"), settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
-  lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
 
   lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowSingle = Project("single", file("zflow-single"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowMoney)
+  lazy val zflowSingle = Project("single", file("zflow-single"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
+  lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowSingle)
 
   //  val singleSettings = libraryDependencies ++= Seq("com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession)
   //  lazy val zflowSingle  = Project("single", file("zflow-single"),

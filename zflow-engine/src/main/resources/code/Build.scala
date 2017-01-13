@@ -116,7 +116,8 @@ object Dependencies {
     "org.freemarker" % "freemarker" % freemarker,
     "org.thymeleaf" % "thymeleaf" % thymeleaf,
 
-    "com.yimei" %% "engine" % "0.0.1-SNAPSHOT"
+    "com.yimei" %% "engine" % "0.0.4",
+    "com.yimei" %% "single" % "0.0.4"
   )
 }
 

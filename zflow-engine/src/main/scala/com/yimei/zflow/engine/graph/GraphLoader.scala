@@ -73,12 +73,12 @@ object GraphLoader extends GraphConfigProtocol {
   def loadGraph(gFlowType: String, classLoader: ClassLoader): FlowGraph = {
     import spray.json._
 
-    val jsonFile = gFlowType match {
-      case "money" => "money.json"
-      case _ => "flow.json"
-    }
+//    val jsonFile = gFlowType match {
+//      case "money" => "money.json"
+//      case _ => "flow.json"
+//    }
 
-    var graphConfig = Source.fromInputStream(classLoader.getResourceAsStream(jsonFile))
+    var graphConfig = Source.fromInputStream(classLoader.getResourceAsStream("flow.json"))
       .mkString
       .parseJson
       .convertTo[GraphConfig]
