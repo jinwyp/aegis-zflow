@@ -9,26 +9,21 @@ import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.LogEntry
 import akka.util.Timeout
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.flow.{Edge, TaskInfo}
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
-import com.yimei.zflow.engine.admin.CodeEngine.{CodeConfig, CodeMeta, CodePoints}
-import com.yimei.zflow.engine.admin.{AdminRoute, CodeEngine}
+import com.yimei.zflow.api.models.flow.FlowProtocol
+import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
-import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
 
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
-import scala.io.Source
 
 /**
   * Created by hary on 17/1/6.
   */
 object FlowApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
-} with App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute with GraphConfigProtocol{
+} with App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute with FlowProtocol{
 
   override val utaskTimeout = Timeout(3.seconds)
   override val flowServiceTimeout = Timeout(3.seconds)

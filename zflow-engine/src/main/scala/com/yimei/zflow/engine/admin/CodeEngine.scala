@@ -11,8 +11,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
-import com.yimei.zflow.api.models.flow.{Arrow, Edge, TaskInfo}
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol, Vertex}
+import com.yimei.zflow.api.models.flow._
 import freemarker.template.{Configuration, TemplateExceptionHandler}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.io.FileUtils
@@ -22,7 +21,7 @@ import scala.concurrent.Future
 /**
   * Created by hary on 17/1/10.
   */
-object CodeEngine extends GraphConfigProtocol {
+object CodeEngine extends FlowProtocol {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 

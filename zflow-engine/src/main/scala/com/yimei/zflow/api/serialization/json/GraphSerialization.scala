@@ -1,13 +1,13 @@
 package com.yimei.zflow.api.serialization.json
 
 import akka.serialization.SerializerWithStringManifest
-import com.yimei.zflow.api.models.graph._
+import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig, Vertex}
 import spray.json._
 
 /**
   * Created by xl on 16/12/23.
   */
-class GraphSerialization extends SerializerWithStringManifest with GraphConfigProtocol {
+class GraphSerialization extends SerializerWithStringManifest with FlowProtocol {
   override def identifier: Int = 2222
 
   val VertexManifest = classOf[Vertex].getName

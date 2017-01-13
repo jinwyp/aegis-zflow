@@ -6,7 +6,6 @@ import akka.actor.ActorRef
 import akka.http.scaladsl.server.Route
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow._
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol, Vertex}
 import com.yimei.zflow.engine.FlowRegistry
 
 import scala.concurrent.Future
@@ -16,7 +15,7 @@ import scala.io.Source
 /**
   * Created by hary on 16/12/17.
   */
-object GraphLoader extends GraphConfigProtocol {
+object GraphLoader extends FlowProtocol {
 
   def deploy(flowType: String) = {
     FlowRegistry.register(flowType, loadGraph(flowType, getClassLoader(flowType)))
@@ -70,7 +69,8 @@ object GraphLoader extends GraphConfigProtocol {
 
       }.toMap
 
-  def loadGraph(gFlowType: String, classLoader: ClassLoader): FlowGraph = {
+  def loadConfig(gFlowType: String, classLoader: ClassLoader): GraphConfig = {
+
     import spray.json._
 
     //    val jsonFile = gFlowType match {
@@ -108,6 +108,13 @@ object GraphLoader extends GraphConfigProtocol {
     }
     graphConfig = graphConfig.copy(vertices = vajust)
 
+    graphConfig
+  }
+
+  def loadGraph(gFlowType: String, classLoader: ClassLoader): FlowGraph = {
+
+    val graphConfig = loadConfig(gFlowType, classLoader)
+
     // graphJar class and graphJar object
     val mclass = classLoader.loadClass(s"${graphConfig.groupId}.${graphConfig.artifact}.${graphConfig.entry}" + "Graph$")
     val graphJar = mclass.getField("MODULE$").get(null)
@@ -130,15 +137,17 @@ object GraphLoader extends GraphConfigProtocol {
 
       override val points: Map[String, String] = graphConfig.points
 
-      override val vertices: Map[String, String] = {
-        graphConfig.vertices.map { entry =>
-          (entry._1, entry._2.description)
-        }
-      }
+      override val vertices: Map[String, Vertex] =  graphConfig.vertices
+//      {
+//        graphConfig.vertices.map { entry =>
+//          (entry._1, entry._2.description)
+//        }
+//      }
 
       override def graph(state: State): Graph = Graph(
         graphConfig.edges,
-        graphConfig.vertices.map { entry => (entry._1, entry._2.description) },
+        // graphConfig.vertices.map { entry => (entry._1, entry._2.description) },
+        graphConfig.vertices,
         Some(state),
         graphConfig.points,
         graphConfig.userTasks,
@@ -147,7 +156,8 @@ object GraphLoader extends GraphConfigProtocol {
 
       override val blueprint: Graph = Graph(
         graphConfig.edges,
-        graphConfig.vertices.map { entry => (entry._1, entry._2.description) },
+        // graphConfig.vertices.map { entry => (entry._1, entry._2.description) },
+        graphConfig.vertices,
         None,
         graphConfig.points,
         graphConfig.userTasks,

@@ -12,10 +12,11 @@ import akka.http.scaladsl.server._
 import akka.stream.IOResult
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
+import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig}
 import com.yimei.zflow.engine.admin.Models._
 import com.yimei.zflow.engine.admin.db.DesignTable
 import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
+import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.Archiver
 
 import scala.concurrent.Future
@@ -25,7 +26,7 @@ import scala.io.BufferedSource
   * Created by hary on 16/12/28.
   */
 
-trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProtocol {
+trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
   import driver.api._
 
@@ -88,16 +89,11 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with GraphConfigProt
     */
   private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
 
-    // todo 测试!!!
-    // 用id从design表中将json字段读取出来, 目前是直接从money.json文件读取
+    // todo 测试!!! 目前用id从design表中将json字段读取出来, 目前是直接从flow.json文件读取
     import spray.json._
-    val config =
-      scala.io.Source
-        .fromInputStream(this.getClass.getClassLoader.getResourceAsStream("flow.json"))
-        .mkString
-        .parseJson.convertTo[GraphConfig]
-
-    val fconfig: Future[GraphConfig] = Future { config }
+    val fconfig: Future[GraphConfig] = Future {
+      GraphLoader.loadConfig("money", this.getClass.getClassLoader)
+    }
 
     for {
       config <- fconfig

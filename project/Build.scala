@@ -122,7 +122,7 @@ object BuildSettings {
 
   val buildOrganization = "com.yimei"
   val appName = "aegis-zflow"
-  val buildVersion = "0.0.4"
+  val buildVersion = "0.0.5"
   val buildScalaVersion = "2.11.8"
   val buildScalaOptions = Seq("-unchecked", "-deprecation", "-feature", "-encoding", "utf8")
 

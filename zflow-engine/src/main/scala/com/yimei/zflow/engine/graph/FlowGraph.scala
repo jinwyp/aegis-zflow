@@ -1,6 +1,5 @@
 package com.yimei.zflow.engine.graph
 
-import akka.actor.ActorRef
 import akka.http.scaladsl.server.Route
 import com.yimei.zflow.api.models.flow._
 import com.yimei.zflow.api.models.auto.CommandAutoTask
@@ -16,7 +15,7 @@ trait FlowGraph {
   val persistent: Boolean
   val points: Map[String, String]
   val edges: Map[String, Edge]
-  val vertices: Map[String, String]
+  val vertices: Map[String, Vertex]
   val inEdges: Map[String, Array[String]] = Map()
   val flowType: String
   val userTasks: Map[String, TaskInfo]

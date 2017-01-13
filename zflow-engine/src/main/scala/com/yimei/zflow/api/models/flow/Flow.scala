@@ -2,9 +2,9 @@ package com.yimei.zflow.api.models.flow
 
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.FlowRegistry._
-
 import akka.actor.ActorRef
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
@@ -196,7 +196,7 @@ case class TaskInfo(description: String, points: Seq[String])
 
 case class Graph(
                   edges: Map[String, Edge],
-                  vertices: Map[String, String],
+                  vertices: Map[String, Vertex],
                   state: Option[State],
                   points: Map[String, String],
                   userTasks: Map[String, TaskInfo],
@@ -205,6 +205,22 @@ case class Graph(
 
 //case class Arrow(end: String, edge: Option[Edge])
 case class Arrow(end: String, edge: Option[String])
+
+case class Vertex(description: String, next: Option[Arrow])
+
+case class GraphConfig(
+                        groupId: String,
+                        artifact: String,
+                        entry: String,
+                        persistent: Boolean,
+                        timeout: Int,
+                        initial: String,
+                        points: Map[String, String],
+                        autoTasks: Map[String, TaskInfo],
+                        userTasks: Map[String, TaskInfo],
+                        vertices: Map[String, Vertex],
+                        edges: Map[String, Edge]
+                      )
 
 trait FlowProtocol extends DefaultJsonProtocol {
 
@@ -235,7 +251,6 @@ trait FlowProtocol extends DefaultJsonProtocol {
 
   implicit val taskInfoFormat = jsonFormat2(TaskInfo)
 
-  implicit val graphFormat = jsonFormat6(Graph)
 
   implicit val commandCreateFlowFormat = jsonFormat3(CommandCreateFlow)
 
@@ -265,4 +280,10 @@ trait FlowProtocol extends DefaultJsonProtocol {
 
   implicit val HijackedFormat = jsonFormat2(Hijacked)
 
+
+  implicit val defaultVertexFormat = jsonFormat2(Vertex)
+
+  implicit val graphConfigProtocolFormat = jsonFormat11(GraphConfig)
+
+  implicit val graphFormat = jsonFormat6(Graph)
 }

@@ -3,13 +3,13 @@ package com.yimei.zflow.engine
 import java.io._
 import java.util.zip.GZIPOutputStream
 
-import com.yimei.zflow.api.models.graph.{GraphConfig, GraphConfigProtocol}
+import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig}
 import org.apache.commons.compress.utils.IOUtils
 import spray.json._
 
 import scala.io.Source
 
-object GenModule extends App with GraphConfigProtocol {
+object GenModule extends App with FlowProtocol {
 
   val classLoader = this.getClass.getClassLoader
 

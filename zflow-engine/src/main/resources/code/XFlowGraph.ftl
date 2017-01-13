@@ -24,7 +24,7 @@ object ${meta.entry()}Graph {
 <#if code.vertices()[v].next().toString() == "None">
   def ${v}(state: State) = ???
 <#else>
-  def ${v}(state: State) = Seq(Arrow(vertex_${code.vertices()[v].next().get().end()}, edge_${code.vertices()[v].next().get().edge().get()}))
+  def ${v}(state: State) = Seq(Arrow(vertex_${code.vertices()[v].next().get().end()}, Some(edge_${code.vertices()[v].next().get().edge().get()})))
 </#if>
 
 </#list>
