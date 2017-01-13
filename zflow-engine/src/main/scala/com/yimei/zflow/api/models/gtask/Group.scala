@@ -1,4 +1,4 @@
-package com.yimei.zflow.api.models.group
+package com.yimei.zflow.api.models.gtask
 
 import spray.json.DefaultJsonProtocol
 

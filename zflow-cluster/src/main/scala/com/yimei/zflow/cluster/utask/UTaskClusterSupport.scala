@@ -3,7 +3,7 @@ package com.yimei.zflow.cluster.utask
 import akka.actor.{Actor, ActorRef, Props}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings, ShardRegion}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.user.Command
+import com.yimei.zflow.api.models.utask.Command
 import com.yimei.zflow.engine.utask.PersistentUTask
 import com.yimei.zflow.util.module.ModuleMaster
 

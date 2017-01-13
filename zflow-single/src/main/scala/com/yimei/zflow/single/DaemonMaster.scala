@@ -1,7 +1,7 @@
 package com.yimei.zflow.single
 
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props, Terminated}
-import com.yimei.zflow.api.models.user.{Command => UserCommand}
+import com.yimei.zflow.api.models.utask.{Command => UserCommand}
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.api.models.flow.{Command, CommandCreateFlow}
 import com.yimei.zflow.engine.FlowRegistry

@@ -5,8 +5,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import com.yimei.zflow.api.models.auto.CommandAutoTask
 import com.yimei.zflow.api.models.flow.State
-import com.yimei.zflow.api.models.group.CommandGroupTask
-import com.yimei.zflow.api.models.user.CommandUserTask
+import com.yimei.zflow.api.models.gtask.CommandGroupTask
+import com.yimei.zflow.api.models.utask.CommandUserTask
 import com.yimei.zflow.engine.graph.{FlowGraph, GraphLoader}
 import com.yimei.zflow.api.GlobalConfig._
 

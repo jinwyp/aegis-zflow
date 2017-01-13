@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef}
 import com.yimei.zflow.api.models.flow.CommandPoints
-import com.yimei.zflow.api.models.user._
+import com.yimei.zflow.api.models.utask._
 import com.yimei.zflow.api.GlobalConfig._
 
 /**

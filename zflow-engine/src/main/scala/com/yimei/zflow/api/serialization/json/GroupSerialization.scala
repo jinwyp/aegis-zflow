@@ -1,7 +1,7 @@
 package com.yimei.zflow.api.serialization.json
 
 import akka.serialization.SerializerWithStringManifest
-import com.yimei.zflow.api.models.group._
+import com.yimei.zflow.api.models.gtask._
 import spray.json._
 
 /**

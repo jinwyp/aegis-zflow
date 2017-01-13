@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{ActorLogging, ActorRef, ReceiveTimeout}
 import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import com.yimei.zflow.api.GlobalConfig.module_utask
-import com.yimei.zflow.api.models.user.CommandUserTask
+import com.yimei.zflow.api.models.utask.CommandUserTask
 
 import scala.concurrent.duration._
 
@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 
 class PersistentGTask(modules: Map[String, ActorRef], timeout: Int) extends AbstractGTask with PersistentActor with ActorLogging {
 
-  import com.yimei.zflow.api.models.group._
+  import com.yimei.zflow.api.models.gtask._
 
 
   val ggid = self.path.name

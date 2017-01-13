@@ -4,7 +4,7 @@ import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.user.CommandUserTask
+import com.yimei.zflow.api.models.utask.CommandUserTask
 
 /**
   * Created by hary on 16/12/12.
@@ -15,7 +15,7 @@ import com.yimei.zflow.api.models.user.CommandUserTask
 //}
 
 class MemoryGTask(modules:Map[String,ActorRef]) extends AbstractGTask with ActorLogging {
-  import com.yimei.zflow.api.models.group._
+  import com.yimei.zflow.api.models.gtask._
 
   val ggid = self.path.name
 

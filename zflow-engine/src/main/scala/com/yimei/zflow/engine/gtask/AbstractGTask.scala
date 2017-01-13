@@ -7,7 +7,7 @@ import akka.actor.{Actor, ActorLogging}
   */
 abstract class AbstractGTask extends Actor with ActorLogging {
 
-  import com.yimei.zflow.api.models.group._
+  import com.yimei.zflow.api.models.gtask._
 
   // 抽象方法
   var state: State

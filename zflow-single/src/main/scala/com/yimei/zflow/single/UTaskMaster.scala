@@ -2,7 +2,7 @@ package com.yimei.zflow.single
 
 import akka.actor.{Props, ReceiveTimeout, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.user.{CommandCreateUser, CommandQueryUser, CommandUserTask, Command => UserCommand}
+import com.yimei.zflow.api.models.utask.{CommandCreateUser, CommandQueryUser, CommandUserTask, Command => UserCommand}
 import com.yimei.zflow.engine.utask.{MemoryUTask, PersistentUTask}
 import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 

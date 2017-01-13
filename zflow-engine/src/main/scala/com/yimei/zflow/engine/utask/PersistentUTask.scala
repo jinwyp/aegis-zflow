@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.actor.{ActorLogging, ActorRef, ReceiveTimeout}
 import akka.persistence.{PersistentActor, RecoveryCompleted, SnapshotOffer}
 import com.yimei.zflow.api.models.flow.{CommandPoints, DataPoint}
-import com.yimei.zflow.api.models.user._
+import com.yimei.zflow.api.models.utask._
 import com.yimei.zflow.api.GlobalConfig._
 
 import scala.concurrent.duration._

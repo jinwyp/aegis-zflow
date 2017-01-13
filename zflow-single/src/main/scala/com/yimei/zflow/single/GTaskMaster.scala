@@ -2,7 +2,7 @@ package com.yimei.zflow.single
 
 import akka.actor.{ActorRef, Props, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.group.{Command, CommandCreateGroup, CommandQueryGroup}
+import com.yimei.zflow.api.models.gtask.{Command, CommandCreateGroup, CommandQueryGroup}
 import com.yimei.zflow.engine.gtask.{MemoryGTask, PersistentGTask}
 import com.yimei.zflow.util.module.{ModuleMaster, ServicableBehavior}
 

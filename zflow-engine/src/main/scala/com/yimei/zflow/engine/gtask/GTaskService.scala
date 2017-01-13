@@ -2,7 +2,7 @@ package com.yimei.zflow.engine.gtask
 
 import akka.pattern._
 import akka.util.Timeout
-import com.yimei.zflow.api.models.group.{State => GroupState, _}
+import com.yimei.zflow.api.models.gtask.{State => GroupState, _}
 
 import scala.concurrent.Future
 
@@ -19,28 +19,28 @@ trait GTaskService {
     if (gtask != null) {
       (gtask ? CommandCreateGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
     } else {
-      Future.failed(new Exception("flow is not prepared"))
+      Future.failed(new Exception("gtask is not prepared"))
     }
 
   def gtaskQuery(ggid: String) =
     if (gtask != null) {
       (gtask ? CommandQueryGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
     } else {
-      Future.failed(new Exception("flow is not prepared"))
+      Future.failed(new Exception("gtask is not prepared"))
     }
 
   def gtaskClaim(ggid: String, guid: String, taskId: String): Future[GroupState] =
     if (gtask != null) {
       (gtask ? CommandClaimTask(ggid, taskId, guid)) (gtaskTimeout).mapTo[GroupState]
     } else {
-      Future.failed(new Exception("flow is not prepared"))
+      Future.failed(new Exception("gtask is not prepared"))
     }
 
   def gtaskSend(ggid: String, flowId: String, taskName: String, flowType: String): Unit =
     if (gtask != null) {
       gtask ! CommandGroupTask(flowType, flowId, ggid, taskName)
     } else {
-      Future.failed(new Exception("flow is not prepared"))
+      Future.failed(new Exception("gtask is not prepared"))
     }
 
 }

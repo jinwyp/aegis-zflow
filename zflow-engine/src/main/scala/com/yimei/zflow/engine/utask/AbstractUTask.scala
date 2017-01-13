@@ -7,7 +7,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef}
   */
 abstract class AbstractUTask extends Actor with ActorLogging {
 
-  import com.yimei.zflow.api.models.user._
+  import com.yimei.zflow.api.models.utask._
 
 
   var state: State

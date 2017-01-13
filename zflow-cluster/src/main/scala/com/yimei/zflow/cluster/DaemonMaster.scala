@@ -2,7 +2,7 @@ package com.yimei.zflow.cluster
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props, SupervisorStrategy, Terminated}
 import com.yimei.zflow.api.GlobalConfig._
-import com.yimei.zflow.api.models.user.{Command => UserCommand}
+import com.yimei.zflow.api.models.utask.{Command => UserCommand}
 import com.yimei.zflow.cluster.flow.FlowProxy
 import com.yimei.zflow.cluster.gtask.GTaskProxy
 import com.yimei.zflow.cluster.utask.UTaskProxy
