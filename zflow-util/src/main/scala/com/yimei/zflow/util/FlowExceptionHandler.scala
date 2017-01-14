@@ -18,8 +18,6 @@ import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
   */
 trait FlowExceptionHandler extends SprayJsonSupport with Core {
 
-  val log: LoggingAdapter = Logging(coreSystem, getClass)
-
   implicit def myExceptionHandler: ExceptionHandler = ExceptionHandler {
     case e: BusinessException =>
       extractUri { uri =>
