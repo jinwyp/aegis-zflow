@@ -57,12 +57,11 @@ class PartyRouteTest extends
             dataOpt.get.className shouldBe "supervisor"
             dataOpt.get.description shouldBe "description"
         }
+      }
+    }
 
-        //        inside(responseAs[PartyClassEntry]) {
-        //          case PartyClassEntry(_, className, description) =>
-        //            className shouldBe "supervisor"
-        //            description shouldBe "descriptioin"
-        //        }
+    "获取参与方实例" in {
+      Get() ~> Route.getParty ~> check {
 
       }
     }
