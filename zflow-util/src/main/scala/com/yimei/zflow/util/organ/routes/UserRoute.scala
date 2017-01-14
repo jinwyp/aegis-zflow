@@ -10,19 +10,20 @@ import com.yimei.zflow.util.organ.routes.Models.{UserAuthRequest, UserCreateRequ
 trait UserRoute extends SprayJsonSupport with OrganService {
 
   /**
-    *  创建用户
+    * 创建用户
+    * post /user/:party/:instance_id/:user_id  + json{name, username, password, email, phone}
     * @return
     */
   private def postUser: Route = post {
-    path("user" / Segment / Segment / Segment) { (party, instance_id, userId) =>
+    path("user" / Segment / Segment / Segment) { (party, instanceId, userId) =>
       entity(as[UserCreateRequest]) { req =>
-        complete(createUser(party, instance_id, userId, req))
+        complete(createUser(party, instanceId, userId, req))
       }
     }
   }
 
   /**
-    *  查询用户
+    * get /user/:party/instanceId/userId 查询用户
     * @return
     */
   private def getUser: Route = get {
@@ -32,20 +33,20 @@ trait UserRoute extends SprayJsonSupport with OrganService {
   }
 
   /**
-    *
+    * get /user/:party/:instanceId?page=10&pageSize=10
     * @return
     */
   private def getUserList: Route = get {
     pathPrefix("user" / Segment / Segment) { (party, instance_id) =>
-      (parameter('limit.as[Int]) & parameter('offset.as[Int])) { (limit, offset) =>
-        complete(getUserList(party, instance_id, limit, offset))
+      (parameter('page.as[Int]) & parameter('pageSize.as[Int])) { (page, pageSize) =>
+        complete(getUserList(party, instance_id, page, pageSize))
       }
     }
   }
 
 
   /**
-    * 更新用户
+    * put /user/:party/:instance_id/:user_id  更新用户
     *
     * @return
     */
@@ -58,7 +59,7 @@ trait UserRoute extends SprayJsonSupport with OrganService {
   }
 
   /**
-    * 用户验证
+    * post /auth +json{username, password} 用户验证
     * @return
     */
   private def userAuth: Route = post {
@@ -69,11 +70,12 @@ trait UserRoute extends SprayJsonSupport with OrganService {
 
 
   /**
-    *
+    * 分页获取用户
+    * POST /user?page=10&pageSize=10 + json{username, company}
     * @return
     */
   private def getAllUserInfo: Route = post {
-    (path("alluser") & parameter('page.as[Int]) & parameter('pageSize.as[Int])) { (page, pageSize) =>
+    (path("user") & parameter('page.as[Int]) & parameter('pageSize.as[Int])) { (page, pageSize) =>
       entity(as[UserSearchRequest]) { req =>
         complete(search(req, page, pageSize))
       }
@@ -81,7 +83,8 @@ trait UserRoute extends SprayJsonSupport with OrganService {
   }
 
   /**
-    *
+    * 禁用用户
+    * POST /
     * @return
     */
   private def disableUser: Route = get {

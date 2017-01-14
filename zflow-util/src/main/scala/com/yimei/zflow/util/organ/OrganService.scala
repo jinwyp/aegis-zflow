@@ -131,10 +131,10 @@ trait OrganService extends Core
     *
     * @param party      参与方类别
     * @param instanceId 公司id
-    * @param limit
-    * @param offset
+    * @param page
+    * @param pageSize
     */
-  def getUserList(party: String, instanceId: String, limit: Int, offset: Int): Future[Result[UserListResponse]] = {
+  def getUserList(party: String, instanceId: String, page: Int, pageSize: Int): Future[Result[UserListResponse]] = {
 
     // 查询用户公司
     def pi: Future[PartyInstanceEntity] = {
@@ -153,7 +153,7 @@ trait OrganService extends Core
       dbrun(partyUser.filter(u =>
         u.party_id === p.id &&
           u.disable === 0
-      ).drop(offset).take(limit).result) recover {
+      ).drop((page - 1) * pageSize).take(pageSize).result) recover {
         case _ => throw new DatabaseException("无法获取用户列表")
       }
     }
@@ -320,8 +320,8 @@ trait OrganService extends Core
       info._1, info._2, info._3, info._4, info._5, info._6, info._7, info._8
     )
 
-    val userName = "%" + req.userName.getOrElse("") + "%"
-    val companyName = "%" + req.companyName.getOrElse("") + "%"
+    val userName = "%" + req.username.getOrElse("") + "%"
+    val companyName = "%" + req.company.getOrElse("") + "%"
     for {
       info <- getUserInfo(userName, companyName, pageSize, (page - 1) * pageSize)
       total <- getAccount(userName, companyName)
@@ -335,15 +335,15 @@ trait OrganService extends Core
   /**
     *
     * @param partyClass
-    * @param limit
-    * @param offset
+    * @param page
+    * @param pageSize
     * @return
     */
-  def getGroupsByParty(partyClass: String, limit: Int, offset: Int): Future[Result[PartyGroupsResponse]] = {
+  def getGroupsByParty(partyClass: String, page: Int, pageSize: Int): Future[Result[PartyGroupsResponse]] = {
 
     // 一页数据
     val rs: Future[Seq[PartyGroupEntity]] = dbrun(
-      partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result
+      partyGroup.filter(_.party_class === partyClass).drop((page - 1) * pageSize).take(pageSize).result
     )
 
     // 总数

@@ -12,37 +12,51 @@ import com.yimei.zflow.util.HttpResult._
 trait PartyRoute extends OrganService with SprayJsonSupport {
 
   /**
-    * GET  /party?limit=10&offset=20         参与方类别列表
+    * 参与方类别列表
+    * GET  /party?limit=10&offset=20
+    *
     * @return
     */
-  private def getParty: Route = get {
+  def getParty: Route = get {
     (path("party") & parameter("limit".as[Int]) & parameter("offset".as[Int])) { (limit, offset) =>
-      complete(getParties(limit,offset))
+      complete(getParties(limit, offset))
     }
   }
 
   /**
-    * POST /party/:className/:description        创建参与方类别
+    * 创建参与方类别
+    * POST /party/:className/:description
+    *
     * @return
     */
-  private def partyCreate: Route = post {
+  def partyCreate: Route = post {
     path("party" / Segment / Segment) { (pc, pd) =>
-      complete(createParty(pc,pd))
+      complete(createParty(pc, pd))
     }
   }
 
-  //GET  /party/:className                     查询参与方类别
-  private def partyQuery: Route = get {
+  /**
+    * 查询参与方类别
+    * GET  /party/:className
+    *
+    * @return
+    */
+  def partyQuery: Route = get {
     path("party" / Segment) { pc =>
       complete(queryParty(pc))
     }
   }
 
-  //PUT  /party/:id/:description    更新参与方类别
 
-  private def updatePt: Route = put {
-    path("party" / LongNumber  / Segment) { (id , pd) =>
-      complete(updateParty(id,pd))
+  /**
+    * 更新参与方类别
+    * /party/:id/:description
+    *
+    * @return
+    */
+  def updatePt: Route = put {
+    path("party" / LongNumber / Segment) { (id, pd) =>
+      complete(updateParty(id, pd))
     }
   }
 

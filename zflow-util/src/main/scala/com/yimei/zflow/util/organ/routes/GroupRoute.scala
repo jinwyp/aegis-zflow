@@ -9,22 +9,21 @@ import com.yimei.zflow.util.organ.OrganService
 trait GroupRoute extends OrganService with SprayJsonSupport {
 
   /**
-    *
-    * GET    /group/:party_class?limit=10&offset=20     参与方运营组列表
-    *
+    * 获取参与方类别运营组列表
+    * GET  /group/:party_class?page=10&pageSize=20
     * @return
     */
   private def getGroupParty: Route = get {
     path("group" / Segment) { pc =>
-      (parameter("limit".as[Int]) & parameter("offset".as[Int])) { (limit, offset) =>
-        complete(getGroupsByParty(pc, limit, offset))
+      (parameter("page".as[Int]) & parameter("pageSize".as[Int])) { (page, pageSize) =>
+        complete(getGroupsByParty(pc, page, pageSize))
       }
     }
   }
 
   /**
-    *
-    * POST   /group/:party_class/:gid/description       创建参与方运营组
+    * 创建参与方运营组
+    * POST   /group/:party_class/:gid/description
     *
     * @return
     */
@@ -35,8 +34,10 @@ trait GroupRoute extends OrganService with SprayJsonSupport {
   }
 
   /**
-    * /group/:party_class/:gid                    删除参与方运营组
+    * @deprecated
     *
+    * 删除参与方运营组
+    * /group/:party_class/:gid
     * @return
     */
   private def deleteGroupParty: Route = delete {
@@ -46,8 +47,8 @@ trait GroupRoute extends OrganService with SprayJsonSupport {
   }
 
   /**
-    * PUT  /group/id/:party_class/:gid/:description                更新参与方运营组
-    *
+    * 更新参与方运营组
+    * PUT  /group/:id/:party_class/:gid/:description
     * @return
     */
   private def updateGroupParty: Route = put {
@@ -58,7 +59,8 @@ trait GroupRoute extends OrganService with SprayJsonSupport {
 
 
   /**
-    *
+    * 依据用户参与方实例id, 运营组获取这个运营组的用户列表
+    * GET /ugroup/:party_instance_id/:gid
     * @return
     */
   private def getUserByGroupAndParty = get {
@@ -69,23 +71,24 @@ trait GroupRoute extends OrganService with SprayJsonSupport {
 
 
   /**
-    * 创建userGroup
+    * 创建userGroup  参与方实例(公司)的user_id加入运营组gid
     *
+    * POST /ugroup/:party_instance_id/:gid/:user_id
     * @return
     */
   private def createUserGroup: Route = post {
-    pathPrefix("ugroup" / LongNumber / Segment / Segment) { (party_id, gid, user_id) =>
+    path("ugroup" / LongNumber / Segment / Segment) { (party_id, gid, user_id) =>
       complete(createUserGroup(party_id, gid, user_id))
     }
   }
 
   /**
-    * 判断该用户是否在改群组中
-    *
+    * 判断该用户是否在运营组中
+    * GET /validateugroup/:party_class/:instance_id/:user_id/:gid
     * @return
     */
   private def userInGroup = get {
-    pathPrefix("validateugroup" / Segment / Segment / Segment / Segment) { (party_class, instant_id, user_id, gid) =>
+    path("validateugroup" / Segment / Segment / Segment / Segment) { (party_class, instant_id, user_id, gid) =>
       complete(auditUserInGroup(party_class, instant_id, user_id, gid))
     }
   }

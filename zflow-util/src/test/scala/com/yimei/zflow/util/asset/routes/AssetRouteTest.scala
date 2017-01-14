@@ -38,7 +38,9 @@ class AssetRouteTest extends WordSpec with Matchers with ScalatestRouteTest {
     route = new {
       override implicit val coreSystem = system
       override val log: LoggingAdapter = Logging(coreSystem, getClass)
-    } with AssetRoute
+    } with AssetRoute {
+      val fileField = "file"
+    }
   }
 
   "AssetRouteTest" should {

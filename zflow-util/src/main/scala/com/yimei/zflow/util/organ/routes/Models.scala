@@ -42,7 +42,7 @@ object Models extends DefaultJsonProtocol {
   implicit val UserAuthResponseFormat = jsonFormat7(UserAuthResponse)
 
   // 用户搜索
-  case class UserSearchRequest(userName: Option[String], companyName: Option[String])
+  case class UserSearchRequest(username: Option[String], company: Option[String])
   implicit val UserSearchRequestFormat = jsonFormat2(UserSearchRequest)
 
   ///////////////////////////////////////////////////////////////////////////////////////////
