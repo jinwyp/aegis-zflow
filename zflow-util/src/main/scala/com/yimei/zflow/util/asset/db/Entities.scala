@@ -10,10 +10,9 @@ object Entities {
     */
   case class AssetEntity(id: Option[Long],
                          asset_id: String,
-                         file_type: Int,
+                         file_type: String,
                          busi_type: String,
                          username: String,
-                         gid: Option[String],
                          description: Option[String],
                          url: String,
                          origin_name: String,

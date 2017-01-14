@@ -11,25 +11,23 @@ import scala.util.Try
   * Created by hary on 17/1/10.
   */
 
-case class OrganSession(userName: String,
+case class OrganSession(username: String,
                         userId: String,
                         party: String,
-                        gid: Option[String],
                         instanceId: String,
                         companyName: String)
 
 trait Session extends DefaultJsonProtocol {
 
-  implicit val OrganSessionFormat = jsonFormat6(OrganSession)
+  implicit val OrganSessionFormat = jsonFormat5(OrganSession)
 
   implicit val sessionManager = new SessionManager[OrganSession](SessionConfig.fromConfig())
 
   implicit def sessionSerializer: SessionSerializer[OrganSession, String] = new MultiValueSessionSerializer(
     (ms: OrganSession) => Map(
-      "name" -> ms.userName,
+      "username" -> ms.username,
       "id" -> ms.userId,
       "party" -> ms.party,
-      "gid" -> ms.gid.getOrElse(""),
       "instanceId" -> ms.instanceId,
       "companyName" -> ms.companyName),
 
@@ -39,7 +37,6 @@ trait Session extends DefaultJsonProtocol {
         msm.get("name").get,
         msm.get("id").get,
         msm.get("party").get,
-        gid,
         msm.get("instanceId").get,
         msm.get("companyName").get)
     }

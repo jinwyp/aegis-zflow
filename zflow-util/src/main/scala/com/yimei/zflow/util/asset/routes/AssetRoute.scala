@@ -1,47 +1,70 @@
 package com.yimei.zflow.util.asset.routes
 
-import java.io.FileOutputStream
+import java.io.File
+import java.nio.file.Paths
+import java.nio.file.StandardOpenOption._
 import java.util.UUID
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.Multipart.FormData.BodyPart
-import akka.http.scaladsl.model.{Multipart, StatusCodes}
+import akka.http.scaladsl.model.ContentTypes._
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.FileInfo
+import akka.stream.IOResult
+import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
 import com.yimei.zflow.util.asset.db.AssetTable
 import com.yimei.zflow.util.asset.db.Entities.AssetEntity
 import com.yimei.zflow.util.asset.routes.Models.UploadResult
 import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
+import com.yimei.zflow.util.organ.Session
+import org.apache.commons.io.FileUtils
 
 import scala.concurrent.Future
 
-trait AssetRoute extends Core with AssetTable with SprayJsonSupport {
+trait AssetRoute extends Core with AssetTable with SprayJsonSupport with Session {
+
+  val fileField: String
 
   implicit val assetRouteExecutionContext = coreSystem.dispatcher
 
   import driver.api._
 
-  val fileRootPath = coreSystem.settings.config.getString("file.root")
+  val fileRoot = "/tmp" // coreSystem.settings.config.getString("file.root")
 
-  import java.io.File
+  private def getAssetInfo(id: String): Future[(String, String, Source[ByteString, Future[IOResult]])] = {
+    val query = assetClass.filter(f => f.asset_id === id).map { e =>
+      (e.url, e.file_type, e.origin_name)
+    }.result.head
 
-  import scala.concurrent.duration._
+    dbrun(query).recover {
+      case _ =>
+        log.error("Database error in downloadFile")
+        throw new DatabaseException("该文件不存在")
+    } map {
+      case (url, fileType, name) =>
+        (fileType, name, FileIO.fromPath(Paths.get(fileRoot + File.separator + url)))
+    }
+  }
 
   /**
     * GET asset/:asset_id  -- 下载asset_id资源
     */
   private def downloadFile: Route = get {
-    path("asset" / Segment) { id =>
-      val file: Future[AssetEntity] = dbrun(assetClass.filter(f => f.asset_id === id).result.head) recover {
-        case _ => throw new DatabaseException("该文件不存在")
+    path("download" / Segment) { id =>
+      onSuccess(getAssetInfo(id)) {
+        case (_, name, source) =>
+          complete(
+            HttpResponse(
+              status = StatusCodes.OK,
+              headers = List(`Content-Disposition`(ContentDispositionTypes.attachment, Map("filename" -> name))),
+              entity = HttpEntity(`application/octet-stream`, source)
+            )
+          )
       }
-      val url = for {
-        f <- file
-      } yield f.url
-      getFromFile(new File(fileRootPath + url))
-      complete(StatusCodes.OK)
     }
   }
 
@@ -49,7 +72,6 @@ trait AssetRoute extends Core with AssetTable with SprayJsonSupport {
     * POST asset/    -- 上传文件:
     *
     * 1. username        --> 上传用户
-    * 2. gid             --> 用户组
     * 3. file_type       --> 后台计算   暂时依据后缀判断
     * 4. busi_type       --> 表单
     * 5. uri             --> 存储位置
@@ -61,72 +83,116 @@ trait AssetRoute extends Core with AssetTable with SprayJsonSupport {
     * @return
     */
 
-  private def uploadFile: Route = post {
-    path("asset") {
-      entity(as[Multipart.FormData]) { fileData =>
-        // 多个文件
-        val result: Future[Map[String, String]] = fileData.parts.mapAsync[(String, String)](1) {
-          case file:
-            BodyPart if file.name == "file" =>
-            val uuId = UUID.randomUUID().toString
-            val fileName = file.getFilename().get()
-            processFile(uuId, fileName, fileData)
-            Future("path" -> (uuId + fileName))
-          case data: BodyPart => data.toStrict(2.seconds)
-            .map(strict => data.name -> strict.entity.data.utf8String)
-        }.runFold(Map.empty[String, String])((map, tuple) => map + tuple)
+  private def uploadFile: Route = path("upload") {
+    post {
+      extractRequestContext { ctx =>
+        implicit val materializer = ctx.materializer
+        (organRequiredSession & parameter('busiType.?)) { (session, busiType) =>
+          fileUpload(fileField) {
+            case (meta: FileInfo, source: Source[ByteString, Any]) =>
+              // d33d2a10-1def-4e87-9fb7-dd629ecad8b0
+              val regex = "(\\w+)-(\\w+)-(\\w+)-(\\w+)-(\\w+)".r
+              val (dir, file, asset_id) = UUID.randomUUID().toString match {
+                case id@regex(a, b, c, d, e) => (
+                  a + File.separator +
+                    b + File.separator +
+                    c + File.separator +
+                    d + File.separator,
+                  e,
+                  id
+                  )
+              }
+              println("asset id is " + asset_id)
+              val gdir = fileRoot + File.separator + dir
+              FileUtils.forceMkdir(new File(gdir))
 
-        def insert(data:Map[String,String]): Future[UploadResult] = {
-          val path = data.get("path").get
-          val busi_type = data.getOrElse("busi_type", "default")
-          val description: String = data.getOrElse("description", "")
-          val uuId = path.substring(0, 36)
-          val originName = path.substring(36, path.length)
-          val url = uuId.replace("-", "/") + "/" + originName
-          val suffix = originName.substring(originName.lastIndexOf('.') + 1)
-          val fileType = getFileType(suffix)
-          val assetEntity: AssetEntity = new AssetEntity(None, uuId, fileType, busi_type, "username", Some("gid"), Some(description), url, originName, None)
-          val temp: Future[Int] = dbrun( assetClass.insertOrUpdate(assetEntity)) recover {
-            case _ => throw BusinessException(s"$url 上传失败")
+              val sink = FileIO.toPath(Paths.get(gdir + File.separator + file), Set(CREATE, WRITE))
+              val assetEntity = new AssetEntity(
+                None,
+                asset_id,
+                meta.contentType.toString(),
+                busiType.getOrElse("0"),
+                session.username,
+                None,
+                dir + File.separator + file,
+                meta.fileName,
+                None)
+
+              val ff = for {
+                result <- source.toMat(sink)(Keep.right).run
+                insert <- dbrun(assetClass.insertOrUpdate(assetEntity)) recover {
+                  case _ =>
+                    log.error("upload failed")
+                    throw BusinessException(s"${meta.fileName} 上传失败")
+                }
+              } yield (result, insert)
+
+              onSuccess(ff) {
+                case (result, insert) =>
+                  log.info(s"upload file[${meta.fileName}] size[${result.count}] status[${result.status}]")
+                  complete(UploadResult(assetEntity.url))
+              }
           }
-          temp.map(f=>UploadResult(uuId, originName))
         }
-        complete(for{
-          r <- result
-          i <- insert(r)
-        } yield {
-          i
-        })
       }
     }
   }
 
-  private def getFileType(suffix: String): Int = {
-    val imageArray = Array("jpg", "jpeg", "gif", "png", "bmp")
-    if (suffix.toLowerCase == "pdf") 1
-    else if (imageArray.contains(suffix.toLowerCase)) 2
-    else if (suffix.toLowerCase == "doc" || suffix.toLowerCase == "docx") 3
-    else if (suffix.toLowerCase == "xls" || suffix.toLowerCase == "xlsx") 4
-    else 0
-  }
+  private def uploadFile2: Route = path("upload2") {
+    post {
+      extractRequestContext { ctx =>
+        implicit val materializer = ctx.materializer
+        parameter('busiType.?) { busiType =>
+          fileUpload(fileField) {
+            case (meta: FileInfo, source: Source[ByteString, Any]) =>
+              // d33d2a10-1def-4e87-9fb7-dd629ecad8b0
+              val regex = "(\\w+)-(\\w+)-(\\w+)-(\\w+)-(\\w+)".r
+              val (dir, file, asset_id) = UUID.randomUUID().toString match {
+                case id@regex(a, b, c, d, e) => (
+                  a + File.separator +
+                    b + File.separator +
+                    c + File.separator +
+                    d + File.separator,
+                  e,
+                  id
+                  )
+              }
+              println("asset id is " + asset_id)
+              val gdir = fileRoot + File.separator + dir
+              FileUtils.forceMkdir(new File(gdir))
 
-  private def processFile(uuId: String, fileOriginName: String, fileData: Multipart.FormData) {
-    val dirPath = uuId.replace("-", "/")
-    val newDir = new File(fileRootPath + dirPath)
-    newDir.mkdirs()
-    val fileOutput = new FileOutputStream(fileRootPath + "/" + dirPath + "/" + fileOriginName)
-    fileData.parts.mapAsync(1) {
-      bodyPart =>
-        def writeFileOnLocal(array: Array[Byte], byteString: ByteString): Array[Byte] = {
-          val byteArray: Array[Byte] = byteString.toArray
-          fileOutput.write(byteArray)
-          array ++ byteArray
+              val sink = FileIO.toPath(Paths.get(gdir + File.separator + file), Set(CREATE, WRITE))
+              val assetEntity = new AssetEntity(
+                None,
+                asset_id,
+                meta.contentType.toString(),
+                busiType.getOrElse("0"),
+                "hary", //session.username,
+                None,
+                dir + File.separator + file,
+                meta.fileName,
+                None)
+
+              val ff = for {
+                result <- source.toMat(sink)(Keep.right).run
+                insert <- dbrun(assetClass.insertOrUpdate(assetEntity)) recover {
+                  case _ =>
+                    log.error("upload failed")
+                    throw BusinessException(s"${meta.fileName} 上传失败")
+                }
+              } yield (result, insert)
+
+              onSuccess(ff) {
+                case (result, insert) =>
+                  log.info(s"upload file[${meta.fileName}] size[${result.count}] status[${result.status}]")
+                  complete(UploadResult(assetEntity.url))
+              }
+          }
         }
-        bodyPart.entity.dataBytes.runFold(Array[Byte]())(writeFileOnLocal)
-    }.runFold(0)(_ + _.length)
+      }
+    }
   }
 
-
-  def assetRoute: Route = downloadFile ~ uploadFile
+  def assetRoute: Route = downloadFile ~ uploadFile ~ uploadFile2
 }
 

@@ -1,7 +1,7 @@
 -- 文件资源管理
 create table asset(
   id BIGINT not null auto_increment,        -- 非业务主键
-  asset_id varchar(36) not null,            -- 资源id
+  asset_id varchar(40) not null,            -- 资源id
   file_type varchar(128) not null,          -- 文件类型  0: 未知,  1: pdf, 2: image
   busi_type varchar(30) not null DEFAULT 0, -- 业务类别
   username varchar(128) not null,           -- 上传用户

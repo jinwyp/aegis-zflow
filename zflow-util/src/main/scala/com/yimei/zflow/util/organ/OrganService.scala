@@ -3,7 +3,7 @@ package com.yimei.zflow.util.organ
 import java.sql.Timestamp
 import java.time.Instant
 
-import com.yimei.zflow.util.HttpResult.Result
+import com.yimei.zflow.util.HttpResult.{Error, Result}
 import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 import com.yimei.zflow.util.organ.db.Entities._
@@ -29,10 +29,10 @@ trait OrganService extends Core
   /**
     * 创建用户
     *
-    * @param party
-    * @param instance_id
-    * @param userId
-    * @param user
+    * @param party       参与方类别
+    * @param instance_id 公司id
+    * @param userId      用户id
+    * @param user        用户请求对象
     */
   def createUser(party: String, instance_id: String, userId: String, user: UserCreateRequest) = {
 
@@ -44,10 +44,23 @@ trait OrganService extends Core
     }
 
     def insert(p: PartyInstanceEntity): Future[PartyUserEntity] = {
-      dbrun(partyUser returning partyUser.map(_.id) into ((pu, id) => pu.copy(id = id)) +=
-        PartyUserEntity(None, p.id.get, userId, user.password, user.phone, user.email, user.name, user.username, 0, Timestamp.from(Instant.now))) recover {
-        case e =>
-          log.error("{}", e)
+
+      val ir = (partyUser returning partyUser.map(_.id) into ((pu, id) => pu.copy(id = id))) +=
+        PartyUserEntity(
+          None,
+          p.id.get,
+          userId,
+          user.password,
+          user.phone,
+          user.email,
+          user.name,
+          user.username,
+          0,
+          Timestamp.from(Instant.now)
+        )
+
+      dbrun(ir).recover {
+        case e => log.error("{}", e)
           throw new DatabaseException("添加用户错误")
         //case a:SQLIntegrityConstraintViolationException => PartyUserEntity(None,p.id.get,userId,user.password,user.phone,user.email,user.name,Timestamp.from(Instant.now))
       }
@@ -62,24 +75,36 @@ trait OrganService extends Core
 
   /**
     * 查询用户信息
-    * @param party
-    * @param instance_id
+    *
+    * @param party 参与方类别
+    * @param instanceId
     * @param userId
     */
-  def queryUser(party: String, instance_id: String, userId: String): Future[Result[UserQueryResponse]] = {
-    def pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
-      p.party_class === party &&
-        p.instance_id === instance_id
-    ).result.head) recover {
-      case _ => throw new DatabaseException("不存在该公司")
+  def queryUser(party: String, instanceId: String, userId: String): Future[Result[UserQueryResponse]] = {
+
+    // 查询公司实例
+    def pi: Future[PartyInstanceEntity] = {
+
+      val qa = partyInstance.filter(p =>
+        p.party_class === party &&
+          p.instance_id === instanceId
+      ).result.head
+
+      dbrun(qa) recover {
+        case _ => throw new DatabaseException("不存在该公司")
+      }
     }
 
+    // 查询用户实例
     def getUser(p: PartyInstanceEntity): Future[PartyUserEntity] = {
-      dbrun(partyUser.filter(u =>
+
+      val qa = partyUser.filter(u =>
         u.user_id === userId &&
           u.party_id === p.id &&
           u.disable === 0
-      ).result.head) recover {
+      ).result.head
+
+      dbrun(qa) recover {
         case _ => throw new DatabaseException("不存在该用户")
       }
     }
@@ -90,7 +115,7 @@ trait OrganService extends Core
     } yield Result(Some(getUserQueryResponse(u)))
   }
 
-
+  // 用户实例 -> 数据库实体
   private def getUserQueryResponse(u: PartyUserEntity) = UserQueryResponse(
     id = u.id.get,
     party_id = u.party_id,
@@ -103,34 +128,43 @@ trait OrganService extends Core
 
   /**
     * 用户列表
-    * @param party
-    * @param instance_id
+    *
+    * @param party      参与方类别
+    * @param instanceId 公司id
     * @param limit
     * @param offset
     */
-  def getUserList(party: String, instance_id: String, limit: Int, offset: Int): Future[Result[UserListResponse]] = {
-    val pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
-      p.party_class === party &&
-        p.instance_id === instance_id
-    ).result.head) recover {
-      case _ => throw new DatabaseException("不存在该公司")
+  def getUserList(party: String, instanceId: String, limit: Int, offset: Int): Future[Result[UserListResponse]] = {
+
+    // 查询用户公司
+    def pi: Future[PartyInstanceEntity] = {
+      val qa = partyInstance.filter(p =>
+        p.party_class === party &&
+          p.instance_id === instanceId
+      ).result.head
+
+      dbrun(qa) recover {
+        case _ => throw new DatabaseException("不存在该公司")
+      }
     }
 
+    // 返回用户列表
     def getUserList(p: PartyInstanceEntity): Future[Seq[PartyUserEntity]] = {
       dbrun(partyUser.filter(u =>
         u.party_id === p.id &&
           u.disable === 0
       ).drop(offset).take(limit).result) recover {
-        case _ => throw new DatabaseException("不存在该用户")
+        case _ => throw new DatabaseException("无法获取用户列表")
       }
     }
 
+    // 获取记录总条数
     def getTotal(p: PartyInstanceEntity) = {
       dbrun(partyUser.filter(u =>
         u.party_id === p.id &&
           u.disable === 0
       ).length.result) recover {
-        case _ => throw new DatabaseException("不存在该用户")
+        case _ => throw new DatabaseException("无法获取总记录数")
       }
     }
 
@@ -143,6 +177,7 @@ trait OrganService extends Core
 
   /**
     * 更新用户信息
+    *
     * @param party
     * @param instance_id
     * @param userId
@@ -151,15 +186,15 @@ trait OrganService extends Core
     */
   def updateUser(party: String, instance_id: String, userId: String, user: UserCreateRequest): Future[Result[String]] = {
 
-    def pi: Future[PartyInstanceEntity] = dbrun(partyInstance.filter(p =>
-      p.party_class === party &&
-        p.instance_id === instance_id
-    ).result.head) recover {
+    def pi: Future[PartyInstanceEntity] = dbrun(
+      partyInstance.filter(p =>
+        p.party_class === party &&
+          p.instance_id === instance_id
+      ).result.head) recover {
       case _ => throw new DatabaseException("不存在该公司")
     }
 
     def update(p: PartyInstanceEntity) = {
-
       val pu = partyUser.filter(u =>
         u.user_id === userId &&
           u.party_id === p.id
@@ -187,23 +222,30 @@ trait OrganService extends Core
 
   /**
     * 用户认证
+    *
     * @param user
     */
   def auth(user: UserAuthRequest): Future[Result[UserAuthResponse]] = {
-    val query =
-      (for {
-        (pu, pi) <- partyUser join partyInstance on (_.party_id === _.id) if (pu.username === user.username && pu.password === user.password && pu.disable === 0)
-      } yield (
-        pu.username,
-        pu.user_id,
-        pu.email,
-        pu.phone,
-        pi.party_class,
-        pi.instance_id,
-        pi.party_name)).result.head
 
+    // 查询
+    val qa = (for {
+      (pu, pi) <- partyUser join partyInstance on (_.party_id === _.id) if (
+      pu.username === user.username &&
+        pu.password === user.password &&
+        pu.disable === 0)
+    } yield (
+      pu.username,
+      pu.user_id,
+      pu.email,
+      pu.phone,
+      pi.party_class,
+      pi.instance_id,
+      pi.party_name)
+      ).result.head
+
+    //
     for {
-      info <- dbrun(query)
+      info <- dbrun(qa)
     } yield Result(Some(UserAuthResponse(
       username = info._1,
       userId = info._2,
@@ -217,6 +259,7 @@ trait OrganService extends Core
 
   /**
     * 禁用用户
+    *
     * @param userId
     * @return
     */
@@ -239,6 +282,7 @@ trait OrganService extends Core
 
   /**
     * 用户搜索
+    *
     * @param req
     * @param page
     * @param pageSize
@@ -284,7 +328,9 @@ trait OrganService extends Core
     } yield Result[UserGroupListResponse](Some(UserGroupListResponse(userGroupList = info.map(getResult(_)), total = total)), success = true)
   }
 
-  private def toPartyGroupEntry(pt: PartyGroupEntity): PartyGroupEntry = PartyGroupEntry(pt.id.get, pt.party_class, pt.gid, pt.description)
+  // 数据库实体到浏览器response模型
+  private def toPartyGroupEntry(pt: PartyGroupEntity): PartyGroupEntry =
+    PartyGroupEntry(pt.id.get, pt.party_class, pt.gid, pt.description)
 
   /**
     *
@@ -294,8 +340,16 @@ trait OrganService extends Core
     * @return
     */
   def getGroupsByParty(partyClass: String, limit: Int, offset: Int): Future[Result[PartyGroupsResponse]] = {
-    val rs: Future[Seq[PartyGroupEntity]] = dbrun(partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result)
-    val total: Future[Int] = dbrun(partyGroup.filter(_.party_class === partyClass).length.result)
+
+    // 一页数据
+    val rs: Future[Seq[PartyGroupEntity]] = dbrun(
+      partyGroup.filter(_.party_class === partyClass).drop(offset).take(limit).result
+    )
+
+    // 总数
+    val total: Future[Int] = dbrun(
+      partyGroup.filter(_.party_class === partyClass).length.result
+    )
 
     for {
       r: Seq[PartyGroupEntity] <- rs
@@ -389,6 +443,7 @@ trait OrganService extends Core
 
   /**
     * 判断该用户是否在group里
+    *
     * @param partyClass
     * @param instantId
     * @param userId
@@ -396,14 +451,14 @@ trait OrganService extends Core
     * @return
     */
   def auditUserInGroup(partyClass: String, instantId: String, userId: String, gid: String): Future[Result[Seq[UserGroupEntry]]] = {
-    dbrun((for{
-      (pi,ug) <- partyInstance.filter(p=>
+    dbrun((for {
+      (pi, ug) <- partyInstance.filter(p =>
         p.party_class === partyClass &&
           p.instance_id === instantId
-      ) join userGroup.filter( u=>
+      ) join userGroup.filter(u =>
         u.user_id === userId &&
-          u.gid     === gid
-      ) on(_.id === _.party_id)
+          u.gid === gid
+      ) on (_.id === _.party_id)
     } yield {
       ug
     }).result) map { sq =>
@@ -412,7 +467,7 @@ trait OrganService extends Core
   }
 
 
-  private def toPartyClassEntry(pc:PartyClassEntity) = PartyClassEntry(pc.id.get, pc.class_name, pc.description)
+  private def toPartyClassEntry(pc: PartyClassEntity) = PartyClassEntry(pc.id.get, pc.class_name, pc.description)
 
   /**
     *
@@ -420,7 +475,7 @@ trait OrganService extends Core
     * @param limit
     * @return
     */
-  def getParties(offset: Int, limit: Int): Future[Result[Seq[PartyClassEntry]]] =  {
+  def getParties(offset: Int, limit: Int): Future[Result[Seq[PartyClassEntry]]] = {
     dbrun(partClass.drop(offset).take(limit).result) map { t =>
       Result(Some(t.map(toPartyClassEntry(_))))
     }
@@ -429,16 +484,17 @@ trait OrganService extends Core
 
   /**
     * 创建party_class
+    *
     * @param partyClass
     * @param desc
     * @return
     */
-  def createParty(partyClass:String, desc:String): Future[Result[PartyClassEntry]] = {
-   dbrun(
+  def createParty(partyClass: String, desc: String): Future[Result[PartyClassEntry]] = {
+    dbrun(
       (partClass returning partClass.map(_.id)) into ((party, id) => party.copy(id = id)) += PartyClassEntity(None, partyClass, desc)
     ) map { pt =>
-     Result(Some(toPartyClassEntry(pt)))
-   }
+      Result(Some(toPartyClassEntry(pt)))
+    }
   }
 
 
@@ -448,7 +504,7 @@ trait OrganService extends Core
     * @param partyClass
     * @return
     */
-  def queryParty(partyClass:String): Future[Result[Seq[PartyClassEntry]]] = {
+  def queryParty(partyClass: String): Future[Result[Seq[PartyClassEntry]]] = {
     dbrun(partClass.filter(p => p.class_name === partyClass).result) map { (pt: Seq[PartyClassEntity]) =>
       Result(Some(pt.map(toPartyClassEntry(_))))
     }
@@ -456,11 +512,12 @@ trait OrganService extends Core
 
   /**
     * 更新party_class
+    *
     * @param id
     * @param desc
     * @return
     */
-  def updateParty(id:Long,desc:String): Future[Result[String]] = {
+  def updateParty(id: Long, desc: String): Future[Result[String]] = {
     val update = partClass.filter(_.id === id).map(p => p.description).update(desc)
     dbrun(update) map { count =>
       if (count > 0) Result(Some("success")) else throw DatabaseException(s"$id,$desc party_class更新失败")
@@ -468,16 +525,16 @@ trait OrganService extends Core
   }
 
 
-
-  private def toPartyInstanceEntry(pt:PartyInstanceEntity) = PartyInstanceEntry(pt.id.get,pt.partyClass,pt.instanceId,pt.companyName)
+  private def toPartyInstanceEntry(pt: PartyInstanceEntity) = PartyInstanceEntry(pt.id.get, pt.partyClass, pt.instanceId, pt.companyName)
 
   /**
-    *创建公司
+    * 创建公司
+    *
     * @param info
     */
-  def createPartyInstance(info:PartyInstanceCreateRequest): Future[Result[PartyInstanceEntry]] = {
+  def createPartyInstance(info: PartyInstanceCreateRequest): Future[Result[PartyInstanceEntry]] = {
     val getPartyInstance: Future[Seq[PartyInstanceEntity]] = dbrun(
-      partyInstance.filter( p =>
+      partyInstance.filter(p =>
         p.disable === 0 &&
           p.instance_id === info.instanceId &&
           p.party_class === info.party
@@ -485,7 +542,7 @@ trait OrganService extends Core
     )
 
     def entity(pies: Seq[PartyInstanceEntity]): Future[PartyInstanceEntity] = {
-      if(pies.length == 0) {
+      if (pies.length == 0) {
         dbrun(
           (partyInstance returning partyInstance.map(_.id)) into ((pi, id) => pi.copy(id = id)) += PartyInstanceEntity(None, info.party, info.instanceId, info.companyName, 0, Timestamp.from(Instant.now))
         )
@@ -508,28 +565,29 @@ trait OrganService extends Core
     * @param instanceId
     * @return
     */
-  def queryPartyInstance(partyClass:String,instanceId:String): Future[Result[Seq[PartyInstanceEntry]]] = {
-    dbrun(partyInstance.filter(p => p.party_class === partyClass && p.instance_id === instanceId && p.disable === 0).result) map { r=>
+  def queryPartyInstance(partyClass: String, instanceId: String): Future[Result[Seq[PartyInstanceEntry]]] = {
+    dbrun(partyInstance.filter(p => p.party_class === partyClass && p.instance_id === instanceId && p.disable === 0).result) map { r =>
       Result(Some(r.map(toPartyInstanceEntry(_))))
     }
   }
 
 
   /**
-    *更新公司
+    * 更新公司
+    *
     * @param partyClass
     * @param instanceId
     * @param companyName
     */
-  def updatePartyInstance(partyClass:String,instanceId:String,companyName:String): Future[Result[String]] = {
+  def updatePartyInstance(partyClass: String, instanceId: String, companyName: String): Future[Result[String]] = {
     def getExistPartyInstance: Future[Seq[PartyInstanceEntity]] = dbrun(partyInstance.filter(p => p.instance_id === instanceId && p.disable === 0).result)
 
     def updatePartyInstance(pilist: Seq[PartyInstanceEntity]): Future[Result[String]] = {
-      if(pilist.length == 1){
-        dbrun(partyInstance.filter( p => p.instance_id === instanceId && p.disable === 0).map(p => (p.party_class, p.party_name)).update(partyClass, companyName)) map { count =>
-          if(count > 0) Result(Some("success")) else throw DatabaseException(s"$partyClass, $instanceId, $companyName 更新错误")
+      if (pilist.length == 1) {
+        dbrun(partyInstance.filter(p => p.instance_id === instanceId && p.disable === 0).map(p => (p.party_class, p.party_name)).update(partyClass, companyName)) map { count =>
+          if (count > 0) Result(Some("success")) else throw DatabaseException(s"$partyClass, $instanceId, $companyName 更新错误")
         }
-      }else{
+      } else {
         throw BusinessException("不存在对应的公司！")
       }
     }
@@ -548,23 +606,27 @@ trait OrganService extends Core
     * @param pageSize
     * @param companyName
     */
-  def getPartyInstanceList(page:Int, pageSize:Int, companyName:Option[String]): Future[Result[PartyInstancesResponse]] = {
-    if(page <= 0 || pageSize <= 0)
-      throw BusinessException("分页参数错误")
+  def getPartyInstanceList(page: Int, pageSize: Int, companyName: Option[String]): Future[Result[PartyInstancesResponse]] = {
+    if (page <= 0 || pageSize <= 0) {
+      // throw BusinessException("分页参数错误")
+      Result(None, success = false, error = Some(Error(400, "分页参数错误", "page pageSize")))
+    }
 
-    val query = if(companyName.isDefined) {
-      partyInstance.filter( pi =>
+    val query = if (companyName.isDefined) {
+      partyInstance.filter(pi =>
         pi.disable === 0
-      ).filter{ pi =>
+      ).filter { pi =>
         pi.party_name like "%" + companyName.get + "%"
       }
     } else {
-      partyInstance.filter{ pi =>
+      partyInstance.filter { pi =>
         pi.disable === 0
       }
     }
 
-    def getPartyInstanceList: Future[Seq[PartyInstanceEntity]] = dbrun(query.drop((page - 1) * pageSize).take(pageSize).result)
+    def getPartyInstanceList: Future[Seq[PartyInstanceEntity]] = dbrun(
+      query.drop((page - 1) * pageSize).take(pageSize).result
+    )
     def getAccount = dbrun(query.length.result)
 
     for {

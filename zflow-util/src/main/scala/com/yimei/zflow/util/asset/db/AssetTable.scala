@@ -17,13 +17,11 @@ trait AssetTable extends DB {
 
     def asset_id = column[String]("asset_id")
 
-    def file_type = column[Int]("file_type")
+    def file_type = column[String]("file_type")
 
     def busi_type = column[String]("busi_type")
 
     def username = column[String]("username")
-
-    def gid = column[Option[String]]("gid")
 
     def description = column[Option[String]]("description")
 
@@ -33,7 +31,7 @@ trait AssetTable extends DB {
 
     def ts_c = column[Option[Timestamp]]("ts_c")
 
-    def * = (id, asset_id, file_type, busi_type, username, gid, description, url, origin_name, ts_c) <>(AssetEntity.tupled, AssetEntity.unapply)
+    def * = (id, asset_id, file_type, busi_type, username, description, url, origin_name, ts_c) <>(AssetEntity.tupled, AssetEntity.unapply)
   }
 
   protected val assetClass = TableQuery[AssetClass]

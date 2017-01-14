@@ -51,19 +51,13 @@ object ${meta.entry()}App extends {
 
 
   // prepare routes
-  val route: Route =
-    logRequestResult(extractLogEntry _) {
-      pathPrefix("zflow" / "api") {
-        engineRoute
-      } ~
-        pathPrefix("organ" / "api") {
-          organRoute
-        } ~
-        pathPrefix("zflow") {
-          adminRoute
-        } ~
-        FlowRegistry.routes
-    }
+  val route: Route = logRequestResult(extractLogEntry _) {
+    pathPrefix("zflow" / "api") { engineRoute } ~
+    pathPrefix("organ" / "api") { organRoute } ~
+    pathPrefix("zflow") { adminRoute } ~
+    pathPrefix("asset") { assetRoute } ~
+    FlowRegistry.routes
+  }
 
   // start http server
   implicit val httpExecutionContext = coreSystem.dispatcher
