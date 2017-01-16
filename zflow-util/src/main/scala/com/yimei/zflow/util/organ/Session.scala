@@ -46,6 +46,7 @@ trait Session extends DefaultJsonProtocol with Core {
   def organSetSession(mySession: OrganSession) = setSession(oneOff, usingCookies, mySession)
 
   val organRequiredSession = requiredSession(oneOff, usingCookies)
+  val organOptionalSession = optionalSession(oneOff, usingCookies)
   val organInvalidateSession = invalidateSession(oneOff, usingCookies)
 }
 

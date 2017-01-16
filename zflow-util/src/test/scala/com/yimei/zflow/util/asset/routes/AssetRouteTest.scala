@@ -1,11 +1,16 @@
 package com.yimei.zflow.util.asset.routes
 
 import akka.actor.ActorSystem
-import akka.event.{Logging, LoggingAdapter}
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, Multipart}
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.typesafe.config.ConfigFactory
 import com.yimei.zflow.util.FlywayDB
-import org.scalatest.{Matchers, WordSpec}
+import com.yimei.zflow.util.asset.routes.Models._
+import com.yimei.zflow.util.organ.OrganSession
+import org.scalatest.{Inside, Matchers, WordSpec}
+
 
 object AssetRouteUT extends {
   implicit val coreSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
@@ -31,38 +36,58 @@ object AssetRouteUT extends {
     flyway.drop()
     flyway.migrate()
   }
+
+  import akka.http.scaladsl.server.Directives._
+
+  def loginRoute: Route = path("login") {
+    organSetSession(OrganSession("hary", "uid", "party", "instanceId", "company")) { ctx =>
+      ctx.complete("ok")
+    }
+  }
 }
 
 /**
   * Created by hary on 17/1/10.
   */
-class AssetRouteTest extends WordSpec with Matchers with ScalatestRouteTest {
+class AssetRouteTest extends WordSpec
+  with Matchers
+  with Inside
+  with ScalatestRouteTest
+  with SprayJsonSupport {
 
-  import AssetRouteUT.{assetRoute, prepare}
+  import AssetRouteUT.{assetRoute, loginRoute, prepare}
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
     prepare
   }
 
-  // must be tested with login session
-
   "AssetRouteTest" should {
-    "downloadFile should xxx" in {
-      Get("/asset/asset_id") ~> assetRoute ~> check {
-        responseAs[String] shouldEqual "hello"
-      }
-    }
 
-    "uploadFile should xxx" in {
-      Post("/asset") ~> assetRoute ~> check {
-        responseAs[String] shouldEqual "kkkk"
-      }
-    }
+    "login && upload && download" in {
+      Post("/login") ~> loginRoute ~> check {
+        val cookie = header("Set-Cookie").get
+        // responseAs[String] shouldBe "ok"
+        // println("cookie is " + cookie.toString)
 
-    "helllo should xxx" in {
-      Get("/kkkk") ~> assetRoute ~> check {
-        responseAs[String] shouldEqual "kernel"
+        val xml = "<int>42</int>"
+        // 上传文件
+        val content = Multipart.FormData(
+          Multipart.FormData.BodyPart.Strict(
+            "file",
+            HttpEntity(ContentTypes.`text/xml(UTF-8)`, xml),
+            Map("filename" -> "age.xml")  // 必须是filename, disposition parameters
+          )
+        )
+
+        Post("/upload", content) ~> addHeader(cookie) ~> assetRoute ~> check {
+          val result = responseAs[UploadResult]
+          val cookieOpt = header("Set-Cookie")
+          println("get result: " + result + " cookieOpt: " + cookieOpt)
+          Get("/download/" + result.id) ~> addHeader(cookie) ~> assetRoute ~> check {
+            responseAs[String] shouldEqual xml
+          }
+        }
       }
     }
   }
