@@ -156,8 +156,8 @@
             },
             getModel: function(){
                 // var url = '/zflow/api/' + location.search.match(new RegExp("[\?\&]id=([^\&]+)", "i"))[1];
-                // var url = '../static/json/data4.json'
-                var url = '../static/json/money.json'
+                var url = '../static/json/data5.json'
+                // var url = '../static/json/money.json'
                 $.getJSON(url, function(res){
                     originalData = res;
                 })

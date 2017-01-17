@@ -1,0 +1,489 @@
+{
+  "userTasks": {
+    "a19SecondReturnMoney": {
+      "description": "融资方确认还款",
+      "points": [
+        "repaymentAmount"
+      ]
+    },
+    "a22traderAuditIfComplete": {
+      "description": "贸易商确认付款是否完成",
+      "points": [
+        "TraderAuditIfCompletePayment"
+      ]
+    },
+    "a11SelectHarborAndSupervisor": {
+      "description": "完成选择港口,监管方和资金",
+      "points": [
+        "harborUserId",
+        "supervisorUserId",
+        "fundProviderUserId",
+        "fundProviderAccountantUserId"
+      ]
+    },
+    "a13FinishedUpload": {
+      "description": "港口方上传文件",
+      "points": [
+        "harborContractFiles",
+        "harborConfirmAmount"
+      ]
+    },
+    "a15traderAudit": {
+      "description": "贸易方审核",
+      "points": [
+        "traderAuditResult",
+        "fundProviderInterestRate"
+      ]
+    },
+    "a18fundProviderAccountantAudit": {
+      "description": "资金方财务H审核",
+      "points": [
+        "fundProviderAccountantAuditResult"
+      ]
+    },
+    "a16traderRecommendAmount": {
+      "description": "贸易方审核",
+      "points": [
+        "recommendAmount"
+      ]
+    },
+    "a20noticeHarborRelease": {
+      "description": "通知港口放货",
+      "points": [
+        "traderNoticeHarborRelease"
+      ]
+    },
+    "a17fundProviderAudit": {
+      "description": "资金方审核",
+      "points": [
+        "fundProviderAuditResult"
+      ]
+    },
+    "a12FinishedUpload": {
+      "description": "融资方上传文件",
+      "points": [
+        "financerContractFiles"
+      ]
+    },
+    "a21harborRelease": {
+      "description": "港口确认放货",
+      "points": [
+        "harborReleaseGoods"
+      ]
+    },
+    "a24AccountantReturnMoney": {
+      "description": "贸易商财务确认回款",
+      "points": [
+        "TraderAccountantConfirm"
+      ]
+    },
+    "a14FinishedUpload": {
+      "description": "监管方上传文件",
+      "points": [
+        "supervisorContractFiles"
+      ]
+    },
+    "a23ReturnMoney": {
+      "description": "贸易商确认回款",
+      "points": [
+        "TraderConfirmPayToFundProvider"
+      ]
+    }
+  },
+  "state": {
+    "guid": "financer-1804!2733",
+    "flowType": "cang",
+    "points": {
+      "startPoint": {
+        "value": "{\"basicInfo\":{\"coalIndex_NCV\":3500,\"coalIndex_ADV\":7.00,\"financingDays\":60,\"downstreamContractNo\":\"HNMT-AHDC-20170117-02\",\"financeEndTime\":\"2017-01-17 11:55:34\",\"applyUserId\":\"2733\",\"upstreamContractNo\":\"AHDC-HNMT-20170117-02\",\"applyCompanyId\":\"1804\",\"coalAmount\":5000.00,\"financeCreateTime\":\"2017-01-16 00:00:00\",\"businessCode\":\"JR201701160010\",\"coalIndex_RS\":8.00,\"applyCompanyName\":\"上海陆家嘴国际金融资产交易市场股份有限公司\",\"applyUserPhone\":\"15900648935\",\"stockPort\":\"安徽合肥\",\"interestRate\":0.10,\"coalType\":\"原煤\",\"downstreamCompanyName\":\"河南煤炭有限公司\",\"financingAmount\":100.00},\"investigationInfo\":{\"finalConclusion\":\"综合意见\",\"transitPort\":\"中转港口全称\",\"qualityInspectionUnit\":\"质量检验单位\",\"historicalCooperationDetail\":\"历史合作情况\",\"downstreamContractCompany\":\"上海陆家嘴国际金融资产交易市场股份有限公司\",\"businessRiskPoint\":\"业务风险点\",\"financingPeriod\":60,\"transportParty\":\"运输方\",\"quantityInspectionUnit\":\"数量检验单位\",\"applyCompanyName\":\"上海陆家嘴国际金融资产交易市场股份有限公司\",\"mainBusinessInfo\":\"业务主要信息\",\"upstreamContractCompany\":\"安徽电厂\",\"interestRate\":0.10,\"businessTransferInfo\":\"货物流转\",\"ourContractCompany\":\"慧慧公司\",\"financingAmount\":100.00,\"performanceCreditAbilityEval\":\"履约信用及能力评估\"},\"supervisorInfo\":{\"finalConclusion\":\"结论\",\"historicalCooperationDetail\":\"我方与港口的历史合作状况\",\"operatingStorageDetail\":\"经营及堆存状况\",\"storageProperty\":\"仓库性质\",\"supervisionCooperateDetail\":\"监管配合状况\",\"supervisionScheme\":\"监管方案\",\"storageLocation\":\"山西大同\",\"portStandardDegree\":\"保管及进出库流程规范程度\"}}",
+        "id": "init",
+        "timestamp": 1484625335326,
+        "used": false
+      },
+      "orderId": {
+        "value": "JR201701160010",
+        "id": "init",
+        "timestamp": 1484625335326,
+        "used": false
+      },
+      "traderUserId": {
+        "value": "trader-1822!77777",
+        "id": "init",
+        "timestamp": 1484625335326,
+        "used": false
+      },
+      "traderAccountantUserId": {
+        "value": "trader-1822!88888",
+        "id": "init",
+        "timestamp": 1484625335326,
+        "used": false
+      }
+    },
+    "flowId": "cang!financer-1804!2733!1",
+    "edges": {
+      "E1": true
+    },
+    "histories": [
+      "start"
+    ]
+  },
+  "autoTasks": {
+    "fundProviderPayingTask": {
+      "description": "资金方付款给贸易方",
+      "points": [
+        "fundProviderPaying",
+        "fundProviderPaySuccess"
+      ]
+    },
+    "traderPayingTask": {
+      "description": "贸易方付款给融资方",
+      "points": [
+        "traderPaying",
+        "traderPaySuccess"
+      ]
+    },
+    "financerPayingTask": {
+      "description": "融资方回款给贸易方",
+      "points": [
+        "financerPaying",
+        "financerPaySuccess"
+      ]
+    },
+    "traderRepayingTask": {
+      "description": "贸易方给资金方回款",
+      "points": [
+        "traderRepaying",
+        "traderRepaySuccess"
+      ]
+    }
+  },
+  "points": {
+    "repaymentAmount": "融资方还款金额",
+    "recommendAmount": "贸易商给出的放款金额",
+    "traderPaySuccess": "贸易商付钱给融资方成功",
+    "TraderConfirmPayToFundProvider": "贸易商确认回款给资金方",
+    "supervisorUserId": "监管账户",
+    "financerPaying": "融资方回款中",
+    "harborConfirmAmount": "港口确认吨数",
+    "fundProviderPaySuccess": "资金方付款成功",
+    "traderAuditResult": "贸易商审核合同结果",
+    "orderId": "审批Id",
+    "harborUserId": "港口账户",
+    "traderNoticeHarborRelease": "贸易方通知港口放货",
+    "TraderAuditIfCompletePayment": "贸易商确认是否收款完成",
+    "financerContractFiles": "融资方合同，财务，业务文件",
+    "TraderAccountantConfirm": "贸易商财务确认回款",
+    "harborContractFiles": "港口合同文件",
+    "startPoint": "进入仓押系统时,带入的数",
+    "fundProviderAuditResult": "资金方审核结果",
+    "financerPaySuccess": "融资方回款成功",
+    "traderRepaySuccess": "贸易方回款成功",
+    "traderPaying": "贸易商付钱给融资方中",
+    "fundProviderAccountantUserId": "资金方财务账户",
+    "traderRepaying": "贸易方回款中",
+    "fundProviderUserId": "资金方账户",
+    "traderUserId": "贸易方业务方账户",
+    "fundProviderInterestRate": "资金方利率",
+    "fundProviderPaying": "资金方支付中",
+    "supervisorContractFiles": "监管方合同文件",
+    "harborReleaseGoods": "港口确认放货",
+    "traderAccountantUserId": "贸易方财务账户",
+    "fundProviderAccountantAuditResult": "资金方财务审核结果"
+  },
+  "edges": {
+    "E15": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep24",
+      "name": "E15",
+      "partUTasks": [
+        {
+          "guidKey": "traderUserId",
+          "tasks": [
+            "a23ReturnMoney"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "repaymentStep25"
+    },
+    "fail": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "fail",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "success"
+    },
+    "E8": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep18",
+      "name": "E8",
+      "partUTasks": [],
+      "autoTasks": [
+        "traderPayingTask"
+      ],
+      "end": "financingStep19"
+    },
+    "success": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "success",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "success"
+    },
+    "E14": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep24",
+      "name": "E14",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "financingStep19"
+    },
+    "E3": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep13",
+      "name": "E3",
+      "partUTasks": [
+        {
+          "guidKey": "traderUserId",
+          "tasks": [
+            "a15traderAudit"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep14"
+    },
+    "E11": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep21",
+      "name": "E11",
+      "partUTasks": [
+        {
+          "guidKey": "traderUserId",
+          "tasks": [
+            "a20noticeHarborRelease"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "repaymentStep22"
+    },
+    "E9": {
+      "userTasks": [
+        "a19SecondReturnMoney"
+      ],
+      "partGTasks": [],
+      "begin": "financingStep19",
+      "name": "E9",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "repaymentStep20"
+    },
+    "E2": {
+      "userTasks": [
+        "a12FinishedUpload"
+      ],
+      "partGTasks": [],
+      "begin": "financingStep12",
+      "name": "E2",
+      "partUTasks": [
+        {
+          "guidKey": "harborUserId",
+          "tasks": [
+            "a13FinishedUpload"
+          ]
+        },
+        {
+          "guidKey": "supervisorUserId",
+          "tasks": [
+            "a14FinishedUpload"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep13"
+    },
+    "E10": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep20",
+      "name": "E10",
+      "partUTasks": [],
+      "autoTasks": [
+        "financerPayingTask"
+      ],
+      "end": "repaymentStep21"
+    },
+    "E1": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep11",
+      "name": "E1",
+      "partUTasks": [
+        {
+          "guidKey": "traderUserId",
+          "tasks": [
+            "a11SelectHarborAndSupervisor"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep12"
+    },
+    "E6": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep16",
+      "name": "E6",
+      "partUTasks": [
+        {
+          "guidKey": "fundProviderAccountantUserId",
+          "tasks": [
+            "a18fundProviderAccountantAudit"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep17"
+    },
+    "E12": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep22",
+      "name": "E12",
+      "partUTasks": [
+        {
+          "guidKey": "harborUserId",
+          "tasks": [
+            "a21harborRelease"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "repaymentStep23"
+    },
+    "E17": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep26",
+      "name": "E17",
+      "partUTasks": [],
+      "autoTasks": [
+        "traderRepayingTask"
+      ],
+      "end": "repaymentStep27"
+    },
+    "E5": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep15",
+      "name": "E5",
+      "partUTasks": [
+        {
+          "guidKey": "fundProviderUserId",
+          "tasks": [
+            "a17fundProviderAudit"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep16"
+    },
+    "E7": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep17",
+      "name": "E7",
+      "partUTasks": [],
+      "autoTasks": [
+        "fundProviderPayingTask"
+      ],
+      "end": "financingStep18"
+    },
+    "E13": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep23",
+      "name": "E13",
+      "partUTasks": [
+        {
+          "guidKey": "traderUserId",
+          "tasks": [
+            "a22traderAuditIfComplete"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "repaymentStep24"
+    },
+    "E16": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "repaymentStep25",
+      "name": "E16",
+      "partUTasks": [
+        {
+          "guidKey": "traderAccountantUserId",
+          "tasks": [
+            "a24AccountantReturnMoney"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "repaymentStep26"
+    },
+    "start": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "God",
+      "name": "start",
+      "partUTasks": [],
+      "autoTasks": [],
+      "end": "financingStep11"
+    },
+    "E4": {
+      "userTasks": [],
+      "partGTasks": [],
+      "begin": "financingStep14",
+      "name": "E4",
+      "partUTasks": [
+        {
+          "guidKey": "traderAccountantUserId",
+          "tasks": [
+            "a16traderRecommendAmount"
+          ]
+        }
+      ],
+      "autoTasks": [],
+      "end": "financingStep15"
+    }
+  },
+  "vertices": {
+    "financingStep15": "待贸易商财务放款建议",
+    "financingStep11": "等待贸易商选择港口,监管方和资金",
+    "financingStep18": "资金方给贸易方放款",
+    "repaymentStep23": "港口确认放货",
+    "repaymentStep26": "贸易商财务确认汇款给资金方",
+    "repaymentStep25": "贸易商确认汇款给资金方",
+    "financingStep14": "等待贸易商审核",
+    "repaymentStep20": "融资方确认回款",
+    "financingStep19": "贸易方给融资方放款",
+    "repaymentStep24": "贸易商确认收款完成",
+    "financingStep13": "等待融资方,港口和监管方上传合同及单",
+    "repaymentStep21": "融资方给贸易商回款",
+    "repaymentStep27": "贸易方给资金方回款",
+    "financingStep16": "贸易商财务放款建议审核通过,待资金方审核",
+    "financingStep17": "资金方财务同意放款",
+    "financingStep12": "等待融资方,港口和监管方上传合同及单",
+    "repaymentStep22": "贸易方通知港口放货"
+  }
+}

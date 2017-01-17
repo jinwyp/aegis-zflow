@@ -160,9 +160,11 @@
                 style: {
                     'width': 4,
                     'target-arrow-shape': 'triangle',
+                    // 'mid-target-arrow-shape': 'triangle',
                     'line-color': 'gray',
                     'target-arrow-color': 'gray',
-                    'curve-style': 'bezier',
+                    // 'mid-target-arrow-color': 'gray',
+                    'curve-style': 'bezier'
                     // 'control-point-distances': '-30% 30%',
                     // 'control-point-weights': '0 1'
                 }
@@ -190,7 +192,8 @@
                 selector: 'edge.isProcessing',
                 style: {
                     'line-color': 'orange',
-                    'target-arrow-color': 'orange'
+                    'target-arrow-color': 'orange',
+                    // 'mid-target-arrow-color': 'orange'
                 }
             },
 
@@ -198,7 +201,8 @@
                 selector: 'edge.isFinished',
                 style: {
                     'line-color': 'green',
-                    'target-arrow-color': 'green'
+                    'target-arrow-color': 'green',
+                    // 'mid-target-arrow-color': 'green'
                 }
             },
 
