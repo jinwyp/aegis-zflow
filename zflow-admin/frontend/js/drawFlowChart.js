@@ -160,9 +160,11 @@
                 style: {
                     'width': 4,
                     'target-arrow-shape': 'triangle',
+                    // 'mid-target-arrow-shape': 'triangle',
                     'line-color': 'gray',
                     'target-arrow-color': 'gray',
-                    'curve-style': 'bezier',
+                    // 'mid-target-arrow-color': 'gray',
+                    'curve-style': 'bezier'
                     // 'control-point-distances': '-30% 30%',
                     // 'control-point-weights': '0 1'
                 }
@@ -190,7 +192,8 @@
                 selector: 'edge.isProcessing',
                 style: {
                     'line-color': 'orange',
-                    'target-arrow-color': 'orange'
+                    'target-arrow-color': 'orange',
+                    // 'mid-target-arrow-color': 'orange'
                 }
             },
 
@@ -198,7 +201,8 @@
                 selector: 'edge.isFinished',
                 style: {
                     'line-color': 'green',
-                    'target-arrow-color': 'green'
+                    'target-arrow-color': 'green',
+                    // 'mid-target-arrow-color': 'green'
                 }
             },
 
@@ -210,31 +214,26 @@
                 }
             },
             
-            // {
-            //     // 只有一个子任务的edge parent
-            //     selector: 'edge.singleChild',
-            //     style: {
-            //         'visibility': 'hidden'
-            //     }
-            // },
-
-            // {
-            //     // 只有一个子任务
-            //     selector: 'edge.taskedge.singleChild',
-            //     style: {
-            //         'visibility': 'visible'
-            //     }
-            // },
             {
-                selector: 'edge.hide',
+                // 只有一个子任务的edge parent
+                selector: 'edge.singleChild',
                 style: {
                     'visibility': 'hidden'
                 }
             },
+
             {
-                selector: 'edge.hide.singleChild',
+                // 只有一个子任务
+                selector: 'edge.taskedge.singleChild',
                 style: {
                     'visibility': 'visible'
+                }
+            },
+
+            {
+                selector: 'edge.hide',
+                style: {
+                    'visibility': 'hidden'
                 }
             },
             {
@@ -243,6 +242,7 @@
                     'visibility': 'hidden'
                 }
             },
+            
         ];
         return styleArr;
     };
@@ -409,14 +409,8 @@
 
 
         // filter single ins and single out judge-node
-        var newEdges = [];
-        var newNodes = [];
-        nodes.forEach(function(n, ni){
-            newNodes.push($.extend({}, n));
-        })
-        edges.forEach(function(e, ei){
-            newEdges.push($.extend({}, e));
-        })
+        var newEdges = JSON.parse(JSON.stringify(edges));
+        var newNodes = JSON.parse(JSON.stringify(nodes));
 
         var filterJudgeNode = {};
         var filterEdgeNode = {};
@@ -432,7 +426,7 @@
 
         var filterEdgeNodeFn = function(e, index){
             var additionEdge = null;
-            var edge = $.extend({}, e);
+            var edge = JSON.parse(JSON.stringify(e));
             var targetEdgeNode = filterEdgeNode[e.data.target];
             var sourceEdgeNode = filterEdgeNode[e.data.source];
 
@@ -460,10 +454,12 @@
                     }
                 })
             }
+            
             newEdges[index] = edge;
 
             if(filterEdgeNode[e.data.target]){
-                additionEdge = $.extend({}, edge);
+                // deep copy
+                additionEdge = JSON.parse(JSON.stringify(edge));
                 additionEdge.data.name = e.data.source +'-' + originalData.edges[e.data.target].end;
                 additionEdge.data.target = originalData.edges[e.data.target].end;
                 additionEdge.data.endType = 'judge-node';
@@ -475,7 +471,7 @@
         }
         var filterJudgeNodeFn = function(e, index){
             var additionEdge = null;
-            var edge = $.extend({}, e);
+            var edge = JSON.parse(JSON.stringify(e));
             var targetJudgeNode = filterJudgeNode[e.data.target];
             var sourceJudgeNode = filterJudgeNode[e.data.source];
 
@@ -487,7 +483,7 @@
 
             if(targetJudgeNode){
                 if((e.data.sourceType == 'parent-node') && (targetJudgeNode.data.ins[0].name==e.data.source)){
-                    additionEdge = $.extend({}, edge);
+                    additionEdge = JSON.parse(JSON.stringify(edge));
                     additionEdge.data.target = targetJudgeNode.data.out[0].name;
                     additionEdge.data.name = e.data.source +'-' + targetJudgeNode.data.out[0].name;
                     additionEdge.data.endType = 'parent-node';
