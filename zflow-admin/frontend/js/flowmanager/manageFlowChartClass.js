@@ -232,10 +232,10 @@
                     id : currentEdge.name,
                     source : currentEdge.begin,
                     target : currentEdge.end,
-                    userTasks : currentEdge.userTasks,
-                    autoTasks : currentEdge.autoTasks,
-                    partGTasks : currentEdge.partGTasks,
-                    partUTasks : currentEdge.partUTasks,
+                    userTasks : [],
+                    autoTasks : [],
+                    partGTasks : [],
+                    partUTasks : [],
                     allTask : []
                 }
             };
@@ -346,11 +346,7 @@
                         belongToEdge : {
                             id : edge.name,
                             source : edge.begin,
-                            target : edge.end,
-                            userTasks : edge.userTasks,
-                            autoTasks : edge.autoTasks,
-                            partGTasks : edge.partGTasks,
-                            partUTasks : edge.partUTasks
+                            target : edge.end
                         }
                     }
                 };
@@ -364,11 +360,11 @@
                             description : sourceAllData.points[point]
                         })
                     })
-
                 }
 
                 if (taskType === 'partUTasks' || taskType === 'partGTasks'){
                     newTask.sourceData.description = sourceAllData['userTasks'][task].description
+                    newTask.sourceData.type = 'userTasks'
 
                     source['userTasks'][task].points.forEach(function(point, pointIndex){
                         newTask.sourceData.points.push({
@@ -391,6 +387,7 @@
                 return newTask
             }
 
+            // 整理任务 开始
             var taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
             taskTypeList.forEach(function(taskType, taskTypeIndex){
 
@@ -399,13 +396,18 @@
                     currentEdge[taskType].forEach(function(task, taskIndex){
                         var tempTask = {};
 
-
                         if (taskType === 'userTasks' ||  taskType === 'autoTasks') {
 
                             tempTask = generateNewTask(source, currentEdge, task, taskType)
 
-                            if (taskType === 'userTasks') result.formattedSource.userTasks.push(tempTask);
-                            if (taskType === 'autoTasks') result.formattedSource.autoTasks.push(tempTask);
+                            if (taskType === 'userTasks') {
+                                tempEdge.sourceData.userTasks.push(tempTask)
+                                result.formattedSource.userTasks.push(tempTask);
+                            }
+                            if (taskType === 'autoTasks'){
+                                tempEdge.sourceData.autoTasks.push(tempTask)
+                                result.formattedSource.autoTasks.push(tempTask);
+                            }
 
                             tempEdge.sourceData.allTask.push(tempTask)
                             result.formattedSource.allTask.push(tempTask);
@@ -415,17 +417,61 @@
                         if (taskType === 'partUTasks' || taskType === 'partGTasks') {
 
                             if (task.tasks && task.tasks.length > 0){
+
+                                var tempFatherTask = {
+                                    classes : 'node task ' + taskType,
+                                    data : {
+                                        id : '',
+                                        sourceData : {}
+                                    },
+                                    sourceData : {
+                                        id : '',
+                                        guidKey : '',
+                                        ggidKey : '',
+                                        type : taskType,
+                                        description : '',
+                                        tasks : [],
+
+                                        belongToEdge : {
+                                            id : edge.name,
+                                            source : edge.begin,
+                                            target : edge.end
+                                        }
+                                    }
+                                }
+
+
                                 task.tasks.forEach(function(subTask, subTaskIndex){
-
                                     tempTask = generateNewTask(source, currentEdge, subTask, taskType, task)
-
-
-                                    if (taskType === 'partUTasks') result.formattedSource.partUTasks.push(tempTask)
-                                    if (taskType === 'partGTasks') result.formattedSource.partGTasks.push(tempTask)
-
-                                    tempEdge.sourceData.allTask.push(tempTask)
-                                    result.formattedSource.allTask.push(tempTask);
+                                    tempFatherTask.sourceData.tasks.push(tempTask)
                                 })
+
+                                if (taskType === 'partUTasks') {
+                                    tempFatherTask.data.id = task.guidKey
+                                    tempFatherTask.sourceData.id = task.guidKey
+                                    tempFatherTask.sourceData.guidKey = task.guidKey
+                                }
+
+                                if (taskType === 'partGTasks') {
+                                    tempFatherTask.data.id = task.ggidKey
+                                    tempFatherTask.sourceData.id = task.ggidKey
+                                    tempFatherTask.sourceData.ggidKey = task.ggidKey
+                                }
+
+                                tempFatherTask.data.sourceData = tempFatherTask.sourceData
+
+                                if (taskType === 'partUTasks') {
+                                    tempEdge.sourceData.partUTasks.push(tempFatherTask)
+                                    result.formattedSource.partUTasks.push(tempFatherTask)
+                                }
+
+                                if (taskType === 'partGTasks') {
+                                    tempEdge.sourceData.partGTasks.push(tempFatherTask)
+                                    result.formattedSource.partGTasks.push(tempFatherTask)
+                                }
+
+                                tempEdge.sourceData.allTask.push(tempFatherTask)
+                                result.formattedSource.allTask.push(tempFatherTask);
                             }
 
                         }

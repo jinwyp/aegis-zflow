@@ -281,7 +281,7 @@
         }
 
         vm.convertDataObj = function () {
-            vm.ouputData = formatter.rawArrayToObj(vm.nodes, vm.edges)
+            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.nodes, vm.edges))
             console.log(vm.ouputData)
         }
 
@@ -363,9 +363,9 @@
 
         var app = {
             init : function(){
-                jQuery.getJSON('/zflow/static/json/data99.json', function(resultData){
+                jQuery.getJSON('./json/data99.json', function(resultData){
                     formattedData = resultData;
-                    
+
                 })
                 this.drawChart();
             },
