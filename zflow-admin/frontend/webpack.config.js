@@ -18,12 +18,12 @@ module.exports = {
     devServer: {
         inline: true, //可以监控js变化
         hot: false, //热启动 Hot Module Replacement
-        contentBase: path.join(__dirname), //制定静态文件目录
-        publicPath: "/static/admin/js/",
+        contentBase: [path.join(__dirname), '../backend'], //制定静态文件目录
+        publicPath: "/zflow/static/js",
         compress: true,
         port: 8020,  //默认8080
         proxy: {
-            "/api": "http://192.168.1.118:9000"
+            "/api" : "http://192.168.1.118:9000"
         }
     }
 };
