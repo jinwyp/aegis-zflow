@@ -1,35 +1,63 @@
 <!DOCTYPE html>  <!-- HTML5 document type -->
 <html ng-app="flowApp">
 <head>
-    <link rel="stylesheet" href="/zflow/static/lib/angletheme/bootstrap.css">
-    <link rel="stylesheet" href="/zflow/static/lib/angletheme/app.css">
-    <link rel="stylesheet" href="/zflow/static/css/jquery.qtip.css"/>
-    <link rel="stylesheet" href="/zflow/static/css/manageflow.css">
-
+    <link rel="stylesheet" href="/lib/angletheme/bootstrap.css">
+    <link rel="stylesheet" href="/lib/angletheme/app.css">
+    <link rel="stylesheet" href="/css/jquery.qtip.css"/>
+    <link rel="stylesheet" href="/css/manageflow.css">
 </head>
 <body>
 
 
 <div class="wrapper">
     <!-- Page content-->
-    <div class="content-wrapper manage-flow">
-        <header><img src="/zflow/static/img/logo.png" alt=""></header>
+    <div class="content-wrapper manage-flow" ng-cloak ng-controller="vertexController as vm">
+        <header><img src="/img/logo.png" alt=""></header>
 
         <!-- START row-->
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h4>该流程基本信息</h4></div>
+                    <div class="panel-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"> 流程名称</label>
+                                <div class="col-sm-4">
+                                    <input type="text" placeholder="流程名称" class="form-control">
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="help-block" ng-if="formNode.vdesc.$error.required">必填!</span>
+                                    <span class="help-block" ng-if="formNode.vdesc.$error.minlength">长度要大于2!</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-lg-4">
+                                    <button type="submit" class="btn btn-sm btn-default">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END row-->
+
+
         <div class="row">
             <div class="col-md-12">
                 <!-- START panel-->
                 <div class="panel panel-default">
-                    <div class="panel-heading"></div>
 
                     <div class="panel-body">
                         <div id="chart"></div>
 
-                        <div id="panel-settings" ng-cloak ng-controller="vertexController as vm">
+                        <div id="panel-settings" >
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'node' && vm.currentVertex.id">
-                                <div class="panel-heading"><h4>已选中节点: {{vm.currentVertex.id || '未选择'}}
-                                    {{vm.newVertex.id}}</h4></div>
+                                <div class="panel-heading"> <h4>已选中节点: {{vm.currentVertex.id || '未选择'}} {{vm.newVertex.id}}</h4> </div>
 
                                 <div class="panel-body">
 
@@ -38,82 +66,65 @@
                                             <div class="col-lg-10">
                                                 <div class="radio">
                                                     <label>
-                                                        <input type="radio" name="isNewNode" ng-value="true"
-                                                               ng-model="vm.isNewNode"> 添加新节点
+                                                        <input type="radio" name="isNewNode" ng-value="true" ng-model="vm.isNewNode" > 添加新节点
                                                     </label>
 
                                                     <label>
-                                                        <input type="radio" name="isNewNode" ng-value="false"
-                                                               ng-model="vm.isNewNode"> 选择已有节点
+                                                        <input type="radio" name="isNewNode" ng-value="false" ng-model="vm.isNewNode" > 选择已有节点
                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="form-group" ng-if="vm.isNewNode"
-                                             ng-class="{'has-error' : formNode.vid.$invalid && formNode.vid.$dirty}">
+                                        <div class="form-group" ng-if="vm.isNewNode" ng-class="{'has-error' : formNode.vid.$invalid && formNode.vid.$dirty}">
                                             <div class="col-lg-6">
-                                                <input type="text" name="vid" placeholder="新节点ID" class="form-control"
-                                                       ng-model="vm.newVertex.id" required minlength="2" maxlength="10">
+                                                <input type="text" name="vid" placeholder="新节点ID" class="form-control" ng-model="vm.newVertex.id" required minlength="2" maxlength="10">
                                             </div>
                                             <div class="col-lg-6">
                                                 <span class="help-block" ng-if="formNode.vid.$error.required">必填!</span>
-                                                <span class="help-block"
-                                                      ng-if="formNode.vid.$error.minlength">长度2-10!</span>
+                                                <span class="help-block" ng-if="formNode.vid.$error.minlength">长度2-10!</span>
                                             </div>
                                         </div>
 
-                                        <div class="form-group" ng-if="vm.isNewNode"
-                                             ng-class="{'has-error' : formNode.vdesc.$invalid && formNode.vdesc.$dirty}">
+                                        <div class="form-group" ng-if="vm.isNewNode" ng-class="{'has-error' : formNode.vdesc.$invalid && formNode.vdesc.$dirty}">
                                             <div class="col-lg-6">
-                                                <input type="text" name="vdesc" placeholder="新节点简介" class="form-control"
-                                                       ng-model="vm.newVertex.description" required minlength="2">
+                                                <input type="text" name="vdesc" placeholder="新节点简介" class="form-control" ng-model="vm.newVertex.description" required minlength="2" >
                                             </div>
                                             <div class="col-lg-6">
-                                                <span class="help-block"
-                                                      ng-if="formNode.vdesc.$error.required">必填!</span>
-                                                <span class="help-block"
-                                                      ng-if="formNode.vdesc.$error.minlength">长度要大于2!</span>
+                                                <span class="help-block" ng-if="formNode.vdesc.$error.required">必填!</span>
+                                                <span class="help-block" ng-if="formNode.vdesc.$error.minlength">长度要大于2!</span>
                                             </div>
                                         </div>
 
                                         <div class="form-group" ng-if="!vm.isNewNode">
                                             <div class="col-lg-10">
                                                 <select class="form-control m-b" ng-model="vm.newVertex.id"
-                                                        ng-options="item.data.id as item.data.id for item in vm.vertices track by item.data.id">
-                                                    <option value=""> --- 请选择已有节点 ---</option>
+                                                        ng-options="item.data.id as item.data.id for item in vm.vertices track by item.data.id" >
+                                                    <option value=""> --- 请选择已有节点 --- </option>
                                                 </select>
                                             </div>
                                         </div>
 
 
-                                        <div class="form-group"
-                                             ng-class="{'has-error' : formNode.edgeId.$invalid && formNode.edgeId.$dirty}">
+                                        <div class="form-group" ng-class="{'has-error' : formNode.edgeId.$invalid && formNode.edgeId.$dirty}">
                                             <div class="col-lg-6">
-                                                <input type="text" name="edgeId" placeholder="节点连线ID"
-                                                       class="form-control" ng-model="vm.newEdge.id" required
-                                                       minlength="2" maxlength="10">
+                                                <input type="text" name="edgeId" placeholder="节点连线ID" class="form-control" ng-model="vm.newEdge.id" required minlength="2" maxlength="10">
                                             </div>
                                             <div class="col-lg-6">
                                                 <span class="help-block" ng-if="formNode.vid.$error.required">必填!</span>
-                                                <span class="help-block"
-                                                      ng-if="formNode.vid.$error.minlength">长度2-10!</span>
+                                                <span class="help-block" ng-if="formNode.vid.$error.minlength">长度2-10!</span>
                                             </div>
                                         </div>
 
 
                                         <div class="form-group has-error">
                                             <div class="col-lg-12">
-                                                <button type="submit" class="btn btn-sm btn-default"
-                                                        ng-disabled="formNode.$invalid"
-                                                        ng-click="vm.addNewLine(formNode)">保存
-                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-default" ng-disabled="formNode.$invalid" ng-click="vm.addNewLine(formNode)">保存</button>
                                             </div>
                                             <div class="col-lg-12">
                                                 <span class="help-block" ng-if="vm.errorAddNewVertex.notSelected">请选择一个节点!</span>
                                                 <span class="help-block" ng-if="vm.errorAddNewVertex.vertexExist">节点ID已存在!</span>
-                                                <span class="help-block"
-                                                      ng-if="vm.errorAddNewVertex.edgeExist">连线ID已存在!</span>
+                                                <span class="help-block" ng-if="vm.errorAddNewVertex.edgeExist">连线ID已存在!</span>
                                                 <span class="help-block" ng-if="vm.errorAddNewVertex.vertexSelf">节点连线不能指向自己!</span>
                                             </div>
                                         </div>
@@ -121,6 +132,9 @@
 
                                 </div>
                             </div>
+
+
+
 
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'edge' && vm.currentEdge.id">
@@ -157,40 +171,30 @@
 
                                     <form class="form-horizontal" name="formTask">
 
-                                        <div class="form-group"
-                                             ng-class="{'has-error' : formTask.tid.$invalid && formTask.tid.$dirty}">
+                                        <div class="form-group" ng-class="{'has-error' : formTask.tid.$invalid && formTask.tid.$dirty}">
                                             <div class="col-lg-6">
-                                                <input type="text" name="tid" placeholder="新任务ID" class="form-control"
-                                                       ng-model="vm.newTask.id" required minlength="2" maxlength="10">
+                                                <input type="text" name="tid" placeholder="新任务ID" class="form-control" ng-model="vm.newTask.id" required minlength="2" maxlength="10">
                                             </div>
                                             <div class="col-lg-6">
                                                 <span class="help-block" ng-if="formTask.tid.$error.required">必填!</span>
-                                                <span class="help-block"
-                                                      ng-if="formTask.tid.$error.minlength">长度2-10!</span>
+                                                <span class="help-block" ng-if="formTask.tid.$error.minlength">长度2-10!</span>
                                             </div>
                                         </div>
 
-                                        <div class="form-group"
-                                             ng-class="{'has-error' : formTask.tdesc.$invalid && formTask.tdesc.$dirty}">
+                                        <div class="form-group" ng-class="{'has-error' : formTask.tdesc.$invalid && formTask.tdesc.$dirty}">
                                             <div class="col-lg-6">
-                                                <input type="text" name="tdesc" placeholder="新任务说明" class="form-control"
-                                                       ng-model="vm.newTask.description" required minlength="2">
+                                                <input type="text" name="tdesc" placeholder="新任务说明" class="form-control" ng-model="vm.newTask.description" required minlength="2" >
                                             </div>
                                             <div class="col-lg-6">
-                                                <span class="help-block"
-                                                      ng-if="formTask.tdesc.$error.required">必填!</span>
-                                                <span class="help-block"
-                                                      ng-if="formTask.tdesc.$error.minlength">长度要大于2!</span>
+                                                <span class="help-block" ng-if="formTask.tdesc.$error.required">必填!</span>
+                                                <span class="help-block" ng-if="formTask.tdesc.$error.minlength">长度要大于2!</span>
                                             </div>
                                         </div>
 
-                                        <div class="form-group"
-                                             ng-class="{'has-error' : formTask.tType.$invalid && formTask.tType.$dirty}">
+                                        <div class="form-group" ng-class="{'has-error' : formTask.tType.$invalid && formTask.tType.$dirty}">
                                             <div class="col-lg-6">
-                                                <select class="form-control m-b" name="tType" ng-model="vm.newTask.type"
-                                                        required>
-                                                    <option value="">--- 请选择任务类型 ---</option>
-                                                    <!-- not selected / blank option -->
+                                                <select class="form-control m-b" name="tType" ng-model="vm.newTask.type" required>
+                                                    <option value="">--- 请选择任务类型 ---</option> <!-- not selected / blank option -->
                                                     <option value="userTasks">userTasks</option> <!-- interpolation -->
                                                     <option value="autoTasks">autoTasks</option>
                                                     <option value="partUTasks">partUTasks</option>
@@ -198,22 +202,17 @@
                                                 </select>
                                             </div>
                                             <div class="col-lg-6">
-                                                <span class="help-block"
-                                                      ng-if="formTask.tType.$error.required">必填!</span>
+                                                <span class="help-block" ng-if="formTask.tType.$error.required">必填!</span>
                                             </div>
                                         </div>
 
 
                                         <div class="form-group has-error">
                                             <div class="col-lg-12">
-                                                <button type="submit" class="btn btn-sm btn-default"
-                                                        ng-disabled="formTask.$invalid"
-                                                        ng-click="vm.addNewTask(formTask)">保存
-                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-default" ng-disabled="formTask.$invalid" ng-click="vm.addNewTask(formTask)">保存</button>
                                             </div>
                                             <div class="col-lg-12">
-                                                <span class="help-block"
-                                                      ng-if="vm.errorAddNewTask.taskExist">任务ID已存在!</span>
+                                                <span class="help-block" ng-if="vm.errorAddNewTask.taskExist">任务ID已存在!</span>
                                             </div>
                                         </div>
                                     </form>
@@ -223,12 +222,12 @@
                             </div>
 
 
+
                             <div class="panel panel-default">
                                 <div class="panel-heading"><h4> 导出数据 </h4></div>
 
                                 <div class="panel-body">
-                                    <button class="mb-sm btn btn-green" ng-click="vm.convertDataArray()"> 导出数组形式
-                                    </button>
+                                    <button class="mb-sm btn btn-green" ng-click="vm.convertDataArray()"> 导出数组形式</button>
                                     <button class="mb-sm btn btn-green" ng-click="vm.convertDataObj()"> 导出对象形式</button>
                                 </div>
 
@@ -249,18 +248,18 @@
 </div>
 
 
-<script src='/zflow/static/lib/jquery.js'></script>
-<script src='/zflow/static/lib/angular/angular.js'></script>
+<script src='/lib/jquery.js'></script>
+<script src='/lib/angular/angular.js'></script>
 
-<script src="/zflow/static/lib/cytoscape/jquery.qtip.js"></script>
-<script src='/zflow/static/lib/cytoscape/cytoscape.js'></script>
-<script src="/zflow/static/lib/cytoscape/cytoscape-qtip.js"></script>
-<script src="/zflow/static/lib/cytoscape/dagre.js"></script>
-<script src="/zflow/static/lib/cytoscape/cytoscape-dagre.js"></script>
+<script src="/lib/cytoscape/jquery.qtip.js"></script>
+<script src='/lib/cytoscape/cytoscape.js'></script>
+<script src="/lib/cytoscape/cytoscape-qtip.js"></script>
+<script src="/lib/cytoscape/dagre.js"></script>
+<script src="/lib/cytoscape/cytoscape-dagre.js"></script>
 
-<script src='/zflow/static/js/flowmanager/manageFlowChartClass.js'></script>
-<script src='/zflow/static/js/flowmanager/manageFlow.js'></script>
-<script src='/zflow/static/js/flowmanager/formatter.js'></script>
+<script src='/js/floweditor/manageFlowChartClass.js'></script>
+<script src='/js/floweditor/manageFlow.js'></script>
+<script src='/js/floweditor/formatter.js'></script>
 
 
 </body>

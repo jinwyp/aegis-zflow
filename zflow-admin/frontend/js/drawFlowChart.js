@@ -160,9 +160,11 @@
                 style: {
                     'width': 4,
                     'target-arrow-shape': 'triangle',
+                    // 'mid-target-arrow-shape': 'triangle',
                     'line-color': 'gray',
                     'target-arrow-color': 'gray',
-                    'curve-style': 'bezier',
+                    // 'mid-target-arrow-color': 'gray',
+                    'curve-style': 'bezier'
                     // 'control-point-distances': '-30% 30%',
                     // 'control-point-weights': '0 1'
                 }
@@ -190,7 +192,8 @@
                 selector: 'edge.isProcessing',
                 style: {
                     'line-color': 'orange',
-                    'target-arrow-color': 'orange'
+                    'target-arrow-color': 'orange',
+                    // 'mid-target-arrow-color': 'orange'
                 }
             },
 
@@ -198,7 +201,8 @@
                 selector: 'edge.isFinished',
                 style: {
                     'line-color': 'green',
-                    'target-arrow-color': 'green'
+                    'target-arrow-color': 'green',
+                    // 'mid-target-arrow-color': 'green'
                 }
             },
 
@@ -225,6 +229,20 @@
                     'visibility': 'visible'
                 }
             },
+
+            {
+                selector: 'edge.hide',
+                style: {
+                    'visibility': 'hidden'
+                }
+            },
+            {
+                selector: 'node.hide',
+                style: {
+                    'visibility': 'hidden'
+                }
+            },
+            
         ];
         return styleArr;
     };
@@ -302,8 +320,12 @@
                 })
             });
 
-            (taskNodes.length==1) && taskEdges.forEach(function(taske, taskei){
-                taske.classes += ' singleChild';
+            var additionClass = '';
+            (taskNodes.length==1) && (additionClass = ' singleChild');
+            (taskNodes.length==0) && (additionClass = ' noneChild');
+
+            additionClass && taskEdges.forEach(function(taske, taskei){
+                taske.classes += additionClass;
             });
 
             // parentNodes
@@ -314,7 +336,7 @@
                                         points : '',
                                         parent: '',
                                         original : originalData},
-                                'classes': 'parent-node ' + classes + ((taskNodes.length==1)?' singleChild':'')});
+                                'classes': 'parent-node ' + classes + (additionClass?additionClass:'')});
             
 
             // judgeToParentEdges
@@ -325,7 +347,7 @@
                                                     'endType':'parent-node', 
                                                     'taskType':'', 
                                                     'original': originalData}, 
-                                            'classes': classes + ' judge-to-parent-edge' + ((taskNodes.length==1)?' singleChild':'')  },
+                                            'classes': classes + ' judge-to-parent-edge' + (additionClass?additionClass:'')  },
                                         { 'data': { 'source': e, 
                                                     'target': curEdge.end, 
                                                     'name':e+'-end', 
@@ -333,7 +355,7 @@
                                                     'endType':'judge-node', 
                                                     'taskType':'', 
                                                     'original': originalData}, 
-                                            'classes': classes + ' judge-to-parent-edge' + ((taskNodes.length==1)?' singleChild':'')  });
+                                            'classes': classes + ' judge-to-parent-edge' + (additionClass?additionClass:'')  });
 
             // judgeNodes
             [curEdge.begin, curEdge.end].forEach(function(n, ni){
@@ -362,9 +384,6 @@
 
         // judgeNodes status
         judgeNodes.forEach(function(jn, jni){
-            if(jn.data.id=='V3'){
-                console.log(1)
-            }
             var c = 'isFinished';
             for(var i=0; i<jn.data.ins.length; i++){
                 if(jn.data.ins[i].classes.indexOf('isProcessing')>=0){
@@ -388,8 +407,111 @@
 
         nodes = nodes.concat(judgeNodes);
 
+
+        // filter single ins and single out judge-node
+        var newEdges = JSON.parse(JSON.stringify(edges));
+        var newNodes = JSON.parse(JSON.stringify(nodes));
+
+        var filterJudgeNode = {};
+        var filterEdgeNode = {};
+        newNodes.forEach(function(n, i){
+            if((n.data.taskType == 'judge-node')&&(n.data.ins.length==1)&&(n.data.out.length==1)){
+                n.classes += ' hide';
+                filterJudgeNode[n.data.id] = n;
+            }else if((n.data.taskType='parent-node') && (n.classes.indexOf('noneChild')>=0)){
+                 filterEdgeNode[n.data.id] = n;
+                 n.classes += ' hide';
+            }
+        })
+
+        var filterEdgeNodeFn = function(e, index){
+            var additionEdge = null;
+            var edge = JSON.parse(JSON.stringify(e));
+            var targetEdgeNode = filterEdgeNode[e.data.target];
+            var sourceEdgeNode = filterEdgeNode[e.data.source];
+
+            if(targetEdgeNode || sourceEdgeNode){
+                edge.classes += ' hide';
+
+                newNodes.forEach(function(n, ni){
+                    if((n.data.id == e.data.source) && (n.data.taskType == 'judge-node' || n.classes.indexOf('judge-node')>=0)){
+                        n.data.out.forEach(function(o, oi){
+                            if(o.name == e.data.target){
+                                o.name = originalData.edges[e.data.target].end;
+                                o.classes = e.classes;
+                            }
+                        })
+                        filterJudgeNode[n.data.id] && (filterJudgeNode[n.data.id] = n);
+                    }
+                    if((n.data.id == e.data.target) && (n.data.taskType == 'judge-node' || n.classes.indexOf('judge-node')>=0)){
+                        n.data.ins.forEach(function(ins, ini){
+                            if(ins.name == e.data.source){
+                                ins.name = originalData.edges[e.data.source].begin;
+                                ins.classes = e.classes;
+                            }
+                        })
+                        filterJudgeNode[n.data.id] && (filterJudgeNode[n.data.id] = n);
+                    }
+                })
+            }
+            
+            newEdges[index] = edge;
+
+            if(filterEdgeNode[e.data.target]){
+                // deep copy
+                additionEdge = JSON.parse(JSON.stringify(edge));
+                additionEdge.data.name = e.data.source +'-' + originalData.edges[e.data.target].end;
+                additionEdge.data.target = originalData.edges[e.data.target].end;
+                additionEdge.data.endType = 'judge-node';
+                additionEdge.classes = additionEdge.classes + ' additionEdge';
+                additionEdge.classes = additionEdge.classes.replace('hide', '');
+                additionEdge.classes = additionEdge.classes.replace('singleChild', '');
+                newEdges.push(additionEdge);
+            }
+        }
+        var filterJudgeNodeFn = function(e, index){
+            var additionEdge = null;
+            var edge = JSON.parse(JSON.stringify(e));
+            var targetJudgeNode = filterJudgeNode[e.data.target];
+            var sourceJudgeNode = filterJudgeNode[e.data.source];
+
+            if(targetJudgeNode || sourceJudgeNode){
+                edge.classes += ' hide';
+            }
+
+            newEdges[index] = edge;
+
+            if(targetJudgeNode){
+                if((e.data.sourceType == 'parent-node') && (targetJudgeNode.data.ins[0].name==e.data.source)){
+                    additionEdge = JSON.parse(JSON.stringify(edge));
+                    additionEdge.data.target = targetJudgeNode.data.out[0].name;
+                    additionEdge.data.name = e.data.source +'-' + targetJudgeNode.data.out[0].name;
+                    additionEdge.data.endType = 'parent-node';
+                    additionEdge.classes = additionEdge.classes + ' additionEdge';
+                    additionEdge.classes = additionEdge.classes.replace('hide', '');
+                    additionEdge.classes = additionEdge.classes.replace('singleChild', '');
+                    newEdges.push(additionEdge);
+                }
+            }
+            
+        }
+        newEdges.forEach(function(edge, edgeIndex){
+            var curEdge = edge;
+            var curIndex = edgeIndex;
+            filterEdgeNodeFn(curEdge, curIndex);
+        })
+
+        newEdges.forEach(function(edge, edgeIndex){
+            var curEdge = edge;
+            var curIndex = edgeIndex;
+            filterJudgeNodeFn(curEdge, curIndex);
+        })
+
+        console.log({nodes: newNodes, edges: newEdges});
         console.log({nodes: nodes, edges: edges});
-        return {nodes: nodes, edges: edges};
+
+        return {nodes: newNodes, edges: newEdges};
+        // return {nodes: nodes, edges: edges};
 
     }
 
