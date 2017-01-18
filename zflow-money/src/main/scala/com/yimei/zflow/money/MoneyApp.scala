@@ -54,6 +54,7 @@ object MoneyApp extends {
 
 
   // prepare routes
+  // format off
   val route: Route =
     logRequestResult(extractLogEntry _) {
         pathPrefix("zflow" / "api") { engineRoute } ~
@@ -62,6 +63,7 @@ object MoneyApp extends {
         pathPrefix("asset") { assetRoute } ~
         FlowRegistry.routes
     }
+  // format on
 
   // start http server
   implicit val httpExecutionContext = coreSystem.dispatcher
