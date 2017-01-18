@@ -1,6 +1,8 @@
 import com.trueaccord.scalapb.{ScalaPbPlugin => PB}
 import sbt.Keys._
 import sbt._
+import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+import sbtassembly.{Assembly, MergeStrategy, PathList}
 import spray.revolver.RevolverPlugin.autoImport.Revolver
 
 object Resolvers {
@@ -67,11 +69,18 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttp,
     "com.typesafe.akka" %% "akka-http-jackson" % akkaHttp,
     "com.typesafe.akka" %% "akka-http-xml" % akkaHttp,
-    "com.github.swagger-akka-http" %% "swagger-akka-http" % swaggerAkkaHttp,
+    "com.github.swagger-akka-http" %% "swagger-akka-http" % swaggerAkkaHttp  excludeAll(
+      ExclusionRule(organization = "com.typesafe.akka"),
+      ExclusionRule(organization = "com.fasterxml.jackson.dataformat")
+    ),
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.7.6",
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % "2.7.6",
     "com.softwaremill.akka-http-session" %% "core" % akkaHttpSession,
 
     // akka-persistence
-    "com.hootsuite" %% "akka-persistence-redis" % akkaPersistenceRedis,
+    "com.hootsuite" %% "akka-persistence-redis" % akkaPersistenceRedis excludeAll(
+      ExclusionRule(organization = "com.typesafe.akka")
+      ),
     "org.iq80.leveldb" % "leveldb" % leveldb,
     "org.fusesource.leveldbjni" % "leveldbjni-all" % leveldbjniAll,
 
@@ -181,18 +190,53 @@ object PublishSettings {
   }
 }
 
+
+object AssemblySettings {
+  import sbtassembly.AssemblyKeys._
+
+  val mergeSetting = assemblyMergeStrategy in assembly := {
+    case PathList(ps @ _*) if ps.last endsWith "StaticLoggerBinder.class" => MergeStrategy.discard
+    case PathList(ps @ _*) if ps.last endsWith "StaticMDCBinder.class" => MergeStrategy.discard
+    case PathList(ps @ _*) if ps.last endsWith "StaticMarkerBinder.class" => MergeStrategy.discard
+    case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>  MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "MANIFEST.MF" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "DEPENDENCIES" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "INDEX.LIST" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "LICENSES.txt" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "pom.properties" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "reference.conf" => MergeStrategy.concat
+    case PathList(ps @ _*) if ps.last endsWith "pom.xml" => MergeStrategy.concat
+    case PathList(ps @ _*) if ps.last endsWith "component.properties" => MergeStrategy.concat
+    case PathList(ps @ _*) if ps.last endsWith "com.fasterxml.jackson.databind.Module" => MergeStrategy.concat
+    case PathList(ps @ _*) if ps.last endsWith "org.neo4j.kernel.Version" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "org.neo4j.kernel.extension.KernelExtensionFactory" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "TypeConverter" => MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last endsWith "rootdoc.txt" => MergeStrategy.rename
+    case "application.conf" => MergeStrategy.last
+    case "persistence-leveldb.conf" => MergeStrategy.last
+    case "persistence-redis.conf" => MergeStrategy.last
+    case PathList(ps @ _*) if ps.last endsWith "com.fasterxml.jackson.core.JsonFactory" => MergeStrategy.concat
+    case PathList(ps @ _*) if ps.last endsWith "com.fasterxml.jackson.core.ObjectCodec" => MergeStrategy.concat
+    case _ => MergeStrategy.deduplicate
+  }
+
+}
+
+
+
 object ApplicationBuild extends Build {
 
   import BuildSettings._
   import PublishSettings._
+  import AssemblySettings._
 
 
   lazy val zflowUtil = Project("util", file("zflow-util"), settings = buildSettings ++ publishSettings)
-  lazy val zflowEngine = Project("engine", file("zflow-engine"), settings = buildSettings ++ publishSettings).dependsOn(zflowUtil, zflowUtil)
+  lazy val zflowEngine = Project("engine", file("zflow-engine"), settings = buildSettings ++ publishSettings).dependsOn(zflowUtil)
 
   lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
   lazy val zflowSingle = Project("single", file("zflow-single"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
-  lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine, zflowSingle)
+  lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).settings(mergeSetting).dependsOn(zflowEngine, zflowSingle)
 
   //  val singleSettings = libraryDependencies ++= Seq("com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession)
   //  lazy val zflowSingle  = Project("single", file("zflow-single"),
