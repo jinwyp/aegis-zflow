@@ -8,34 +8,51 @@
 
     jQuery.ajaxSettings.async = false;
 
-
-
-
-
-
-    var testData1 = {
-        "initial"    : "START",
-        "graphJar"   : "com.yimei.cflow.graph.money.MoneyGraphJar",
-        "timeout"    : 100,
-        "persistent" : true,
-
-        "vertices" : {
-            "START" : {
-                "description" : "发起申请",
-                "program"     : "import com.yimei.cflow.api.models.flow._; (state: State) => Seq(Arrow(\"V1\", Some(\"E1\")))"
-            }
+    var testData2 = {
+        globalConfig : {
+            name : '流程名称',
+            initial : 'Start',  // 代表初始节点
+            timeout: 100, // 超时时间配置(图的属性)
+            flowType: '',  //流程类型
+            persistent: false // 代表初始节点
         },
-        "edges"    : {
-            "E1" : {
-                "name"       : "E1",
-                "begin"      : "V0",
-                "end"        : "V1",
-                "userTasks"  : [],
-                "partGTasks" : [],
-                "partUTasks" : [],
-                "autoTasks"  : []
+
+        nodes : [
+            {
+                classes : "node isFirstNode ",
+                data : {
+                    id : 'Start',
+                    description : '',
+                    program : ''
+                }
+            },
+
+            {
+                classes : "node isLastNode ",
+                data : {
+                    id : 'End',
+                    description : '',
+                    program : ''
+                }
             }
-        }
+        ],
+
+        edges    : [
+            {
+                classes : "edge",
+                data : {
+                    id : 'E1',
+                    description : '',
+                    source : 'Start',
+                    target : 'End',
+                    "userTasks"  : [],
+                    "partGTasks" : [],
+                    "partUTasks" : [],
+                    "autoTasks"  : [],
+                    "allTask"  : []
+                }
+            }
+        ]
     };
 
 
@@ -52,18 +69,33 @@
 
         var cytoscapeChart;
         var formattedData;
-        var sourceData;
 
         var vertexIdList = [];
         var edgeIdList = [];
         var taskIdList = [];
 
         vm.ouputData = {};
+
+        vm.flow = {
+            globalConfig : {
+                name : '流程名称',
+                initial : 'Start',  // 代表初始节点
+                timeout: 100, // 超时时间配置(图的属性)
+                flowType: '',  //流程类型
+                persistent: false // 代表初始节点
+            },
+            points : [],
+            edges : [],
+            nodes : []
+        };
+
+
+
         vm.selectType = 'node';
         vm.isNewNode = true;
         vm.taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
 
-        vm.errorAddNewVertex = {
+        vm.errorAddNewNode = {
             notSelected : false,
             vertexExist : false,
             edgeExist : false,
@@ -75,51 +107,53 @@
             ajax : false
         };
 
-        vm.currentVertex = {
-            id : '',
-            description : ''
-        };
-        vm.currentEdge = {
-            id : '',
-            source : '',
-            target : '',
-            sourceData : {}
-        };
-        vm.currentTask = {
-            id : '',
-            description : '',
-            type : ''
-        };
+        vm.currentNode = {};
+        vm.currentEdge = {};
+        vm.currentTask = {};
 
-        vm.newVertex = {
-            id : '',
-            description : ''
+        vm.newNode = {
+            classes : "node ",
+            data : {
+                id : '',
+                description : '',
+                program : ''
+            }
         };
         vm.newEdge = {
-            id : ''
+            classes : "edge ",
+            data : {
+                id : '',
+                description : '',
+                source : '',
+                target : '',
+                "userTasks"  : [],
+                "partGTasks" : [],
+                "partUTasks" : [],
+                "autoTasks"  : [],
+                "allTask"  : []
+            }
         };
         vm.newTask = {
-            id : '',
-            description : '',
-            type : ''
+            classes : 'node task ',
+            data : {
+                id : '',
+                type : '',
+                description : '',
+                points : [],
+
+                belongToEdge : {
+                    id : '',
+                    source : '',
+                    target : ''
+                }
+            }
         };
 
-        vm.globalConfig = {
-            initial : 'start',  // 代表初始节点
-            timeout: 100, // 超时时间配置(图的属性)
-            flowType: '',  //流程类型
-            persistent: false // 代表初始节点
-        };
 
-        vm.points = [];
-        vm.groups = [];
-        vm.edges = [];
-        vm.nodes = [];
 
-        vm.userTasks = [];
-        vm.autoTasks = [];
-        vm.partUTasks = [];
-        vm.partGTasks = [];
+
+
+
 
         vm.addNewLine = function (form){
             console.log(vm.newVertex)
@@ -291,7 +325,7 @@
 
             cy.nodes('.node').qtip({
                 content: function(){
-                    return this.data().sourceData.description;
+                    return this.data().description;
                 },
                 show: {
                     event: 'click'
@@ -339,22 +373,17 @@
 
             cy.on('click', 'node', function(evt){
                 console.log('node:', this.data())
-                vm.currentVertex.id = this.data().id;
-                vm.currentVertex.description = this.data().sourceData.description;
+                vm.currentNode.data = this.data();
                 vm.selectType = 'node';
                 $scope.$apply();
             })
 
 
             cy.on('click', 'edge', function(evt){
-
-                vm.currentEdge.id = this.data().id;
-                vm.currentEdge.source = this.data().source;
-                vm.currentEdge.target = this.data().target;
-                vm.currentEdge.sourceData = this.data().sourceData;
+                console.log('edge:', this.data())
+                vm.currentEdge.data = this.data();
                 vm.selectType = 'edge';
                 $scope.$apply();
-                console.log('edge:', this.data(), vm.currentEdge)
             })
 
         };
@@ -363,9 +392,9 @@
 
         var app = {
             init : function(){
-                jQuery.getJSON('./json/data99.json', function(resultData){
-                    formattedData = resultData;
+                jQuery.getJSON('/json/data5.json', function(resultData){
 
+                    formattedData = cytoscapeFormatterObjectToArray(resultData)
                 })
                 this.drawChart();
             },
@@ -383,22 +412,21 @@
                     y: 10
                 });
 
-                sourceData = cytoscapeChart.formatterObjectToArray(formattedData)
+                console.log(cytoscapeChart.width())
 
-                vm.edges = sourceData.edges;
-                vm.nodes = sourceData.nodes;
 
-                vertexIdList = sourceData.nodes.map(function(vertex, vertexIndex){
+                vm.flow.edges = formattedData.edges;
+                vm.flow.nodes = formattedData.nodes;
+
+                vertexIdList = formattedData.nodes.map(function(vertex, vertexIndex){
                     return vertex.data.id
                 })
-                edgeIdList = sourceData.edges.map(function(edge, edgeIndex){
+                edgeIdList = formattedData.edges.map(function(edge, edgeIndex){
                     return edge.data.id
                 })
-                taskIdList = sourceData.formattedSource.allTask.map(function(task, taskIndex){
+                taskIdList = formattedData.formattedSource.allTask.map(function(task, taskIndex){
                     return task.data.id
                 })
-
-                console.log(cytoscapeChart.width())
             }
         };
 

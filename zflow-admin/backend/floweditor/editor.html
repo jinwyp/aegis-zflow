@@ -1,31 +1,60 @@
 <!DOCTYPE html>  <!-- HTML5 document type -->
 <html ng-app="flowApp">
 <head>
-    <link rel="stylesheet" href="/zflow/static/lib/angletheme/bootstrap.css">
-    <link rel="stylesheet" href="/zflow/static/lib/angletheme/app.css">
-    <link rel="stylesheet" href="/zflow/static/css/jquery.qtip.css"/>
-    <link rel="stylesheet" href="/zflow/static/css/manageflow.css">
-
+    <link rel="stylesheet" href="/lib/angletheme/bootstrap.css">
+    <link rel="stylesheet" href="/lib/angletheme/app.css">
+    <link rel="stylesheet" href="/css/jquery.qtip.css"/>
+    <link rel="stylesheet" href="/css/manageflow.css">
 </head>
 <body>
 
 
 <div class="wrapper">
     <!-- Page content-->
-    <div class="content-wrapper manage-flow">
-        <header><img src="/zflow/static/img/logo.png" alt=""></header>
+    <div class="content-wrapper manage-flow" ng-cloak ng-controller="vertexController as vm">
+        <header><img src="/img/logo.png" alt=""></header>
 
         <!-- START row-->
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h4>该流程基本信息</h4></div>
+                    <div class="panel-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"> 流程名称</label>
+                                <div class="col-sm-4">
+                                    <input type="text" placeholder="流程名称" class="form-control">
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="help-block" ng-if="formNode.vdesc.$error.required">必填!</span>
+                                    <span class="help-block" ng-if="formNode.vdesc.$error.minlength">长度要大于2!</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-lg-4">
+                                    <button type="submit" class="btn btn-sm btn-default">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END row-->
+
+
         <div class="row">
             <div class="col-md-12">
                 <!-- START panel-->
                 <div class="panel panel-default">
-                    <div class="panel-heading"></div>
 
                     <div class="panel-body">
                         <div id="chart"></div>
 
-                        <div id="panel-settings" ng-cloak ng-controller="vertexController as vm">
+                        <div id="panel-settings" >
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'node' && vm.currentVertex.id">
                                 <div class="panel-heading"> <h4>已选中节点: {{vm.currentVertex.id || '未选择'}} {{vm.newVertex.id}}</h4> </div>
@@ -219,18 +248,18 @@
 </div>
 
 
-<script src='/zflow/static/lib/jquery.js'></script>
-<script src='/zflow/static/lib/angular/angular.js'></script>
+<script src='/lib/jquery.js'></script>
+<script src='/lib/angular/angular.js'></script>
 
-<script src="/zflow/static/lib/cytoscape/jquery.qtip.js"></script>
-<script src='/zflow/static/lib/cytoscape/cytoscape.js'></script>
-<script src="/zflow/static/lib/cytoscape/cytoscape-qtip.js"></script>
-<script src="/zflow/static/lib/cytoscape/dagre.js"></script>
-<script src="/zflow/static/lib/cytoscape/cytoscape-dagre.js"></script>
+<script src="/lib/cytoscape/jquery.qtip.js"></script>
+<script src='/lib/cytoscape/cytoscape.js'></script>
+<script src="/lib/cytoscape/cytoscape-qtip.js"></script>
+<script src="/lib/cytoscape/dagre.js"></script>
+<script src="/lib/cytoscape/cytoscape-dagre.js"></script>
 
-<script src='/zflow/static/js/flowmanager/manageFlowChartClass.js'></script>
-<script src='/zflow/static/js/flowmanager/manageFlow.js'></script>
-<script src='/zflow/static/js/flowmanager/formatter.js'></script>
+<script src='/js/floweditor/manageFlowChartClass.js'></script>
+<script src='/js/floweditor/manageFlow.js'></script>
+<script src='/js/floweditor/formatter.js'></script>
 
 
 </body>

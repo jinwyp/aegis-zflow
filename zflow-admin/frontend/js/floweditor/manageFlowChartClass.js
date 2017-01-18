@@ -103,11 +103,11 @@
                             taskNameList : []
                         }
                     }
-                    ele.data().sourceData.allTask.forEach(function(task, taskIndex){
+                    ele.data().allTask.forEach(function(task, taskIndex){
 
                         for (var property in number){
 
-                            if(task.data.sourceData.type === property){
+                            if(task.data.type === property){
                                 number[property].count  += 1
                                 number[property].taskNameList.push(task.id)
                             }
@@ -226,12 +226,6 @@
                     id : property,
                     source : currentEdge.begin,
                     target : currentEdge.end,
-                    sourceData : {}
-                },
-                sourceData : {
-                    id : currentEdge.name,
-                    source : currentEdge.begin,
-                    target : currentEdge.end,
                     userTasks : [],
                     autoTasks : [],
                     partGTasks : [],
@@ -250,6 +244,7 @@
                     description : '',
                     program : ''
                 };
+
                 if (typeof source.vertices[currentEdge.begin] !== 'undefined' ){
 
                     if (typeof source.vertices[currentEdge.begin] === 'string'){
@@ -263,18 +258,12 @@
                     classes : 'node',
                     data : {
                         id : currentEdge.begin,
-                        sourceData : {}
-                    },
-                    sourceData : {
-                        id : currentEdge.begin,
                         description : tempNodeBegin.description,
                         program : tempNodeBegin.program
                     }
                 };
 
                 addStyleForNode(tempNode)
-
-                tempNode.data.sourceData = tempNode.sourceData;
 
                 tempNodesId.push(currentEdge.begin)
                 result.nodes.push(tempNode)
@@ -296,16 +285,11 @@
                     }else {
                         tempNodeTarget = source.vertices[currentEdge.end]
                     }
-
                 }
 
                 tempNode = {
                     classes : 'node',
                     data : {
-                        id : currentEdge.end,
-                        sourceData : {}
-                    },
-                    sourceData : {
                         id : currentEdge.end,
                         description : tempNodeTarget.description,
                         program : tempNodeTarget.program
@@ -313,8 +297,6 @@
                 };
 
                 addStyleForNode(tempNode)
-
-                tempNode.data.sourceData = tempNode.sourceData;
 
                 tempNodesId.push(currentEdge.end)
                 result.nodes.push(tempNode)
@@ -335,10 +317,6 @@
                     classes : 'node task ' + taskType,
                     data : {
                         id : task,
-                        sourceData : {}
-                    },
-                    sourceData : {
-                        id : task,
                         type : taskType,
                         description : '',
                         points : [],
@@ -352,10 +330,10 @@
                 };
 
                 if (taskType === 'userTasks' ||  taskType === 'autoTasks'){
-                    newTask.sourceData.description = sourceAllData[taskType][task].description
+                    newTask.data.description = sourceAllData[taskType][task].description
 
                     source[taskType][task].points.forEach(function(point, pointIndex){
-                        newTask.sourceData.points.push({
+                        newTask.data.points.push({
                             id : point,
                             description : sourceAllData.points[point]
                         })
@@ -363,11 +341,11 @@
                 }
 
                 if (taskType === 'partUTasks' || taskType === 'partGTasks'){
-                    newTask.sourceData.description = sourceAllData['userTasks'][task].description
-                    newTask.sourceData.type = 'userTasks'
+                    newTask.data.description = sourceAllData['userTasks'][task].description
+                    newTask.data.type = 'userTasks'
 
                     source['userTasks'][task].points.forEach(function(point, pointIndex){
-                        newTask.sourceData.points.push({
+                        newTask.data.points.push({
                             id : point,
                             description : sourceAllData.points[point]
                         })
@@ -375,17 +353,16 @@
                 }
 
                 if (taskType === 'partUTasks') {
-                    newTask.sourceData.guidKey = fatherTask.guidKey
+                    newTask.data.guidKey = fatherTask.guidKey
                 }
 
                 if (taskType === 'partGTasks') {
-                    newTask.sourceData.ggidKey = fatherTask.ggidKey
+                    newTask.data.ggidKey = fatherTask.ggidKey
                 }
-
-                newTask.data.sourceData = newTask.sourceData;
 
                 return newTask
             }
+
 
             // 整理任务 开始
             var taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
@@ -401,15 +378,15 @@
                             tempTask = generateNewTask(source, currentEdge, task, taskType)
 
                             if (taskType === 'userTasks') {
-                                tempEdge.sourceData.userTasks.push(tempTask)
+                                tempEdge.data.userTasks.push(tempTask)
                                 result.formattedSource.userTasks.push(tempTask);
                             }
                             if (taskType === 'autoTasks'){
-                                tempEdge.sourceData.autoTasks.push(tempTask)
+                                tempEdge.data.autoTasks.push(tempTask)
                                 result.formattedSource.autoTasks.push(tempTask);
                             }
 
-                            tempEdge.sourceData.allTask.push(tempTask)
+                            tempEdge.data.allTask.push(tempTask)
                             result.formattedSource.allTask.push(tempTask);
                         }
 
@@ -422,10 +399,6 @@
                                     classes : 'node task ' + taskType,
                                     data : {
                                         id : '',
-                                        sourceData : {}
-                                    },
-                                    sourceData : {
-                                        id : '',
                                         guidKey : '',
                                         ggidKey : '',
                                         type : taskType,
@@ -433,9 +406,9 @@
                                         tasks : [],
 
                                         belongToEdge : {
-                                            id : edge.name,
-                                            source : edge.begin,
-                                            target : edge.end
+                                            id : property,
+                                            source : currentEdge.begin,
+                                            target : currentEdge.end
                                         }
                                     }
                                 }
@@ -443,34 +416,31 @@
 
                                 task.tasks.forEach(function(subTask, subTaskIndex){
                                     tempTask = generateNewTask(source, currentEdge, subTask, taskType, task)
-                                    tempFatherTask.sourceData.tasks.push(tempTask)
+                                    tempFatherTask.data.tasks.push(tempTask)
                                 })
 
                                 if (taskType === 'partUTasks') {
                                     tempFatherTask.data.id = task.guidKey
-                                    tempFatherTask.sourceData.id = task.guidKey
-                                    tempFatherTask.sourceData.guidKey = task.guidKey
+                                    tempFatherTask.data.guidKey = task.guidKey
                                 }
 
                                 if (taskType === 'partGTasks') {
                                     tempFatherTask.data.id = task.ggidKey
-                                    tempFatherTask.sourceData.id = task.ggidKey
-                                    tempFatherTask.sourceData.ggidKey = task.ggidKey
+                                    tempFatherTask.data.ggidKey = task.ggidKey
                                 }
 
-                                tempFatherTask.data.sourceData = tempFatherTask.sourceData
 
                                 if (taskType === 'partUTasks') {
-                                    tempEdge.sourceData.partUTasks.push(tempFatherTask)
+                                    tempEdge.data.partUTasks.push(tempFatherTask)
                                     result.formattedSource.partUTasks.push(tempFatherTask)
                                 }
 
                                 if (taskType === 'partGTasks') {
-                                    tempEdge.sourceData.partGTasks.push(tempFatherTask)
+                                    tempEdge.data.partGTasks.push(tempFatherTask)
                                     result.formattedSource.partGTasks.push(tempFatherTask)
                                 }
 
-                                tempEdge.sourceData.allTask.push(tempFatherTask)
+                                tempEdge.data.allTask.push(tempFatherTask)
                                 result.formattedSource.allTask.push(tempFatherTask);
                             }
 
@@ -481,7 +451,6 @@
 
 
             // 整理边
-            tempEdge.data.sourceData = tempEdge.sourceData
             result.edges.push(tempEdge)
             result.formattedSource.edges.push(tempEdge)
 
@@ -538,23 +507,20 @@
     flowChart2.prototype.init =  function(sourceData, config){
 
         var cfg = getConfig(config);
-        cfg.elements = formatterObjectToArray(sourceData) ;
+        cfg.elements = sourceData ;
 
         var cy = cytoscape(cfg);
 
         cfg.eventCB(cy);
 
-        cy.formatterObjectToArray = formatterObjectToArray;
         cy.getConfig = getConfig;
 
         return cy;
     };
 
 
-    flowChart2.prototype.formatterObjectToArray = formatterObjectToArray;
-
-
     window.flowChart2 = flowChart2;
+    window.cytoscapeFormatterObjectToArray = formatterObjectToArray;
 
 
 })(window, jQuery, cytoscape)
