@@ -21,11 +21,8 @@ import scala.concurrent.Future
 object ThymeleafConfig {
 
   val templateResolver = new FileTemplateResolver();
-  val prefix = if ( System.getProperty("dev") != null) {
+  val prefix =
     "../zflow-admin/backend/"
-  } else {
-    "template"
-  }
 
   templateResolver.setPrefix(prefix);
   templateResolver.setSuffix(".html");
