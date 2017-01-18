@@ -25,10 +25,19 @@
         },
 
         {
+            selector: 'node:selected',
+            style: {
+                "border-width": "3px",
+                "border-color": "#AAD8FF",
+                "background-color": "#77828C",
+                "border-opacity": "1"
+            }
+        },
+
+        {
             selector: 'node.isFirstNode',
             style: {
-                'border-width': 3,
-                'border-color': 'red'
+                'background-color': '#555'
             }
         },
 
@@ -72,13 +81,7 @@
             }
         },
 
-        {
-            selector: 'node.task:selected',
-            style: {
-                'border-width': 3,
-                'border-color': '#e86e81'
-            }
-        },
+
 
         {
             selector: 'edge',
@@ -145,6 +148,14 @@
 
                 // 'control-point-distances': '-30% 30%',
                 // 'control-point-weights': '0 1'
+            }
+        },
+
+        {
+            selector: 'edge:selected',
+            style: {
+                'line-color': '#d0b7d5',
+                'target-arrow-color': '#d0b7d5'
             }
         },
 
@@ -487,12 +498,12 @@
 
             boxSelectionEnabled: false,
             autounselectify: false,
-            userZoomingEnabled: true,
+            userZoomingEnabled: false,
             userPanningEnabled: true,
             autoungrabify: false,
 
             minZoom: 1, //http://js.cytoscape.org/#core
-            maxZoom: 1,
+            maxZoom: 2,
             zoom : 1,
 
             textureOnViewport : false
