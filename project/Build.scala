@@ -105,7 +105,7 @@ object Dependencies {
 
     // logger
     "ch.qos.logback" % "logback-classic" % logbackClassic,
-    "org.slf4j" % "slf4j-nop" % "1.6.4",
+//    "org.slf4j" % "slf4j-nop" % "1.6.4",
 
     // neo4j-scala
     //"eu.fakod"  %% "neo4j-scala" % "0.3.3",
@@ -195,9 +195,9 @@ object AssemblySettings {
   import sbtassembly.AssemblyKeys._
 
   val mergeSetting = assemblyMergeStrategy in assembly := {
-    case PathList(ps @ _*) if ps.last endsWith "StaticLoggerBinder.class" => MergeStrategy.discard
-    case PathList(ps @ _*) if ps.last endsWith "StaticMDCBinder.class" => MergeStrategy.discard
-    case PathList(ps @ _*) if ps.last endsWith "StaticMarkerBinder.class" => MergeStrategy.discard
+//    case PathList(ps @ _*) if ps.last endsWith "StaticLoggerBinder.class" => MergeStrategy.discard
+//    case PathList(ps @ _*) if ps.last endsWith "StaticMDCBinder.class" => MergeStrategy.discard
+//    case PathList(ps @ _*) if ps.last endsWith "StaticMarkerBinder.class" => MergeStrategy.discard
     case PathList(ps @ _*) if Assembly.isReadme(ps.last) || Assembly.isLicenseFile(ps.last) =>  MergeStrategy.rename
     case PathList(ps @ _*) if ps.last endsWith "MANIFEST.MF" => MergeStrategy.rename
     case PathList(ps @ _*) if ps.last endsWith "DEPENDENCIES" => MergeStrategy.rename
