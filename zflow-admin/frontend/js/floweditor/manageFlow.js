@@ -9,13 +9,6 @@
     jQuery.ajaxSettings.async = false;
 
     var testData2 = {
-        globalConfig : {
-            name : '流程名称',
-            initial : 'Start',  // 代表初始节点
-            timeout: 100, // 超时时间配置(图的属性)
-            flowType: '',  //流程类型
-            persistent: false // 代表初始节点
-        },
 
         nodes : [
             {
@@ -70,7 +63,7 @@
         var cytoscapeChart;
         var formattedData;
 
-        var vertexIdList = [];
+        var nodeIdList = [];
         var edgeIdList = [];
         var taskIdList = [];
 
@@ -78,7 +71,7 @@
 
         vm.flow = {
             globalConfig : {
-                name : '流程名称',
+                name : '',
                 initial : 'Start',  // 代表初始节点
                 timeout: 100, // 超时时间配置(图的属性)
                 flowType: '',  //流程类型
@@ -92,14 +85,16 @@
 
 
         vm.selectType = 'node';
+        vm.taskEditType = 'list';
+
         vm.isNewNode = true;
         vm.taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
 
         vm.errorAddNewNode = {
             notSelected : false,
-            vertexExist : false,
+            nodeExist : false,
             edgeExist : false,
-            vertexSelf : false,
+            nodeSelf : false,
             ajax : false
         };
         vm.errorAddNewTask = {
@@ -107,8 +102,26 @@
             ajax : false
         };
 
-        vm.currentNode = {};
-        vm.currentEdge = {};
+        vm.currentNode = {
+            data : {
+                id : '',
+                description : '',
+                program : ''
+            }
+        };
+        vm.currentEdge = {
+            data : {
+                id : '',
+                description : '',
+                source : '',
+                target : '',
+                userTasks  : [],
+                partGTasks : [],
+                partUTasks : [],
+                autoTasks  : [],
+                allTask  : []
+            }
+        };
         vm.currentTask = {};
 
         vm.newNode = {
@@ -119,6 +132,7 @@
                 program : ''
             }
         };
+
         vm.newEdge = {
             classes : "edge ",
             data : {
@@ -126,11 +140,11 @@
                 description : '',
                 source : '',
                 target : '',
-                "userTasks"  : [],
-                "partGTasks" : [],
-                "partUTasks" : [],
-                "autoTasks"  : [],
-                "allTask"  : []
+                userTasks  : [],
+                partGTasks : [],
+                partUTasks : [],
+                autoTasks  : [],
+                allTask  : []
             }
         };
         vm.newTask = {
@@ -140,6 +154,7 @@
                 type : '',
                 description : '',
                 points : [],
+                tasks : [],
 
                 belongToEdge : {
                     id : '',
@@ -151,74 +166,76 @@
 
 
 
-
-
-
-
-        vm.addNewLine = function (form){
-            console.log(vm.newVertex)
+        vm.saveGlobal = function (form) {
+            console.log(vm.flow.globalConfig)
             if (form.$valid){
 
-                if (vm.currentVertex.id){
-                    vm.errorAddNewVertex.notSelected = false;
+            }
+        }
+
+
+        vm.addNewEdge = function (form){
+            console.log(vm.newNode)
+            if (form.$valid){
+
+                // 判断是否选中节点
+                if (vm.currentNode.data.id){
+                    vm.errorAddNewNode.notSelected = false;
                 }else{
-                    vm.errorAddNewVertex.notSelected = true;
+                    vm.errorAddNewNode.notSelected = true;
                     return;
                 }
 
-                if (edgeIdList.indexOf(vm.newEdge.id) > -1 ){
-                    vm.errorAddNewVertex.edgeExist = true;
+                // 判断新添加的线是否ID已存在
+                if (edgeIdList.indexOf(vm.newEdge.data.id) > -1 ){
+                    vm.errorAddNewNode.edgeExist = true;
                     return;
                 }else{
-                    vm.errorAddNewVertex.edgeExist = false;
+                    vm.errorAddNewNode.edgeExist = false;
                 }
 
+
+                // 判断是否插入新节点
                 if (vm.isNewNode){
 
-                    if (vertexIdList.indexOf(vm.newVertex.id) > -1 ){
-                        vm.errorAddNewVertex.vertexExist = true;
+                    // 判断新节点ID是否存在
+                    if (nodeIdList.indexOf(vm.newNode.data.id) > -1 ){
+                        vm.errorAddNewNode.nodeExist = true;
                         return;
                     }else{
-                        vm.errorAddNewVertex.vertexExist = false;
+                        vm.errorAddNewNode.nodeExist = false;
+                        nodeIdList.push(vm.newNode.data.id)
                     }
+
+
                 }else{
-                    if (vm.currentVertex.id === vm.newVertex.id ){
-                        vm.errorAddNewVertex.vertexSelf = true;
+                    // 判断新节点ID是否和出发点是同一个点
+                    if (vm.currentNode.id === vm.newNode.data.id ){
+                        vm.errorAddNewNode.nodeSelf = true;
                         return;
                     }else{
-                        vm.errorAddNewVertex.vertexSelf = false;
+                        vm.errorAddNewNode.nodeSelf = false;
                     }
                 }
+
 
                 var newTempNode = {
                     group: "nodes",
-                    classes : 'node',
+                    classes : 'node ',
                     data : {
-                        id : vm.newVertex.id,
-                        description : vm.newVertex.description,
-                        sourceData : {}
-                    },
-                    sourceData : {
-                        id : vm.newVertex.id,
-                        description : vm.newVertex.description,
+                        id : vm.newNode.data.id,
+                        description : vm.newNode.data.description,
                         program : ''
                     }
                 };
-                newTempNode.data.sourceData = newTempNode.sourceData;
 
                 var newTempEdge = {
                     group: "edges",
-                    classes : 'edge',
+                    classes : 'edge ',
                     data : {
-                        id : vm.newEdge.id,
-                        source : vm.currentVertex.id,
-                        target : vm.newVertex.id,
-                        sourceData : {}
-                    },
-                    sourceData : {
-                        id : vm.newEdge.id,
-                        source : vm.currentVertex.id,
-                        target : vm.newVertex.id,
+                        id : vm.newEdge.data.id,
+                        source : vm.currentNode.data.id,
+                        target : vm.newNode.data.id,
                         allTask : [],
                         userTasks : [],
                         autoTasks : [],
@@ -226,28 +243,26 @@
                         partGTasks : []
                     }
                 };
-                newTempEdge.data.sourceData = newTempEdge.sourceData;
 
 
-                if (vertexIdList.indexOf(vm.newEdge.id) === -1 ){
-                    vertexIdList.push(newTempNode.data.id)
-                }
-                if (edgeIdList.indexOf(vm.newEdge.id) === -1 ){
+                if (edgeIdList.indexOf(newTempEdge.data.id) === -1 ){
                     edgeIdList.push(newTempEdge.data.id)
                 }
 
 
                 if (vm.isNewNode){
-                    vm.nodes.push(newTempNode)
+                    vm.flow.nodes.push(newTempNode)
                     cytoscapeChart.add(newTempNode);
                 }
 
-                vm.edges.push(newTempEdge)
+                vm.flow.edges.push(newTempEdge)
                 cytoscapeChart.add(newTempEdge);
 
-                vm.newEdge.id = ''
-                vm.newVertex.id = ''
-                vm.newVertex.description = ''
+                vm.newEdge.data.id = ''
+                vm.newNode.data.id = ''
+                vm.newNode.data.description = '';
+                form.$setPristine();
+                form.$setUntouched();
 
                 cytoscapeChart.layout(cytoscapeChart.getConfig({}).layout);
             }
@@ -258,55 +273,54 @@
         vm.addNewTask = function(form){
             if (form.$valid){
 
-                if (taskIdList.indexOf(vm.newTask.id) > -1 ){
+                if (taskIdList.indexOf(vm.newTask.data.id) > -1 ){
                     vm.errorAddNewTask.taskExist = true;
                     return;
                 }else{
                     vm.errorAddNewTask.taskExist = false;
+                    taskIdList.push(vm.newTask.data.id)
                 }
 
 
                 var newTempTask = {
-                    classes : 'node task ' + vm.newTask.type,
+                    classes : 'node task ' + vm.newTask.data.type,
                     data : {
-                        id : vm.newTask.id,
-                        sourceData : {}
-                    },
-                    sourceData : {
-                        id : vm.newTask.id,
-                        type : vm.newTask.type,
-                        description : vm.newTask.description,
+                        id : vm.newTask.data.id,
+                        type : vm.newTask.data.type,
+                        description : vm.newTask.data.description,
                         points : [],
-                        belongToEdge : {}
+                        belongToEdge : {
+                            id : vm.currentEdge.data.id,
+                            source : vm.currentEdge.data.source,
+                            target : vm.currentEdge.data.target
+                        }
                     }
                 };
 
                 vm.taskTypeList.forEach(function(type, typeIndex){
                     if (vm.newTask.type === type){
-                        vm.currentEdge.sourceData[type].push(newTempTask);
+                        vm.currentEdge.data[type].push(newTempTask);
                     }
                 })
 
-                vm.currentEdge.sourceData.allTask.push(newTempTask);
-                newTempTask.sourceData.belongToEdge = vm.currentEdge.sourceData;
-                newTempTask.data.sourceData = newTempTask.sourceData;
+                vm.currentEdge.data.allTask.push(newTempTask);
 
-                if (taskIdList.indexOf(vm.newEdge.id) === -1 ){
-                    taskIdList.push(newTempTask.data.id)
-                }
+                cytoscapeChart.getElementById( vm.currentEdge.data.id ).data(vm.currentEdge.data);
 
-                cytoscapeChart.getElementById( vm.currentEdge.id ).data(sourceData, vm.currentEdge.sourceData);
-
-
-                vm.edges.forEach(function (edge, edgeIndex) {
-                    if (edge.data.id === vm.currentEdge.id){
-                        edge.sourceData = vm.currentEdge.sourceData
-                        edge.data.sourceData = vm.currentEdge.sourceData
+                vm.flow.edges.forEach(function (edge, edgeIndex) {
+                    if (edge.data.id === vm.currentEdge.data.id){
+                        edge.data = vm.currentEdge.data
                     }
                 })
 
             }
         }
+
+
+        vm.changeTaskEditType = function(type){
+            vm.taskEditType = type;
+        }
+
 
 
         vm.convertDataArray = function () {
@@ -325,7 +339,7 @@
 
             cy.nodes('.node').qtip({
                 content: function(){
-                    return this.data().description;
+                    return this.data().description || this.data().id;
                 },
                 show: {
                     event: 'click'
@@ -401,16 +415,15 @@
             drawChart : function(){
                 var configChart = {
                     domId : 'chart',
-                    userZoomingEnabled: false,
                     eventCB : chartEventCallback
                 };
 
                 cytoscapeChart = new flowChart2(formattedData, configChart);
-                cytoscapeChart.center()
-                cytoscapeChart.pan({
-                    x: 10,
-                    y: 10
-                });
+                // cytoscapeChart.center()
+                // cytoscapeChart.pan({
+                //     x: 10,
+                //     y: 10
+                // });
 
                 console.log(cytoscapeChart.width())
 
@@ -418,7 +431,7 @@
                 vm.flow.edges = formattedData.edges;
                 vm.flow.nodes = formattedData.nodes;
 
-                vertexIdList = formattedData.nodes.map(function(vertex, vertexIndex){
+                nodeIdList = formattedData.nodes.map(function(vertex, vertexIndex){
                     return vertex.data.id
                 })
                 edgeIdList = formattedData.edges.map(function(edge, edgeIndex){

@@ -21,14 +21,19 @@ body{
     min-width:1000px;
 }
 
+.manage-flow h4 {
+    color : #767676;
+}
+
 #chart{
     float: left;
-    width:600px; height:2000px;
+    width:900px; height:5000px;
 }
 
 #panel-settings {
-    float: right;
-    width : 400px;
-    height: 500px;
+    position : fixed;
+    top : 333px;
+    right : 21px;
+    width : 600px;
 
 }

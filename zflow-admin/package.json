@@ -1,0 +1,22 @@
+{
+  "name": "flow-admin",
+  "version": "1.0.0",
+  "description": "flow chart with cytoscape",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server -d --hot --inline --colors --progress --host 0.0.0.0 --port 3000",
+    "build": "rm -rf ./static && webpack --progress --colors"
+  },
+  "author": "Jin",
+  "license": "ISC",
+  "devDependencies": {
+    "file-loader": "^0.8.5",
+    "glob": "^7.1.1",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  },
+  "dependencies": {
+    "angular": "^1.6.1",
+    "cytoscape": "^2.7.13"
+  }
+}
