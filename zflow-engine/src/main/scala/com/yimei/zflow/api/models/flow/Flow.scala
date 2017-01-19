@@ -1,19 +1,15 @@
 package com.yimei.zflow.api.models.flow
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
+import akka.actor.ActorRef
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.FlowRegistry._
-import akka.actor.ActorRef
 import com.yimei.zflow.util.CommonJsonFormat
-import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
+import spray.json.DefaultJsonProtocol
 
 // 数据点: 值, 说明, 谁采集, 采集id, 采集时间
 case class DataPoint(value: String, memo: Option[String], operator: Option[String], id: String, timestamp: Long, used: Boolean = false)
 
-// create flow, but not run it
-case class CommandCreateFlow(flowType: String, guid: String, initData: Map[String, String] = Map())
+case class CommandCreateFlow(flowId: String, initData: Map[String, String] = Map())
 
 // response of CommandCreateFlow
 case class CreateFlowSuccess(flowId: String)
@@ -22,9 +18,6 @@ case class CreateFlowSuccess(flowId: String)
 trait Command {
   def flowId: String // flowType-userType-userId-uuid
 }
-
-// 启动流程
-case class CommandRunFlow(flowId: String) extends Command
 
 // 停止流程
 case class CommandShutdown(flowId: String) extends Command
@@ -68,10 +61,10 @@ case class State(
                   flowId: String,
                   guid: String,
                   points: Map[String, DataPoint],
-                  edges: Map[String, Boolean],     // edges to be eliminated
-                  histories: Seq[String],          // edges already eliminated
+                  edges: Map[String, Boolean], // edges to be eliminated
+                  histories: Seq[String], // edges already eliminated
                   flowType: String,
-                  ending:Option[String] = None
+                  ending: Option[String] = None
                 )
 
 
@@ -235,18 +228,16 @@ trait FlowProtocol extends DefaultJsonProtocol with CommonJsonFormat {
 
   implicit val edgeFormat = jsonFormat7(Edge)
 
-  implicit val arrowFormat =jsonFormat2(Arrow)
+  implicit val arrowFormat = jsonFormat2(Arrow)
 
   implicit val stateFormat = jsonFormat7(State)
 
   implicit val taskInfoFormat = jsonFormat2(TaskInfo)
 
 
-  implicit val commandCreateFlowFormat = jsonFormat3(CommandCreateFlow)
+  implicit val commandCreateFlowFormat = jsonFormat2(CommandCreateFlow)
 
   implicit val createFlowSuccessFormat = jsonFormat1(CreateFlowSuccess)
-
-  implicit val commandRunFlowFormat = jsonFormat1(CommandRunFlow)
 
   implicit val commandShutdownFormat = jsonFormat1(CommandShutdown)
 
