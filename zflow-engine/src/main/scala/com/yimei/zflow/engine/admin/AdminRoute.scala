@@ -15,7 +15,7 @@ trait AdminRoute extends EditorRoute {
         th("dev/index", context)
       } ~
         path("task") {
-          th("task", context)
+          th("dev/task", context)
         }
     }
   }
@@ -31,7 +31,7 @@ trait AdminRoute extends EditorRoute {
   def editorView: Route = get {
     path("editor") {
       pathEndOrSingleSlash {
-        th("index", context)
+        th("editor/index", context)
       }
     }
   }
@@ -39,10 +39,10 @@ trait AdminRoute extends EditorRoute {
   def monitorView: Route = get {
     path("monitor") {
       pathEndOrSingleSlash {
-        th("index", context)
+        th("monitor/index", context)
       } ~
       path("graph") {
-        th("graph", context)
+        th("monitor/graph", context)
       }
     }
   }
