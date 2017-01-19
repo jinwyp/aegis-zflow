@@ -22,6 +22,6 @@ object Models extends DefaultJsonProtocol with CommonJsonFormat {
   case class DesignDetail(id: Long, name: String, json: String, meta: String, ts_c: Timestamp)
   implicit val designDetailFormat = jsonFormat5(DesignDetail)
 
-  case class DesignModel(name: String, ts_c: Timestamp)
-  implicit val designListFormat = jsonFormat2(DesignModel)
+  case class DesignItem(name: String, ts_c: Timestamp)
+  implicit val designListFormat = jsonFormat2(DesignItem)
 }

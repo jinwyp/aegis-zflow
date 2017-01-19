@@ -44,7 +44,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
       val designList = dbrun(designClass.sortBy(d => d.ts_c).map(d => (d.name, d.ts_c)).drop((page - 1) * pageSize).take(pageSize).result)
       val res = for (d <- designList) yield {
-        d.map(d => DesignModel(d._1, d._2.get))
+        d.map(d => DesignItem(d._1, d._2.get))
       }
       complete(res)
     }
