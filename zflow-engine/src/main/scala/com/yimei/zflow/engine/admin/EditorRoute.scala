@@ -1,16 +1,19 @@
 package com.yimei.zflow.engine.admin
 
-import java.io.{File, FileInputStream}
-import java.nio.file.Paths
+import java.io.{BufferedWriter, File, FileInputStream, FileWriter}
+import java.nio.charset.StandardCharsets
+import java.nio.file.StandardOpenOption._
+import java.nio.file.{Files, Path, Paths}
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
+import akka.http.scaladsl.model.StatusCodes.Success
 import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Disposition`}
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.IOResult
-import akka.stream.scaladsl.{FileIO, Source}
+import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
 import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig}
 import com.yimei.zflow.engine.admin.Models._
@@ -18,9 +21,12 @@ import com.yimei.zflow.engine.admin.db.DesignTable
 import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.Archiver
+import com.yimei.zflow.util.exception.BusinessException
+import org.apache.commons.io.FileUtils
 
 import scala.concurrent.Future
 import scala.io.BufferedSource
+import scala.sys.process.Process
 
 /**
   * Created by hary on 16/12/28.
@@ -43,11 +49,11 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  // 2> 用户加载流程设计  :  GET /design/graph/:id  --> JSON
+  // 2> 用户加载流程设计  :  GET /design/graph/:name  --> JSON
   def loadDesign: Route = get {
-    path("graph" / LongNumber) { id =>
-      val design = dbrun(designClass.filter(d => d.id === id).result.head)
-      complete(design.map(d => DesignDetail(d.id.get, d.name, d.json, d.meta, d.ts_c.get)))
+    path("graph" / Segment)   { name =>
+      val design: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
+      complete(design map { entity => DesignDetail(entity.id.get, entity.name, entity.json, entity.meta, entity.ts_c.get)})
     }
   }
 
@@ -56,10 +62,27 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     path("graph") {
       parameter("id".as[Long].?) { id =>
         entity(as[SaveDesign]) { design =>
+          if(design.id.isDefined && design.id != id) throw BusinessException("body里面的id与路径上的id不一致！")
           val designEntity = DesignEntity(id, design.name, design.json, design.meta, None)
-          designClass.insertOrUpdate(designEntity)
+          dbrun(designClass.insertOrUpdate(designEntity))
           complete(StatusCodes.OK)
         }
+      }
+    }
+  }
+
+  def genFile: Route = get {
+    path("genfile" / Segment) { name =>
+      val entity: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
+
+      onSuccess(entity) { de =>
+        val path = "./zflow-engine/src/main/resources/flow.json"
+        val file = new File(path)
+        val bw = new BufferedWriter(new FileWriter(file))
+
+        bw.write(de.json)
+        bw.close()
+        complete(StatusCodes.OK)
       }
     }
   }
@@ -94,6 +117,8 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
       GraphLoader.loadConfig("money", this.getClass.getClassLoader)
     }
 
+
+
     for {
       config <- fconfig
       result <- CodeEngine.genAll(config)(coreSystem).map { entry =>
@@ -109,7 +134,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
   // 总路由
   def editorRoute = pathPrefix("design") {
-    listDesign ~ loadDesign ~ saveDesign ~ download
+    loadDesign ~ listDesign ~ saveDesign ~ download ~ genFile
   }
 
 }
