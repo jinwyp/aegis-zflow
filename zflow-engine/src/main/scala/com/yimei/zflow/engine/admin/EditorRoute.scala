@@ -34,8 +34,8 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
   implicit val editorRouteExecutionContext = coreSystem.dispatcher
 
   // 1> 用户列出所有流程设计  :   GET /design/graph?page=:page&pageSize=:pageSize
-  def listDesign: Route = get {
-    (path("graph") & parameter('page.as[Int].?) & parameter('pageSize.as[Int].?)) { (p, ps) =>
+  def listEditor: Route = get {
+    (path("editor") & parameter('page.as[Int].?) & parameter('pageSize.as[Int].?)) { (p, ps) =>
 
       if((p.isDefined && p.get < 0) || (ps.isDefined && ps.get < 0)) throw BusinessException("分页参数有误！")
 
@@ -51,16 +51,16 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
   }
 
   // 2> 用户加载流程设计  :  GET /design/graph/:name  --> JSON
-  def loadDesign: Route = get {
-    path("graph" / Segment) { name =>
+  def loadEditor: Route = get {
+    path("editor" / Segment) { name =>
       val design: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
       complete(design map { entity => DesignDetail(entity.id.get, entity.name, entity.json, entity.meta, entity.ts_c.get) })
     }
   }
 
   // 3> 保存流程设计:      POST /design/graph  + JSON
-  def saveDesign: Route = post {
-    path("graph") {
+  def saveEditor: Route = post {
+    path("editor") {
       entity(as[SaveDesign]) { design =>
         val designEntity = DesignEntity(None, design.name, design.json, design.meta, None)
         dbrun(designClass.insertOrUpdate(designEntity))
@@ -114,7 +114,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
   // 总路由
   def editorRoute = pathPrefix("design") {
-    loadDesign ~ listDesign ~ saveDesign ~ download
+    loadEditor ~ listEditor ~ saveEditor ~ download
   }
 
 }
