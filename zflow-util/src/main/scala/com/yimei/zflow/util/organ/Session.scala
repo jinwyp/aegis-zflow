@@ -3,6 +3,7 @@ package com.yimei.zflow.util.organ
 import com.softwaremill.session.{MultiValueSessionSerializer, SessionConfig, SessionManager, SessionSerializer}
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
+import com.yimei.zflow.util.config.Core
 import spray.json.DefaultJsonProtocol
 
 import scala.util.Try
@@ -17,11 +18,11 @@ case class OrganSession(username: String,
                         instanceId: String,
                         companyName: String)
 
-trait Session extends DefaultJsonProtocol {
+trait Session extends DefaultJsonProtocol with Core {
 
   implicit val OrganSessionFormat = jsonFormat5(OrganSession)
 
-  implicit val sessionManager = new SessionManager[OrganSession](SessionConfig.fromConfig())
+  implicit val sessionManager = new SessionManager[OrganSession](SessionConfig.fromConfig(coreConfig))
 
   implicit def sessionSerializer: SessionSerializer[OrganSession, String] = new MultiValueSessionSerializer(
     (ms: OrganSession) => Map(
@@ -45,6 +46,7 @@ trait Session extends DefaultJsonProtocol {
   def organSetSession(mySession: OrganSession) = setSession(oneOff, usingCookies, mySession)
 
   val organRequiredSession = requiredSession(oneOff, usingCookies)
+  val organOptionalSession = optionalSession(oneOff, usingCookies)
   val organInvalidateSession = invalidateSession(oneOff, usingCookies)
 }
 

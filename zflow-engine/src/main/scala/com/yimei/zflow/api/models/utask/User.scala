@@ -48,25 +48,11 @@ case class TaskDequeue(taskId: String) extends Event
 ////////////////////////////////////////////////////
 case class State(guid: String, tasks: Map[String, CommandUserTask])
 
-trait UserProtocol extends DefaultJsonProtocol with FlowProtocol {
-
-  implicit object TimeStampJsonFormat extends RootJsonFormat[Timestamp] {
-
-    val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-    override def write(obj: Timestamp) = JsString(formatter.format(obj))
-
-    override def read(json: JsValue) : Timestamp = json match {
-      case JsString(s) => new Timestamp(formatter.parse(s).getTime)
-      case _ => throw new DeserializationException("Error info you want here ...")
-    }
-  }
+trait UTaskProtocol extends DefaultJsonProtocol with FlowProtocol {
 
   implicit val userCommandUserTaskFormat = jsonFormat4(CommandUserTask)
 
   implicit val userStateFormat = jsonFormat2(State)
-
-
 
   implicit val CommandCreateUserFormat = jsonFormat1(CommandCreateUser)
 
@@ -84,5 +70,6 @@ trait UserProtocol extends DefaultJsonProtocol with FlowProtocol {
 
   implicit val TaskDequeueFormat = jsonFormat1(TaskDequeue)
 
-
 }
+
+object UTaskProtocol extends UTaskProtocol

@@ -11,7 +11,7 @@ import com.yimei.zflow.util.HttpResult._
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object Route extends {
+object UT extends {
   override implicit val coreSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
     """
       |database {
@@ -41,7 +41,7 @@ object Route extends {
 class PartyRouteTest extends
   WordSpec with Matchers with ScalatestRouteTest with Inside with SprayJsonSupport {
 
-  override protected def beforeAll(): Unit = Route.prepare()
+  override protected def beforeAll(): Unit = UT.prepare()
 
   /**
     * 创建参与方类别
@@ -50,7 +50,7 @@ class PartyRouteTest extends
 
   "参与方路由测试" should {
     "创建参与方类别" in {
-      Post("/party/supervisor/description") ~> Route.partyCreate ~> check {
+      Post("/party/supervisor/description") ~> UT.partyCreate ~> check {
         inside(responseAs[Result[PartyClassEntry]]) {
           case Result(dataOpt, success, None, _) =>
             success shouldBe true
@@ -61,7 +61,7 @@ class PartyRouteTest extends
     }
 
     "获取参与方实例" in {
-      Get() ~> Route.getParty ~> check {
+      Get() ~> UT.getParty ~> check {
 
       }
     }

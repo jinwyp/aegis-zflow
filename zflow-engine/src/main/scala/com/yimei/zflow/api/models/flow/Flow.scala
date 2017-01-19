@@ -6,6 +6,7 @@ import java.util.Date
 import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.FlowRegistry._
 import akka.actor.ActorRef
+import com.yimei.zflow.util.CommonJsonFormat
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
 // 数据点: 值, 说明, 谁采集, 采集id, 采集时间
@@ -222,19 +223,8 @@ case class GraphConfig(
                         edges: Map[String, Edge]
                       )
 
-trait FlowProtocol extends DefaultJsonProtocol {
+trait FlowProtocol extends DefaultJsonProtocol with CommonJsonFormat {
 
-  // 日期
-  implicit object DateJsonFormat extends RootJsonFormat[Date] {
-    val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")   // todo change format
-
-    override def write(obj: Date) = JsString(formatter.format(obj))
-
-    override def read(json: JsValue): Date = json match {
-      case JsString(s) => formatter.parse(s)
-      case _ => throw new DeserializationException("Error info you want here ...")
-    }
-  }
   implicit val dataPointFormat = jsonFormat6(DataPoint)
 
   implicit val commandHijackFormat = jsonFormat4(CommandHijack)
@@ -287,3 +277,5 @@ trait FlowProtocol extends DefaultJsonProtocol {
 
   implicit val graphFormat = jsonFormat6(Graph)
 }
+
+object FlowProtocol extends FlowProtocol

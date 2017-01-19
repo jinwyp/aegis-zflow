@@ -7,7 +7,7 @@ import spray.json._
 /**
   * Created by xl on 16/12/23.
   */
-class UserSerialization extends SerializerWithStringManifest with UserProtocol {
+class UTaskSerialization extends SerializerWithStringManifest with UTaskProtocol {
   override def identifier: Int = 5555
 
   val CommandCreateUserManifest = classOf[CommandCreateUser].getName

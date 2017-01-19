@@ -27,7 +27,7 @@ case class TaskDequeue(taskId: String) extends Event
 // State:  group -> taskId -> groupTask
 case class State(ggid: String, tasks: Map[String, CommandGroupTask])
 
-trait GroupProtocol extends DefaultJsonProtocol {
+trait GTaskProtocol extends DefaultJsonProtocol {
 
   implicit val groupCommandGroupTaskFormat = jsonFormat4(CommandGroupTask)
 
@@ -43,3 +43,5 @@ trait GroupProtocol extends DefaultJsonProtocol {
 
   implicit val GTaskDequeueFormat = jsonFormat1(TaskDequeue)
 }
+
+object GTaskProtocol extends GTaskProtocol

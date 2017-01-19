@@ -26,3 +26,5 @@ trait IdGeneratorProtocol extends DefaultJsonProtocol {
   implicit val idGeneratorStateFormat = jsonFormat1(State)
 }
 
+object IdGeneratorProtocol extends IdGeneratorProtocol
+

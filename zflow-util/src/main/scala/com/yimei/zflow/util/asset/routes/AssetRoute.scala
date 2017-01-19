@@ -17,10 +17,10 @@ import akka.stream.scaladsl.{FileIO, Keep, Source}
 import akka.util.ByteString
 import com.yimei.zflow.util.asset.db.AssetTable
 import com.yimei.zflow.util.asset.db.Entities.AssetEntity
-import com.yimei.zflow.util.asset.routes.Models.UploadResult
+import com.yimei.zflow.util.asset.routes.Models._
 import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
-import com.yimei.zflow.util.organ.Session
+import com.yimei.zflow.util.organ.{OrganSession, Session}
 import org.apache.commons.io.FileUtils
 
 import scala.concurrent.Future
@@ -87,7 +87,11 @@ trait AssetRoute extends Core with AssetTable with SprayJsonSupport with Session
     post {
       extractRequestContext { ctx =>
         implicit val materializer = ctx.materializer
-        (organRequiredSession & parameter('busiType.?)) { (session, busiType) =>
+        (organOptionalSession & parameter('busiType.?)) { (session, busiType) =>
+
+          println("got busiType => " + busiType)
+          println("got session => " + session)
+
           fileUpload(fileField) {
             case (meta: FileInfo, source: Source[ByteString, Any]) =>
               // d33d2a10-1def-4e87-9fb7-dd629ecad8b0
@@ -106,13 +110,18 @@ trait AssetRoute extends Core with AssetTable with SprayJsonSupport with Session
               val gdir = fileRoot + File.separator + dir
               FileUtils.forceMkdir(new File(gdir))
 
+              val username = session match {
+                case None => "hello"
+                case k => k.get.username
+              }
+
               val sink = FileIO.toPath(Paths.get(gdir + File.separator + file), Set(CREATE, WRITE))
               val assetEntity = new AssetEntity(
                 None,
                 asset_id,
                 meta.contentType.toString(),
                 busiType.getOrElse("0"),
-                session.username,
+                username,
                 None,
                 dir + File.separator + file,
                 meta.fileName,
@@ -193,6 +202,12 @@ trait AssetRoute extends Core with AssetTable with SprayJsonSupport with Session
     }
   }
 
-  def assetRoute: Route = downloadFile ~ uploadFile ~ uploadFile2
+  def assetLogin: Route = path("login") {
+    organSetSession(OrganSession("hary", "uid", "party", "instanceId", "company")) { ctx =>
+      ctx.complete("ok")
+    }
+  }
+
+  def assetRoute: Route = downloadFile ~ uploadFile ~ uploadFile2 ~ assetLogin
 }
 

@@ -2,6 +2,7 @@ package com.yimei.zflow.util
 
 import java.sql.SQLIntegrityConstraintViolationException
 
+import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.DatabaseException
@@ -16,17 +17,18 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 trait DB extends Core {
 
-  val log: LoggingAdapter
+
 
   val driver = slick.driver.MySQLDriver;
   import driver.api.Database;
 
   val db = Database.forDataSource(
     new HikariDataSource({
+      val system = implicitly[ActorSystem]
       val hikariConfig = new HikariConfig()
-      hikariConfig.setJdbcUrl(coreSystem.settings.config.getString("database.jdbcUrl"))
-      hikariConfig.setUsername(coreSystem.settings.config.getString("database.username"))
-      hikariConfig.setPassword(coreSystem.settings.config.getString("database.password"))
+      hikariConfig.setJdbcUrl(system.settings.config.getString("database.jdbcUrl"))
+      hikariConfig.setUsername(system.settings.config.getString("database.username"))
+      hikariConfig.setPassword(system.settings.config.getString("database.password"))
       hikariConfig
     })
   )

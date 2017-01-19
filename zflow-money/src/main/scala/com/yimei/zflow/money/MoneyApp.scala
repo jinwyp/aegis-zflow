@@ -14,7 +14,7 @@ import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.single.DaemonMaster
 import com.yimei.zflow.util.asset.routes.AssetRoute
 import com.yimei.zflow.util.organ.OrganRoute
-import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
+import com.yimei.zflow.util.{FlowExceptionHandler, FlowRejectionHandler, FlywayDB}
 
 import scala.concurrent.duration._
 
@@ -23,7 +23,7 @@ import scala.concurrent.duration._
   */
 object MoneyApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
-} with App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute with AssetRoute {
+} with App with FlowExceptionHandler with FlowRejectionHandler with EngineRoute with OrganRoute with AdminRoute with AssetRoute{
 
 
   override val fileField: String = "file"
@@ -54,6 +54,7 @@ object MoneyApp extends {
 
 
   // prepare routes
+  // format off
   val route: Route =
     logRequestResult(extractLogEntry _) {
         pathPrefix("zflow" / "api") { engineRoute } ~
@@ -62,6 +63,7 @@ object MoneyApp extends {
         pathPrefix("asset") { assetRoute } ~
         FlowRegistry.routes
     }
+  // format on
 
   // start http server
   implicit val httpExecutionContext = coreSystem.dispatcher
