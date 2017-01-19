@@ -97,7 +97,7 @@ object CodeEngine extends FlowProtocol {
     //val httpExecutionContext = system.dispatcher
     implicit val materializer = ActorMaterializer()
 
-    val meta = CodeMeta(gc.groupId, gc.artifact, gc.entry)
+    val meta = CodeMeta(gc.globalConfig.groupId, gc.globalConfig.artifact, gc.globalConfig.entry)
     def m(tpl: String, file: String, code: AnyRef) = (tpl, new JMap[String, AnyRef] {
       put("meta", meta)
       put("file", file)
@@ -118,19 +118,19 @@ object CodeEngine extends FlowProtocol {
         m("persistence-redis.conf", "persistence-redis.conf", null) ::
         m("build.properties", "build.properties", null) ::
         m("plugins.sbt", "pluings.sbt", null) ::
-        m("XFlowApp.ftl", s"${gc.entry}App.scala", getAppCode(gc)) ::
-        m("XFlowGraph.ftl", s"${gc.entry}Graph.scala", getGraphCode(gc)) ::
+        m("XFlowApp.ftl", s"${gc.globalConfig.entry}App.scala", getAppCode(gc)) ::
+        m("XFlowGraph.ftl", s"${gc.globalConfig.entry}Graph.scala", getGraphCode(gc)) ::
         m("utask.XFlowModels.ftl", "Models.scala", getModelsCode(gc)) ::
-        m("config.XFlowConfig.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
-        m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
+        m("config.XFlowConfig.ftl", s"${gc.globalConfig.entry}Config.scala", getConfigCode(gc)) ::
+        m("config.XFlowPoints.ftl", s"${gc.globalConfig.entry}Points.scala", getPointsCode(gc)) ::
         m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
         (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++ ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
 
     Future.traverse(all) { entry =>
-      CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")
+      CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.globalConfig.artifact}")
     }.map { fs =>
       fs.foreach { case (filename, result) => printf(s"%-40s => %-10s | %20s bytes read\n", filename, result.status, result.count) }
-      ("/tmp", s"aegis-zflow-${gc.artifact}")
+      ("/tmp", s"aegis-zflow-${gc.globalConfig.artifact}")
     }
   }
 

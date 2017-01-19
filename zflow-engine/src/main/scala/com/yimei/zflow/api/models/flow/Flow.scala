@@ -202,13 +202,16 @@ case class Arrow(end: String, edge: Option[String])
 
 case class Vertex(description: String, next: Option[Arrow])
 
-case class GraphConfig(
+case class GraphGlobal(
                         groupId: String,
                         artifact: String,
                         entry: String,
                         persistent: Boolean,
                         timeout: Int,
-                        initial: String,
+                        initial: String
+                      )
+
+case class GraphConfig( globalConfig: GraphGlobal,
                         points: Map[String, String],
                         autoTasks: Map[String, TaskInfo],
                         userTasks: Map[String, TaskInfo],
@@ -264,7 +267,8 @@ trait FlowProtocol extends DefaultJsonProtocol with CommonJsonFormat {
 
   implicit val defaultVertexFormat = jsonFormat2(Vertex)
 
-  implicit val graphConfigProtocolFormat = jsonFormat11(GraphConfig)
+  implicit val GraphGlobalFormat = jsonFormat6(GraphGlobal)
+  implicit val GraphConfigFormat = jsonFormat6(GraphConfig)
 
   implicit val graphFormat = jsonFormat6(Graph)
 }
