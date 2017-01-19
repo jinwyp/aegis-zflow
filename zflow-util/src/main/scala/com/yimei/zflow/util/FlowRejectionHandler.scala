@@ -15,17 +15,35 @@ trait FlowRejectionHandler extends SprayJsonSupport with Core {
   implicit def myRejectionHandler =
     RejectionHandler.newBuilder()
       .handle { case MissingCookieRejection(cookieName) =>
-        complete(HttpResponse(BadRequest, entity = "No cookies, no service!!!"))
+        extractUri{ uri =>
+          log.warning(s"$uri No cookies, no service!!!")
+          complete(HttpResponse(BadRequest, entity = "No cookies, no service!!!"))
+        }
+      }
+      .handle { case MissingQueryParamRejection(name) =>
+        extractUri { uri =>
+          log.warning(s"$uri miss request parameter $name")
+          complete((Forbidden, s"miss request parameter $name"))
+        }
       }
       .handle { case AuthorizationFailedRejection =>
-        complete((Forbidden, "You're out of your depth!"))
+        extractUri { uri =>
+          log.warning(s"$uri You're out of your depth!")
+          complete((Forbidden, "You're out of your depth!"))
+        }
       }
       .handle { case ValidationRejection(msg, _) =>
-        complete((InternalServerError, "That wasn't valid! " + msg))
+        extractUri { uri =>
+          log.warning(s"$uri That wasn't valid! {}",msg)
+          complete((InternalServerError, "That wasn't valid! " + msg))
+        }
       }
       .handleAll[MethodRejection] { methodRejections =>
-      val names = methodRejections.map(_.supported.name)
-      complete((MethodNotAllowed, s"Can't do that! Supported: ${names mkString " or "}!"))
+      extractUri { uri =>
+        val names = methodRejections.map(_.supported.name)
+        log.warning("{} Can't do that! Supported: {} ",uri,names)
+        complete((MethodNotAllowed, s"Can't do that! Supported: ${names mkString " or "}!"))
+      }
     }
       .handleNotFound { complete("Not here!") }
       .result()
