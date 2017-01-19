@@ -29,7 +29,7 @@ trait AdminRoute extends EditorRoute {
 
   def editorView: Route = get {
     path("editor") {
-      th("editor", context)
+      th("floweditor/editor", context)
     }
   }
 
