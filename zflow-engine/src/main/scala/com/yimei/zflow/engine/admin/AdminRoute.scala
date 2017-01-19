@@ -7,7 +7,7 @@ import ThymeleafConfig._
 /**
   * Created by hary on 17/1/11.
   */
-trait AdminRoute extends EditorRoute {
+trait AdminRoute {
 
   def devView: Route = get {
     pathPrefix("dev") {
