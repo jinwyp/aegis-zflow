@@ -10,7 +10,7 @@ import ThymeleafConfig._
 trait AdminRoute extends EditorRoute {
 
   def devView: Route = get {
-    path("dev") {
+    pathPrefix("dev") {
       pathEndOrSingleSlash {
         th("dev/index", context)
       } ~
@@ -21,7 +21,7 @@ trait AdminRoute extends EditorRoute {
   }
 
   def deployView: Route = get {
-    path("deploy") {
+    pathPrefix("deploy") {
       pathEndOrSingleSlash {
         th("deploy/index", context)
       }
@@ -29,7 +29,7 @@ trait AdminRoute extends EditorRoute {
   }
 
   def editorView: Route = get {
-    path("editor") {
+    pathPrefix("editor") {
       pathEndOrSingleSlash {
         th("editor/index", context)
       }
@@ -37,7 +37,7 @@ trait AdminRoute extends EditorRoute {
   }
 
   def monitorView: Route = get {
-    path("monitor") {
+    pathPrefix("monitor") {
       pathEndOrSingleSlash {
         th("monitor/index", context)
       } ~
