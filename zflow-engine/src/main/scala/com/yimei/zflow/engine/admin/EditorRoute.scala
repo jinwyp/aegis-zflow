@@ -72,22 +72,6 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  def genFile: Route = get {
-    path("genfile" / Segment) { name =>
-      val entity: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
-
-      onSuccess(entity) { de =>
-        val path = "/tmp/flow.json"
-        val file = new File(path)
-        val bw = new BufferedWriter(new FileWriter(file))
-
-        bw.write(de.json)
-        bw.close()
-        complete(StatusCodes.OK)
-      }
-    }
-  }
-
   // 4> 下载模板项目:      GET /design/download/:name
   def download: Route = get {
     (extractExecutionContext & extractMaterializer & path("download" / Segment)) { (ec, mat, name) =>
