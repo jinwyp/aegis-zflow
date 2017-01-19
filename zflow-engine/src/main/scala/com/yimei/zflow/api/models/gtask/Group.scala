@@ -43,3 +43,5 @@ trait GTaskProtocol extends DefaultJsonProtocol {
 
   implicit val GTaskDequeueFormat = jsonFormat1(TaskDequeue)
 }
+
+object GTaskProtocol extends GTaskProtocol

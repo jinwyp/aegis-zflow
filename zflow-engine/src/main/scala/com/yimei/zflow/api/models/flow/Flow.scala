@@ -225,16 +225,6 @@ case class GraphConfig(
 
 trait FlowProtocol extends DefaultJsonProtocol with CommonJsonFormat {
 
-//  // 日期
-//  implicit object DateJsonFormat extends RootJsonFormat[Date] {
-//    val formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")   // todo change format
-//    override def write(obj: Date) = JsString(formatter.format(obj))
-//    override def read(json: JsValue): Date = json match {
-//      case JsString(s) => formatter.parse(s)
-//      case _ => throw new DeserializationException("Error info you want here ...")
-//    }
-//  }
-
   implicit val dataPointFormat = jsonFormat6(DataPoint)
 
   implicit val commandHijackFormat = jsonFormat4(CommandHijack)
