@@ -7,7 +7,7 @@ import spray.json._
 /**
   * Created by xl on 16/12/23.
   */
-class GroupSerialization extends SerializerWithStringManifest with GroupProtocol {
+class GTaskSerialization extends SerializerWithStringManifest with GTaskProtocol {
   override def identifier: Int = 3333
 
   val CommandCreateGroupManifest = classOf[CommandCreateGroup].getName

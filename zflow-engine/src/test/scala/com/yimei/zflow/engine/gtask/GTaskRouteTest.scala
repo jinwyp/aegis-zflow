@@ -16,7 +16,7 @@ class GTaskRouteTest extends WordSpec with Matchers with ScalatestRouteTest with
   override def gtaskQuery(ggid: String) = ???
   override def gtaskClaim(ggid: String, guid: String, taskId: String) = ???
   override def gtaskSend(ggid: String, flowId: String, taskName: String, flowType: String) = ???
-  override val gtaskTimeout: Timeout = Timeout(2 seconds)
+  override val gtaskTimeout: Timeout = Timeout(2.seconds)
 
   "GTaskRouteTest" should {
     "listTask" in {

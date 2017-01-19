@@ -1,6 +1,6 @@
 package com.yimei.zflow.engine.graph
 
-import java.io.File
+import java.io.{File, InputStream}
 
 import akka.actor.ActorRef
 import akka.http.scaladsl.server.Route
@@ -69,16 +69,15 @@ object GraphLoader extends FlowProtocol {
 
       }.toMap
 
-  def loadConfig(gFlowType: String, classLoader: ClassLoader): GraphConfig = {
+
+  def loadConfig(classLoader: ClassLoader): GraphConfig = {
+    loadConfig(classLoader.getResourceAsStream("flow.json"))
+  }
+
+  def loadConfig(inputStream: InputStream) = {
 
     import spray.json._
-
-    //    val jsonFile = gFlowType match {
-    //      case "money" => "money.json"
-    //      case _ => "flow.json"
-    //    }
-
-    var graphConfig = Source.fromInputStream(classLoader.getResourceAsStream("flow.json"))
+    var graphConfig = Source.fromInputStream(inputStream)
       .mkString
       .parseJson
       .convertTo[GraphConfig]
@@ -113,7 +112,7 @@ object GraphLoader extends FlowProtocol {
 
   def loadGraph(gFlowType: String, classLoader: ClassLoader): FlowGraph = {
 
-    val graphConfig = loadConfig(gFlowType, classLoader)
+    val graphConfig = loadConfig(classLoader)
 
     // graphJar class and graphJar object
     val mclass = classLoader.loadClass(s"${graphConfig.groupId}.${graphConfig.artifact}.${graphConfig.entry}" + "Graph$")
