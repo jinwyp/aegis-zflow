@@ -1,10 +1,12 @@
 <!DOCTYPE html>  <!-- HTML5 document type -->
 <html ng-app="flowApp">
 <head>
+    <link rel="stylesheet" href="/lib/angular-notify/angular-notify.css" >
     <link rel="stylesheet" href="/lib/angletheme/bootstrap.css">
     <link rel="stylesheet" href="/lib/angletheme/app.css">
     <link rel="stylesheet" href="/css/jquery.qtip.css"/>
     <link rel="stylesheet" href="/css/manageflow.css">
+
 </head>
 <body>
 
@@ -15,7 +17,6 @@
         <header><img src="/img/logo.png" alt=""></header>
 
         <!-- START row-->
-
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default">
@@ -39,7 +40,7 @@
 
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-lg-4">
-                                    <button type="submit" class="btn btn-default" ng-disabled="formFlow.$invalid" ng-click="vm.saveGlobal(formFlow)">保存</button>
+                                    <button type="submit" class="btn btn-primary" ng-disabled="formFlow.$invalid" ng-click="vm.saveGlobal(formFlow)">保存</button>
                                 </div>
                             </div>
                         </form>
@@ -51,7 +52,121 @@
         <!-- END row-->
 
 
+        <!-- START row-->
+        <div class="row" ng-show="vm.ouputData">
+            <div class="col-md-12">
+                <button class="btn btn-default" ng-click="vm.ouputData=''">隐藏输出</button>
+                <pre>
+{{vm.ouputData | json}}
+                </pre>
+            </div>
+        </div>
+        <!-- END row-->
 
+
+        <!-- START row-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><h4>数据采集点
+                        <button class="btn mb-sm btn-default pull-right ml" ng-show="vm.pointEditType === 'list'" ng-click="vm.changePointEditType('')">隐藏列表</button>
+                        <button class="btn mb-sm btn-default pull-right ml" ng-show="vm.pointEditType === '' || vm.pointEditType === 'jsoneditor'" ng-click="vm.changePointEditType('list')">显示列表</button>
+                        <button class="btn mb-sm btn-info pull-right ml" ng-show="vm.pointEditType === 'list'" ng-click="vm.changePointEditType('add')">添加数据采集点</button>
+                        <button class="btn mb-sm btn-default pull-right ml" ng-show="vm.pointEditType === 'add'" ng-click="vm.changePointEditType('list')" ng-click="vm.convertDataObj()">返回列表</button></h4>
+                    </div>
+                    <div class="panel-body" ng-if="vm.pointEditType === 'list' ">
+                        <div class="table-responsive" >
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                <tr>
+                                    <th>采集点ID </th>
+                                    <th>采集点说明</th>
+                                    <th>字段</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-show="vm.flow.points.length === 0">
+                                    <td colspan="3" class="text-center"> 暂无数据 </td>
+                                </tr>
+                                <tr ng-repeat=" point in vm.flow.points track by point.data.id">
+                                    <td> <a ng-click="vm.selectPoint('jsoneditor', point)">{{point.id}}</a></td>
+                                    <td>{{point.description}}</td>
+                                    <td>
+                                        <table class="table table-hover table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>字段名称</th>
+                                                <th>字段类型</th>
+                                                <th>字段描述</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr ng-repeat=" (key, value) in point.data.JSONSchema.properties track by key">
+                                                <td>{{key}} </td>
+                                                <td>{{value.type}}</td>
+                                                <td>{{value.description}}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel-body" ng-if="vm.pointEditType === 'add' ">
+
+                        <h5> 添加一个新数据采集点 </h5>
+
+                        <form class="form-horizontal" name="formPoint">
+
+                            <div class="form-group" ng-class="{'has-error' : formPoint.pid.$invalid && formPoint.pid.$dirty}">
+                                <div class="col-sm-8">
+                                    <input type="text" name="pid" placeholder="新数据采集点ID" class="form-control" ng-model="vm.newPoint.id" required minlength="2" maxlength="20">
+                                </div>
+                                <div class="col-sm-4">
+                                    <span class="help-block" ng-if="formPoint.pid.$error.required">必填!</span>
+                                    <span class="help-block" ng-if="formPoint.pid.$error.minlength">长度2-20!</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group" ng-class="{'has-error' : formPoint.pdesc.$invalid && formPoint.pdesc.$dirty}">
+                                <div class="col-sm-8">
+                                    <input type="text" name="pdesc" placeholder="新数据采集点说明" class="form-control" ng-model="vm.newPoint.description" required minlength="2" >
+                                </div>
+                                <div class="col-sm-4">
+                                    <span class="help-block" ng-if="formPoint.pdesc.$error.required">必填!</span>
+                                    <span class="help-block" ng-if="formPoint.pdesc.$error.minlength">长度要大于2!</span>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group has-error">
+                                <div class="col-lg-12">
+                                    <button type="submit" class="btn btn-primary" ng-disabled="formPoint.$invalid" ng-click="vm.addNewPoint(formPoint)">保存</button>
+                                </div>
+                                <div class="col-lg-12">
+                                    <span class="help-block" ng-if="vm.errorAddNewPoint.pointExist">数据点ID已存在!</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="panel-body" ng-show="vm.pointEditType === 'jsoneditor' ">
+                        <h4> 字段编辑器
+                            <button class="btn btn-sm btn-primary pull-right ml" ng-click="vm.savePointSchema()">保存</button>
+                        </h4>
+
+                        <div id="json_editor_box"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- END row-->
+
+
+        <!-- START row-->
         <div class="row">
             <div class="col-md-12">
                 <!-- START panel-->
@@ -63,7 +178,9 @@
                         <div id="panel-settings" >
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'node' && vm.currentNode.data.id">
-                                <div class="panel-heading"> <h4>当前选中节点: {{vm.currentNode.data.id || '未选择'}} </h4> </div>
+                                <div class="panel-heading"> <h4>当前选中节点: {{vm.currentNode.data.id || '未选择'}}
+                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
+                                </h4> </div>
 
                                 <div class="panel-body">
 
@@ -121,7 +238,7 @@
 
                                         <div class="form-group has-error">
                                             <div class="col-lg-12">
-                                                <button type="submit" class="btn btn-default" ng-disabled="formNode.$invalid" ng-click="vm.addNewEdge(formNode)">保存</button>
+                                                <button type="submit" class="btn btn-primary" ng-disabled="formNode.$invalid" ng-click="vm.addNewEdge(formNode)">保存</button>
                                             </div>
                                             <div class="col-lg-12">
                                                 <span class="help-block" ng-if="vm.errorAddNewNode.notSelected">请选择一个节点!</span>
@@ -140,9 +257,10 @@
 
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'edge' && vm.currentEdge.data.id">
-                                <div class="panel-heading"><h4> 当前选中线: {{vm.currentEdge.id || '未选择'}}
-                                    <button class="pull-right mb-sm btn btn-info" ng-show="vm.taskEditType === 'list'" ng-click="vm.changeTaskEditType('add')">添加任务</button>
-                                    <button class="pull-right mb-sm btn btn-default" ng-show="vm.taskEditType === 'add'" ng-click="vm.changeTaskEditType('list')">返回列表</button>
+                                <div class="panel-heading"><h4> 当前选中线: {{vm.currentEdge.data.id || '未选择'}}
+                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
+                                    <button class="btn mb-sm btn-info pull-right ml" ng-show="vm.taskEditType === 'list'" ng-click="vm.changeTaskEditType('add')">添加任务</button>
+                                    <button class="btn mb-sm btn-default pull-right ml" ng-show="vm.taskEditType === 'add'" ng-click="vm.changeTaskEditType('list')">返回列表</button>
                                 </h4></div>
 
                                 <div class="panel-body">
@@ -157,19 +275,20 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                                <tr ng-show="vm.currentEdge.data.allTask.length === 0">
-                                                    <td colspan="3" class="text-center"> 暂无数据 </td>
-                                                </tr>
-                                                <tr ng-repeat="task in vm.currentEdge.data.allTask track by task.data.id">
-                                                    <td>{{task.data.id}} <br> {{task.data.description}}</td>
-                                                    <td>{{task.data.type}}</td>
-                                                    <td>
-                                                        <span ng-repeat="point in task.data.points">{{point.id}}: {{point.description}} <br> </span>
-                                                    </td>
-                                                    <td>
-                                                        <span ng-repeat="task in task.data.tasks">{{task.data.id}}: {{task.data.description}} <br> </span>
-                                                    </td>
-                                                </tr>
+                                            <tr ng-show="vm.currentEdge.data.allTask.length === 0">
+                                                <td colspan="3" class="text-center"> 暂无数据 </td>
+                                            </tr>
+                                            <tr ng-repeat="task in vm.currentEdge.data.allTask track by task.data.id">
+                                                <td>{{task.data.id}} <br> {{task.data.description}}</td>
+                                                <td>{{task.data.type}}</td>
+                                                <td>
+                                                    <span ng-repeat="point in task.data.points">{{point.id}}: {{point.description}} <br> </span>
+                                                    <input class="" type="text" ng-model="vm.newPointToTask"> <button class="btn btn-sm btn-primary" ng-click="vm.addPointIntoTask(task)">添加点</button>
+                                                </td>
+                                                <td>
+                                                    <span ng-repeat="task in task.data.tasks">{{task.data.id}}: {{task.data.description}} <br> </span>
+                                                </td>
+                                            </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -178,7 +297,7 @@
 
                                 <div class="panel-footer" ng-if="vm.taskEditType === 'add' ">
 
-                                    <h5> 添加新一个任务 </h5>
+                                    <h5> 添加一个新任务 </h5>
 
                                     <form class="form-horizontal" name="formTask">
 
@@ -220,7 +339,7 @@
 
                                         <div class="form-group has-error">
                                             <div class="col-lg-12">
-                                                <button type="submit" class="btn btn-default" ng-disabled="formTask.$invalid" ng-click="vm.addNewTask(formTask)">保存</button>
+                                                <button type="submit" class="btn btn-primary" ng-disabled="formTask.$invalid" ng-click="vm.addNewTask(formTask)">保存</button>
                                             </div>
                                             <div class="col-lg-12">
                                                 <span class="help-block" ng-if="vm.errorAddNewTask.taskExist">任务ID已存在!</span>
@@ -252,12 +371,17 @@
 
 <script src='/lib/jquery.js'></script>
 <script src='/lib/angular/angular.js'></script>
+<script src='/lib/angular-notify/angular-notify.js'></script>
 
 <script src="/lib/cytoscape/jquery.qtip.js"></script>
 <script src='/lib/cytoscape/cytoscape.js'></script>
 <script src="/lib/cytoscape/cytoscape-qtip.js"></script>
 <script src="/lib/cytoscape/dagre.js"></script>
 <script src="/lib/cytoscape/cytoscape-dagre.js"></script>
+
+<script src="/lib/jsoneditor/jsoneditor.js"></script>
+
+
 
 <script src='/js/floweditor/manageFlowChartClass.js'></script>
 <script src='/js/floweditor/manageFlow.js'></script>
