@@ -48,3 +48,4 @@ create table deploy(
   ts_c timestamp default current_timestamp,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE UNIQUE INDEX flow_type_index ON deploy(flow_type);
