@@ -222,8 +222,6 @@ object AssemblySettings {
 
 }
 
-
-
 object ApplicationBuild extends Build {
 
   import BuildSettings._
@@ -237,10 +235,6 @@ object ApplicationBuild extends Build {
   lazy val zflowCluster = Project("cluster", file("zflow-cluster"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
   lazy val zflowSingle = Project("single", file("zflow-single"), settings = buildSettings ++ publishSettings).dependsOn(zflowEngine)
   lazy val zflowMoney = Project("money", file("zflow-money"), settings = buildSettings ++ publishSettings).settings(mergeSetting).dependsOn(zflowEngine, zflowSingle)
-
-  //  val singleSettings = libraryDependencies ++= Seq("com.softwaremill.akka-http-session" %% "core" %  akkaHttpSession)
-  //  lazy val zflowSingle  = Project("single", file("zflow-single"),
-  //    settings = buildSettings ++ publishSettings ++ singleSettings).dependsOn(zflowEngine)
 
   lazy val root = Project(appName, file(".")).aggregate(zflowEngine, zflowUtil, zflowSingle, zflowCluster, zflowMoney)
 
