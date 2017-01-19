@@ -19,6 +19,7 @@ import com.yimei.zflow.engine.admin.db.DesignTable
 import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.Archiver
+import com.yimei.zflow.util.exception.BusinessException
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,12 +33,18 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
   implicit val editorRouteExecutionContext = coreSystem.dispatcher
 
-  // 1> 用户列出所有流程设计  :   GET /design/graph
+  // 1> 用户列出所有流程设计  :   GET /design/graph?page=:page&pageSize=:pageSize
   def listDesign: Route = get {
-    path("graph") {
-      val designList = dbrun(designClass.sortBy(d => d.ts_c).map(d => (d.id, d.name, d.ts_c)).result)
+    (path("graph") & parameter('page.as[Int].?) & parameter('pageSize.as[Int].?)) { (p, ps) =>
+
+      if((p.isDefined && p.get < 0) || (ps.isDefined && ps.get < 0)) throw BusinessException("分页参数有误！")
+
+      val page = if(p.isDefined) p.get else 1
+      val pageSize = if(ps.isDefined) ps.get else 10
+
+      val designList = dbrun(designClass.sortBy(d => d.ts_c).map(d => (d.name, d.ts_c)).drop((page - 1) * pageSize).take(pageSize).result)
       val res = for (d <- designList) yield {
-        d.map(d => DesignList(d._1.get, d._2, d._3.get))
+        d.map(d => DesignModel(d._1, d._2.get))
       }
       complete(res)
     }
