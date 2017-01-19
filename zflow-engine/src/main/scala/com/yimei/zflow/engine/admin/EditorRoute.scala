@@ -58,16 +58,13 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  // 3> 保存流程设计:      POST /design/graph?id=:id  + JSON
+  // 3> 保存流程设计:      POST /design/graph  + JSON
   def saveDesign: Route = post {
     path("graph") {
-      parameter("id".as[Long].?) { id =>
-        entity(as[SaveDesign]) { design =>
-          if (design.id.isDefined && design.id != id) throw BusinessException("body里面的id与路径上的id不一致！")
-          val designEntity = DesignEntity(id, design.name, design.json, design.meta, None)
-          dbrun(designClass.insertOrUpdate(designEntity))
-          complete(StatusCodes.OK)
-        }
+      entity(as[SaveDesign]) { design =>
+        val designEntity = DesignEntity(None, design.name, design.json, design.meta, None)
+        dbrun(designClass.insertOrUpdate(designEntity))
+        complete(StatusCodes.OK)
       }
     }
   }
@@ -95,7 +92,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     // 生成文件到/tmp/flow.json, 并产生GraphConfig
     def getConfig(entity: DesignEntity): Future[GraphConfig] = {
       val sink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(Paths.get("/tmp/flow.json"), Set(CREATE, WRITE))
-      val source  = Source.single(entity.json).map(str => ByteString(str))
+      val source = Source.single(entity.json).map(str => ByteString(str))
       source.toMat(sink)(Keep.right).run()
     }.map { result: IOResult =>
       GraphLoader.loadConfig(new FileInputStream("/tmp/flow.json"))
