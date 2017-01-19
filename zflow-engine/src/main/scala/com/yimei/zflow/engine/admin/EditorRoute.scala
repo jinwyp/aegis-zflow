@@ -113,7 +113,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
 
   // 总路由
-  def editorRoute = pathPrefix("design") {
+  def editorRoute = pathPrefix("editor") {
     loadEditor ~ listEditor ~ saveEditor ~ download
   }
 
