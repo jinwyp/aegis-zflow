@@ -111,7 +111,7 @@ object CodeEngine extends FlowProtocol {
       }))
 
     val all =
-      m("flow.json", "flow.json", null) ::
+        m("flow.json", "flow.json", null) ::
         m("Build.scala", "Build.scala", null) ::
         m("application.conf", "application.conf", null) ::
         m("persistence-leveldb.conf", "persistence-leveldb.conf", null) ::
@@ -124,8 +124,7 @@ object CodeEngine extends FlowProtocol {
         m("config.XFlowConfig.ftl", s"${gc.entry}Config.scala", getConfigCode(gc)) ::
         m("config.XFlowPoints.ftl", s"${gc.entry}Points.scala", getPointsCode(gc)) ::
         m("utask.UTaskRoute.ftl", s"UTaskRoute.scala", getUTaskRouteCode(gc)) ::
-        (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++
-          ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
+        (ms("utask.XFlowTask.ftl", getUTaskCode(gc)) ++ ms("utask.TaskTest.ftl", getUTaskTestCode(gc)))
 
     Future.traverse(all) { entry =>
       CodeEngine.genFile(entry._1, entry._2, "/tmp", s"aegis-zflow-${gc.artifact}")

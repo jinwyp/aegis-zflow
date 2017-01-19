@@ -3,8 +3,9 @@ package com.yimei.zflow.engine.admin
 import java.io.{BufferedWriter, File, FileInputStream, FileWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.StandardOpenOption._
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 
+import akka.NotUsed
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
 import akka.http.scaladsl.model.StatusCodes.Success
@@ -12,8 +13,8 @@ import akka.http.scaladsl.model.headers.{ContentDispositionTypes, `Content-Dispo
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
-import akka.stream.IOResult
-import akka.stream.scaladsl.{FileIO, Keep, Source}
+import akka.stream.{ActorMaterializer, IOResult, Materializer}
+import akka.stream.scaladsl.{FileIO, Keep, RunnableGraph, Sink, Source}
 import akka.util.ByteString
 import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig}
 import com.yimei.zflow.engine.admin.Models._
@@ -24,7 +25,7 @@ import com.yimei.zflow.util.Archiver
 import com.yimei.zflow.util.exception.BusinessException
 import org.apache.commons.io.FileUtils
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.BufferedSource
 import scala.sys.process.Process
 
@@ -51,9 +52,9 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
 
   // 2> 用户加载流程设计  :  GET /design/graph/:name  --> JSON
   def loadDesign: Route = get {
-    path("graph" / Segment)   { name =>
+    path("graph" / Segment) { name =>
       val design: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
-      complete(design map { entity => DesignDetail(entity.id.get, entity.name, entity.json, entity.meta, entity.ts_c.get)})
+      complete(design map { entity => DesignDetail(entity.id.get, entity.name, entity.json, entity.meta, entity.ts_c.get) })
     }
   }
 
@@ -62,7 +63,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     path("graph") {
       parameter("id".as[Long].?) { id =>
         entity(as[SaveDesign]) { design =>
-          if(design.id.isDefined && design.id != id) throw BusinessException("body里面的id与路径上的id不一致！")
+          if (design.id.isDefined && design.id != id) throw BusinessException("body里面的id与路径上的id不一致！")
           val designEntity = DesignEntity(id, design.name, design.json, design.meta, None)
           dbrun(designClass.insertOrUpdate(designEntity))
           complete(StatusCodes.OK)
@@ -76,7 +77,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
       val entity: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
 
       onSuccess(entity) { de =>
-        val path = "./zflow-engine/src/main/resources/flow.json"
+        val path = "/tmp/flow.json"
         val file = new File(path)
         val bw = new BufferedWriter(new FileWriter(file))
 
@@ -87,10 +88,13 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  // 4> 下载模板项目:      GET /design/download/:id
+  // 4> 下载模板项目:      GET /design/download/:name
   def download: Route = get {
-    path("download" / LongNumber) { id =>
-      onSuccess(genTar(id)) {
+    (extractExecutionContext & extractMaterializer & path("download" / Segment)) { (ec, mat, name) =>
+
+      val entity: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
+
+      onSuccess(genTar(entity)(ec, mat)) {
         case (source, name) =>
           complete(
             HttpResponse(
@@ -103,24 +107,19 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  /**
-    * freemarker template engine to gen code
-    * 依照zflow-money的项目结构, 依据flow.json文件生成项目模板到/tmp/zflow-xxxx
-    * 同时将zflow-xxx打包为zflow-xxx.tar.gz
-    *
-    * 最终产生一个生成个文件的Future[ByteString]
-    */
-  private def genTar(id: Long): Future[(Source[ByteString, Future[IOResult]], String)] = {
-
-    // todo 测试!!! 目前用id从design表中将json字段读取出来, 目前是直接从flow.json文件读取
-    val fconfig: Future[GraphConfig] = Future {
-      GraphLoader.loadConfig("money", this.getClass.getClassLoader)
+  private def genTar(entityFuture: Future[DesignEntity])(implicit ec: ExecutionContext, mat: Materializer): Future[(Source[ByteString, Future[IOResult]], String)] = {
+    // 生成文件到/tmp/flow.json, 并产生GraphConfig
+    def getConfig(entity: DesignEntity): Future[GraphConfig] = {
+      val sink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(Paths.get("/tmp/flow.json"), Set(CREATE, WRITE))
+      val source  = Source.single(entity.json).map(str => ByteString(str))
+      source.toMat(sink)(Keep.right).run()
+    }.map { result: IOResult =>
+      GraphLoader.loadConfig(new FileInputStream("/tmp/flow.json"))
     }
 
-
-
     for {
-      config <- fconfig
+      entity <- entityFuture
+      config <- getConfig(entity)
       result <- CodeEngine.genAll(config)(coreSystem).map { entry =>
         val root = entry._1
         val name = entry._2
