@@ -30,7 +30,7 @@ create table flow_task(
 CREATE UNIQUE INDEX flowId_taskid_index ON flow_task(flow_id,task_id);
 
 -- 用户流程设计
-create table design(
+create table editor(
   id BIGINT not null auto_increment,
   name varchar(64) not null,
   json text(65532),
@@ -38,6 +38,7 @@ create table design(
   ts_c timestamp default current_timestamp,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE UNIQUE INDEX name_index ON editor(name);
 
 -- 流程部署
 create table deploy(

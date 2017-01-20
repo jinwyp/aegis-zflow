@@ -3,6 +3,7 @@ package com.yimei.zflow.engine.admin
 import java.io.{File, FileInputStream}
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption._
+import java.sql.Timestamp
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.ContentTypes.`application/octet-stream`
@@ -15,10 +16,11 @@ import akka.stream.{IOResult, Materializer}
 import akka.util.ByteString
 import com.yimei.zflow.api.models.flow.{FlowProtocol, GraphConfig}
 import com.yimei.zflow.engine.admin.Models._
-import com.yimei.zflow.engine.admin.db.DesignTable
-import com.yimei.zflow.engine.admin.db.Entities.DesignEntity
+import com.yimei.zflow.engine.admin.db.EditorTable
+import com.yimei.zflow.engine.admin.db.Entities.EditorEntity
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.util.Archiver
+import com.yimei.zflow.util.HttpResult.{PagerInfo, Result}
 import com.yimei.zflow.util.exception.BusinessException
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * Created by hary on 16/12/28.
   */
 
-trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
+trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
 
   import driver.api._
 
@@ -42,29 +44,47 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
       val page = if(p.isDefined) p.get else 1
       val pageSize = if(ps.isDefined) ps.get else 10
 
-      val designList = dbrun(designClass.sortBy(d => d.ts_c).map(d => (d.name, d.ts_c)).drop((page - 1) * pageSize).take(pageSize).result)
-      val res = for (d <- designList) yield {
-        d.map(d => DesignModel(d._1, d._2.get))
-      }
-      complete(res)
+      val total: Future[Int] = dbrun(editorClass.size.result)
+      val designList: Future[Seq[EditorModel]] = dbrun(editorClass.sortBy(d => d.ts_c).map(d => (d.name, d.ts_c)).drop((page - 1) * pageSize).take(pageSize).result)
+        .map { r => r.map(d => EditorModel(d._1, d._2.get))}
+
+      val result: Future[Result[Seq[EditorModel]]] = for {
+        t <- total
+        dl <- designList
+      } yield Result(data = Some(dl), meta = Some(PagerInfo(total = t, count = pageSize, offset = (page - 1) * pageSize + 1, page = page)))
+
+      complete(result)
     }
   }
 
   // 2> 用户加载流程设计  :  GET /design/graph/:name  --> JSON
   def loadDesign: Route = get {
     path("graph" / Segment) { name =>
-      val design: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
-      complete(design map { entity => DesignDetail(entity.id.get, entity.name, entity.json, entity.meta, entity.ts_c.get) })
+
+      val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result) map { d =>
+        if(d.isEmpty)
+          throw BusinessException("没有对应的元素！")
+        else
+          EditorDetail(d.head.name, d.head.json, d.head.meta, d.head.ts_c.get)
+      }
+
+      val result = for {
+        model <- design
+      } yield Result(data = Some(model))
+
+      complete(result)
     }
   }
 
   // 3> 保存流程设计:      POST /design/graph  + JSON
   def saveDesign: Route = post {
     path("graph") {
-      entity(as[SaveDesign]) { design =>
-        val designEntity = DesignEntity(None, design.name, design.json, design.meta, None)
-        dbrun(designClass.insertOrUpdate(designEntity))
-        complete(StatusCodes.OK)
+      entity(as[SaveEditor]) { design =>
+        val designEntity = EditorEntity(None, design.name, design.json.getOrElse(""), design.meta.getOrElse(""), None)
+        dbrun(editorClass.insertOrUpdate(designEntity))
+        val result = Result(data = Some("ok"))
+
+        complete(result)
       }
     }
   }
@@ -73,7 +93,7 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
   def download: Route = get {
     (extractExecutionContext & extractMaterializer & path("download" / Segment)) { (ec, mat, name) =>
 
-      val entity: Future[DesignEntity] = dbrun(designClass.filter(d => d.name === name).result.head)
+      val entity: Future[EditorEntity] = dbrun(editorClass.filter(d => d.name === name).result.head)
 
       onSuccess(genTar(entity)(ec, mat)) {
         case (source, name) =>
@@ -88,9 +108,9 @@ trait EditorRoute extends DesignTable with SprayJsonSupport with FlowProtocol {
     }
   }
 
-  private def genTar(entityFuture: Future[DesignEntity])(implicit ec: ExecutionContext, mat: Materializer): Future[(Source[ByteString, Future[IOResult]], String)] = {
+  private def genTar(entityFuture: Future[EditorEntity])(implicit ec: ExecutionContext, mat: Materializer): Future[(Source[ByteString, Future[IOResult]], String)] = {
     // 生成文件到/tmp/flow.json, 并产生GraphConfig
-    def getConfig(entity: DesignEntity): Future[GraphConfig] = {
+    def getConfig(entity: EditorEntity): Future[GraphConfig] = {
       val sink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(Paths.get("/tmp/flow.json"), Set(CREATE, WRITE))
       val source = Source.single(entity.json).map(str => ByteString(str))
       source.toMat(sink)(Keep.right).run()

@@ -15,13 +15,13 @@ object Models extends DefaultJsonProtocol with CommonJsonFormat {
   case class SaveDeploy(id: Option[Long], flow_type: String, jar: String, enable: Boolean, ts_c: Option[Timestamp])
   implicit val saveDeployFormat = jsonFormat5(SaveDeploy)
 
-  // design
-  case class SaveDesign(id: Option[Long], name: String, json: String, meta: String)
-  implicit val addDesignFormat = jsonFormat4(SaveDesign)
+  // editor
+  case class SaveEditor(id: Option[Long], name: String, json: Option[String], meta: Option[String])
+  implicit val addDesignFormat = jsonFormat4(SaveEditor)
 
-  case class DesignDetail(id: Long, name: String, json: String, meta: String, ts_c: Timestamp)
-  implicit val designDetailFormat = jsonFormat5(DesignDetail)
+  case class EditorDetail(name: String, json: String, meta: String, ts_c: Timestamp)
+  implicit val designDetailFormat = jsonFormat4(EditorDetail)
 
-  case class DesignModel(name: String, ts_c: Timestamp)
-  implicit val designListFormat = jsonFormat2(DesignModel)
+  case class EditorModel(name: String, ts_c: Timestamp)
+  implicit val designListFormat = jsonFormat2(EditorModel)
 }
