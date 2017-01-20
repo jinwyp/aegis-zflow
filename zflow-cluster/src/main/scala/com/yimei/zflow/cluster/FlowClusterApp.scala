@@ -53,9 +53,10 @@ object FlowClusterApp {
     val daemon = system.actorOf(DaemonMaster.props(names), "DaemonMaster")
 
     // 路由
-    object AppRoute extends {
-      implicit val coreSystem = system
-    } with OrganRoute with EngineRoute with AdminRoute {
+    object AppRoute extends OrganRoute with EngineRoute with AdminRoute {
+
+      override protected def mkSystem: ActorSystem = system
+
       override val log: LoggingAdapter = Logging(coreSystem, getClass)
 
       override val utaskTimeout: Timeout = Timeout(3.seconds)

@@ -8,8 +8,10 @@ import akka.stream.ActorMaterializer
   * Created by hary on 17/1/9.
   */
 trait Core {
-  implicit val coreSystem: ActorSystem
+  implicit val coreSystem: ActorSystem = mkSystem
   implicit val coreMaterializer = ActorMaterializer()
   val coreConfig = coreSystem.settings.config
   val log = Logging(coreSystem, this.getClass)
+
+  protected def mkSystem: ActorSystem = ActorSystem("FlowSystem")
 }

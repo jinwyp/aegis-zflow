@@ -12,28 +12,24 @@ import com.yimei.zflow.util.HttpResult._
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object ${code}UT extends {
-  override implicit val coreSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
-  """
-  |database {
-  |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
-  |  username = "mysql"
-  |  password = "mysql"
-  |}
-  """.stripMargin))
-} with Task${code} with DB {
+object ${code}UT extends Task${code} with DB {
+
+  override protected def mkSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
+        """
+        |database {
+        |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
+        |  username = "mysql"
+        |  password = "mysql"
+        |  flyway-schema = "schema"
+        |}
+        |file.root = "/tmp"
+        |akka.http.session.server-secret = "1234567891234567891234567891234567891234567890000012345678901234"
+        |
+        """.stripMargin))
+
+  def prepare() = FlywayDB(coreSystem).drop.migrate
   override val log: LoggingAdapter = Logging(coreSystem, this.getClass)
 
-  def prepare() = {
-    val config = coreSystem.settings.config
-    val jdbcUrl = config.getString("database.jdbcUrl")
-    val username = config.getString("database.username")
-    val password = config.getString("database.password")
-
-    val flyway = new FlywayDB(jdbcUrl, username, password)
-    flyway.drop()
-    flyway.migrate()
-  }
 }
 
 class Task${code}Test extends WordSpec with Matchers with ScalatestRouteTest {

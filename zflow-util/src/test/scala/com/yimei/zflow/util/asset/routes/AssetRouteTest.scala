@@ -12,30 +12,34 @@ import com.yimei.zflow.util.organ.OrganSession
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object AssetRouteUT extends {
-  implicit val coreSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
+object AssetRouteUT extends AssetRoute {
+
+  override protected def mkSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
     """
       |database {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
       |  username = "mysql"
       |  password = "mysql"
+      |  flyway-schema = "schema"
       |}
       |file.root = "/tmp"
       |akka.http.session.server-secret = "1234567891234567891234567891234567891234567890000012345678901234"
       |
     """.stripMargin))
-} with AssetRoute {
+
   val fileField = "file"
 
-  def prepare() = {
-    val config = coreSystem.settings.config
-    val jdbcUrl = config.getString("database.jdbcUrl")
-    val username = config.getString("database.username")
-    val password = config.getString("database.password")
-    val flyway = new FlywayDB(jdbcUrl, username, password);
-    flyway.drop()
-    flyway.migrate()
-  }
+  def prepare() = FlywayDB(coreSystem).drop.migrate
+
+//  {
+//    val config = coreSystem.settings.config
+//    val jdbcUrl = config.getString("database.jdbcUrl")
+//    val username = config.getString("database.username")
+//    val password = config.getString("database.password")
+//    val flyway = new FlywayDB(jdbcUrl, username, password);
+//    flyway.drop()
+//    flyway.migrate()
+//  }
 
   import akka.http.scaladsl.server.Directives._
 
@@ -76,7 +80,7 @@ class AssetRouteTest extends WordSpec
           Multipart.FormData.BodyPart.Strict(
             "file",
             HttpEntity(ContentTypes.`text/xml(UTF-8)`, xml),
-            Map("filename" -> "age.xml")  // 必须是filename, disposition parameters
+            Map("filename" -> "age.xml") // 必须是filename, disposition parameters
           )
         )
 

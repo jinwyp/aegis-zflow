@@ -11,28 +11,20 @@ import com.yimei.zflow.util.HttpResult._
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object UT extends {
-  override implicit val coreSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
+object UT extends PartyRoute {
+
+  override protected def mkSystem: ActorSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
     """
       |database {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
       |  username = "mysql"
       |  password = "mysql"
+      |  flyway-schema = "schema"
       |}
     """.stripMargin))
-} with PartyRoute {
+
   override val log: LoggingAdapter = Logging(coreSystem, this.getClass)
-
-  def prepare() = {
-    val config = coreSystem.settings.config
-    val jdbcUrl = config.getString("database.jdbcUrl")
-    val username = config.getString("database.username")
-    val password = config.getString("database.password")
-
-    val flyway = new FlywayDB(jdbcUrl, username, password)
-    flyway.drop()
-    flyway.migrate()
-  }
+  def prepare() = FlywayDB(coreSystem).drop.migrate
 }
 
 /**
