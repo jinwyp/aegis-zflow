@@ -44,22 +44,15 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
       val pageSize = ps.getOrElse(10)
       require(page > 0 && pageSize > 0, "分页参数不合法！")
 
-
-      val total: Future[Int] = dbrun(editorClass.size.result)
-      val designList: Future[Seq[EditorItem]] = dbrun(
-        editorClass.sortBy(d => d.ts_c)
+      val queryAction = editorClass.sortBy(d => d.ts_c)
           .map(d => (d.name, d.ts_c))
           .drop((page - 1) * pageSize)
-          .take(pageSize).result)
-        .map {
-          r => r.map(d => EditorItem(d._1, d._2.get))
-        }
-
+          .take(pageSize).result
 
       val result: Future[Result[Seq[EditorItem]]] = for {
-        t <- total
-        dl <- designList
-      } yield Result(data = Some(dl), meta = Some(PagerInfo(total = t, count = pageSize, offset = (page - 1) * pageSize + 1, page = page)))
+        total <- dbrun(editorClass.size.result)
+        dl <- dbrun(queryAction).map(_.map(d => EditorItem(d._1, d._2.get)))
+      } yield Result(data = Some(dl), meta = Some(PagerInfo(total = total, count = pageSize, offset = (page - 1) * pageSize + 1, page = page)))
 
       complete(result)
     }
@@ -72,7 +65,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
       val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result.head).map { d =>
           EditorDetail(d.name, d.json.getOrElse(""), d.meta.getOrElse(""), d.ts_c.get)
         } recover {
-        case _ => throw BusinessException("没有对应的元素！")
+        case NonFatal(e) => throw BusinessException("没有对应的元素！")
       }
 
       val result = for {
