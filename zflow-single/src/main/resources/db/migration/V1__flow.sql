@@ -27,6 +27,7 @@ create table flow_task(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 -- flow_id和task_id唯一索引
 CREATE UNIQUE INDEX flowId_taskid_index ON flow_task(flow_id,task_id);
+CREATE INDEX flowId_index ON flow_task(flow_id);
 
 -- 用户流程设计
 create table editor(

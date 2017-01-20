@@ -24,6 +24,7 @@ import com.yimei.zflow.util.HttpResult.{PagerInfo, Result}
 import com.yimei.zflow.util.exception.BusinessException
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 /**
   * Created by hary on 16/12/28.
@@ -43,6 +44,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
       val pageSize = ps.getOrElse(10)
       require(page > 0 && pageSize > 0, "分页参数不合法！")
 
+
       val total: Future[Int] = dbrun(editorClass.size.result)
       val designList: Future[Seq[EditorItem]] = dbrun(
         editorClass.sortBy(d => d.ts_c)
@@ -52,6 +54,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
         .map {
           r => r.map(d => EditorItem(d._1, d._2.get))
         }
+
 
       val result: Future[Result[Seq[EditorItem]]] = for {
         t <- total
@@ -66,8 +69,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
   def loadEditor: Route = get {
     path("editor" / Segment) { name =>
 
-      val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result.head)
-        .map { d =>
+      val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result.head).map { d =>
           EditorDetail(d.name, d.json.getOrElse(""), d.meta.getOrElse(""), d.ts_c.get)
         } recover {
         case _ => throw BusinessException("没有对应的元素！")
