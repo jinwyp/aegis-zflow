@@ -16,6 +16,7 @@ import com.yimei.zflow.util.exception.DatabaseException
 import org.apache.commons.io.{FileUtils, IOUtils}
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 /**
   * Created by hary on 16/12/28.
@@ -25,9 +26,9 @@ trait DeployRoute extends DB with DeployTable {
   import driver.api._
   //implicit val assetRouteExecutionContext = coreSystem.dispatcher
 
-  // POST /deploy/:flowType  + fileupload
+  // POST /:flowType  + fileupload
   private def deployUpload = (post & withSizeLimit(100 * 1024 * 1024)) {
-    (path("deploy" / Segment) & extractRequestContext) { (flowType, ctx) =>
+    (path(Segment) & extractRequestContext) { (flowType, ctx) =>
       implicit val materializer = ctx.materializer
       implicit val ec = ctx.executionContext
       // 实际作的应该是保存数据库, loadall
@@ -39,7 +40,7 @@ trait DeployRoute extends DB with DeployTable {
           val inputStream: InputStream = byteSource.toMat(sink)(Keep.right).run()
           val bytes: Array[Byte] = IOUtils.toByteArray(inputStream)
           val result: Future[Int] = dbrun(deployClass += DeployEntity(None, flowType, new SerialBlob(bytes), true, None)) recover {
-            case e =>
+            case NonFatal(e) =>
               log.error("{}", e)
               throw DatabaseException(s"deploy数据库插出错，${e.getMessage}")
           }
@@ -52,7 +53,7 @@ trait DeployRoute extends DB with DeployTable {
   }
 
   private def deploy = get {
-    (path("deploy" / Segment) & extractRequestContext) { (flowType, ctx) =>
+    (path(Segment) & extractRequestContext) { (flowType, ctx) =>
       implicit val materializer = ctx.materializer
       implicit val ec = ctx.executionContext
       val blob: Future[Blob] = dbrun(deployClass.filter(_.flow_type === flowType).map(_.jar).result.head)
@@ -73,7 +74,9 @@ trait DeployRoute extends DB with DeployTable {
     }
   }
 
-  def deployRoute: Route = deployUpload ~ deploy
+  def deployRoute: Route = path("deploy") {
+    deployUpload ~ deploy
+  }
 }
 
 

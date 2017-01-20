@@ -14,7 +14,6 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
   val DataPointManifest = classOf[DataPoint].getName
   val CommandCreateFlowManifest = classOf[CommandCreateFlow].getName
   val CreateFlowSuccessManifest = classOf[CreateFlowSuccess].getName
-  val CommandRunFlowManifest = classOf[CommandRunFlow].getName
   val CommandShutdownManifest = classOf[CommandShutdown].getName
   val CommandPointManifest = classOf[CommandPoint].getName
   val CommandPointsManifest = classOf[CommandPoints].getName
@@ -41,7 +40,6 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
     case DataPointManifest => new String(bytes).parseJson.convertTo[DataPoint]
     case CommandCreateFlowManifest => new String(bytes).parseJson.convertTo[CommandCreateFlow]
     case CreateFlowSuccessManifest => new String(bytes).parseJson.convertTo[CreateFlowSuccess]
-    case CommandRunFlowManifest => new String(bytes).parseJson.convertTo[CommandRunFlow]
     case CommandShutdownManifest => new String(bytes).parseJson.convertTo[CommandShutdown]
     case CommandPointManifest => new String(bytes).parseJson.convertTo[CommandPoint]
     case CommandPointsManifest => new String(bytes).parseJson.convertTo[CommandPoints]
@@ -71,7 +69,6 @@ class FlowSerialization extends SerializerWithStringManifest with FlowProtocol {
     case e: DataPoint => e.toJson.toString.getBytes
     case e: CommandCreateFlow => e.toJson.toString.getBytes
     case e: CreateFlowSuccess => e.toJson.toString.getBytes
-    case e: CommandRunFlow => e.toJson.toString.getBytes
     case e: CommandShutdown => e.toJson.toString.getBytes
     case e: CommandPoint => e.toJson.toString.getBytes
     case e: CommandPoints => e.toJson.toString.getBytes

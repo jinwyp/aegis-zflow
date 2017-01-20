@@ -1,10 +1,12 @@
 {
-  "initial": "V0",
-  "groupId": "com.yimei.zflow",
-  "artifact": "money",
-  "entry": "Money",
-  "timeout": 100,
-  "persistent": true,
+  "globalConfig": {
+    "initial": "V0",
+    "groupId": "com.yimei.zflow",
+    "artifact": "money",
+    "entry": "Money",
+    "timeout": 100,
+    "persistent": true
+  },
   "points": {
     "Wife":"妻子",
     "SuccessRate" : "申请成功率",

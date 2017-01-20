@@ -71,7 +71,7 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
 
   // 命令处理
   val serving: Receive = {
-    case cmd@CommandCreateFlow(flowType, guid, initData) =>
+    case cmd@CommandCreateFlow(flowId, initData) =>
       log.info(s"received ${cmd}")
       if (initData.size > 0 ) {
         val points = initData.map { entry =>

@@ -20,9 +20,9 @@ trait FlowService {
   // 2> 查询流程
   // 3> 管理员更新数据点
 
-  def flowCreate(guid: String, flowType: String, init: Map[String, String] = Map()): Future[FlowState] =
+  def flowCreate(flowId: String, init: Map[String, String] = Map()): Future[FlowState] =
     if (flow != null) {
-      (flow ? CommandCreateFlow(flowType, guid, init)) (flowServiceTimeout).mapTo[FlowState]
+      (flow ? CommandCreateFlow(flowId, init)) (flowServiceTimeout).mapTo[FlowState]
     } else {
       Future.failed(new Exception("flow is not prepared"))
     }

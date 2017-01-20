@@ -7,50 +7,55 @@ import ThymeleafConfig._
 /**
   * Created by hary on 17/1/11.
   */
-trait AdminRoute extends EditorRoute {
+trait AdminRoute {
 
+  // 开发
   def devView: Route = get {
-    path("dev") {
-      th("dev", context)
+    pathPrefix("dev") {
+      pathEndOrSingleSlash {
+        th("dev/index", context)
+      } ~
+        path("task") {
+          th("dev/task", context)
+        }
     }
   }
 
-  def taskView: Route = get {
-    path("task") {
-      th("task", context)
-    }
-  }
-
+  // 部署
   def deployView: Route = get {
-    path("deploy") {
-      th("deploy", context)
+    pathPrefix("deploy") {
+      pathEndOrSingleSlash {
+        th("deploy/index", context)
+      }
     }
   }
 
+  // 设计流程
   def editorView: Route = get {
-    path("editor") {
-      th("editor", context)
+    pathPrefix("editor") {
+      pathEndOrSingleSlash {
+        th("editor/index", context)
+      }
     }
   }
 
-  def graphView: Route = get {
-    path("graph") {
-      th("graph", context)
+  // 监控
+  def monitorView: Route = get {
+    pathPrefix("monitor") {
+      pathEndOrSingleSlash {
+        th("monitor/index", context)
+      } ~
+      path("graph") {
+        th("monitor/graph", context)
+      }
     }
   }
-
-  def indexView: Route = get {
-    pathEndOrSingleSlash {
-      th("index", context)
-    }
-  }
-
 
   val prefix = "../zflow-admin/frontend/"
 
   def adminRoute: Route =
     pathPrefix("admin") {
-      devView ~ taskView ~ deployView ~ editorView ~ graphView ~ indexView ~ editorRoute
+      devView ~ deployView ~ editorView ~ monitorView
     } ~ pathPrefix("static") {
       getFromDirectory(prefix)
     }

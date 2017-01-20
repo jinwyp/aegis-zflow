@@ -15,7 +15,8 @@ import scala.concurrent.Future
 class FlowRouteTest extends WordSpec with Matchers with ScalatestRouteTest with FlowRoute {
 
   // mock service
-  override def flowCreate(guid: String, flowType: String, init: Map[String, String]): Future[State] = super.flowCreate(guid, flowType, init)
+
+  override def flowCreate(flowId: String, init: Map[String, String]): Future[State] = super.flowCreate(flowId, init)
   override def flowGraph(flowId: String): Future[Graph] = super.flowGraph(flowId)
   override def flowState(flowId: String): Future[State] = super.flowState(flowId)
   override def flowUpdatePoints(flowId: String, updatePoint: Map[String, String], trigger: Boolean): Future[State] = super.flowUpdatePoints(flowId, updatePoint, trigger)

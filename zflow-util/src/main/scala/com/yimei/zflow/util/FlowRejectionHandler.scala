@@ -1,10 +1,11 @@
 package com.yimei.zflow.util
 
-import akka.http.scaladsl.model.HttpResponse
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.model.StatusCodes._
 import Directives._
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
+import com.yimei.zflow.util.HttpResult.{Error, Result}
 import com.yimei.zflow.util.config.Core
 
 /**
@@ -45,6 +46,8 @@ trait FlowRejectionHandler extends SprayJsonSupport with Core {
         complete((MethodNotAllowed, s"Can't do that! Supported: ${names mkString " or "}!"))
       }
     }
-      .handleNotFound { complete("Not here!") }
+      .handleNotFound {
+        complete(HttpResponse(StatusCodes.NotFound, entity = "Not found"))
+      }
       .result()
 }

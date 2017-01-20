@@ -84,7 +84,7 @@ object GraphLoader extends FlowProtocol {
 
     // todo need add start success and fail ?
     graphConfig = graphConfig.copy(edges = graphConfig.edges ++
-      Map("start" -> Edge(name = "start", begin = "God", end = graphConfig.initial),
+      Map("start" -> Edge(name = "start", begin = "God", end = graphConfig.globalConfig.initial),
         "success" -> Edge(name = "success", end = "success"),
         "fail" -> Edge(name = "fail", end = "success")
       )
@@ -114,8 +114,10 @@ object GraphLoader extends FlowProtocol {
 
     val graphConfig = loadConfig(classLoader)
 
+    val global = graphConfig.globalConfig
+
     // graphJar class and graphJar object
-    val mclass = classLoader.loadClass(s"${graphConfig.groupId}.${graphConfig.artifact}.${graphConfig.entry}" + "Graph$")
+    val mclass = classLoader.loadClass(s"${global.groupId}.${global.artifact}.${global.entry}" + "Graph$")
     val graphJar = mclass.getField("MODULE$").get(null)
 
 
@@ -123,16 +125,16 @@ object GraphLoader extends FlowProtocol {
     val allAutos = getAutoMap(mclass, graphJar);
 
     // graph intial vertex
-    val initial = graphConfig.initial
+    val initial = global.initial
 
     val jarRoute = getRoutes(mclass, graphJar)
 
     // 返回流程
     val g = new FlowGraph {
 
-      override val timeout: Long = graphConfig.timeout
+      override val timeout: Long = global.timeout
 
-      override val persistent: Boolean = graphConfig.persistent
+      override val persistent: Boolean = global.persistent
 
       override val points: Map[String, String] = graphConfig.points
 

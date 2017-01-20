@@ -17,11 +17,11 @@ object Models extends DefaultJsonProtocol with CommonJsonFormat {
 
   // editor
   case class SaveEditor(id: Option[Long], name: String, json: Option[String], meta: Option[String])
-  implicit val addDesignFormat = jsonFormat4(SaveEditor)
+  implicit val addEditorFormat = jsonFormat4(SaveEditor)
 
   case class EditorDetail(name: String, json: String, meta: String, ts_c: Timestamp)
   implicit val designDetailFormat = jsonFormat4(EditorDetail)
 
-  case class EditorModel(name: String, ts_c: Timestamp)
-  implicit val designListFormat = jsonFormat2(EditorModel)
+  case class EditorItem(name: String, ts_c: Timestamp)
+  implicit val designEditorFormat = jsonFormat2(EditorItem)
 }
