@@ -733,9 +733,8 @@
         }
     };
 
-    console.log(testData2)
 
-    angular.module('flowApp', ['cgNotify']);
+    angular.module('flowApp', ['cgNotify', 'ngTagsInput']);
 
     angular.module('flowApp').controller('vertexController', vertexController);
 
@@ -762,6 +761,7 @@
 
         vm.ouputData = '';
 
+
         vm.flow = {
             globalConfig : {
                 name: "",
@@ -773,8 +773,43 @@
                 persistent: true // 代表初始节点
             },
             points : [],
-            pointsUser : [],
-            pointsData : [],
+            pointsUser : [
+                {
+                    "id": "User1",
+                    "description": "User111111"
+
+                },
+                {
+                    "id": "User2",
+                    "description": "User22222"
+                }
+            ],
+            pointsData : [
+                {
+                    "id": "P1",
+                    "description": "P1111",
+                    "JSONSchema": {
+                        "type": "object",
+                        "properties": {
+                            "demoFieldName": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "P2",
+                    "description": "P2222",
+                    "JSONSchema": {
+                        "type": "object",
+                        "properties": {
+                            "demoFieldName": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            ],
             edges : [],
             nodes : []
         };
@@ -783,14 +818,13 @@
 
         vm.css = {
             showGlobalBox : '',
+            showTaskBox : 'list',
             showDataPointBox : '',
             showDataPointBoxAdd : '',
             showUserPointBox : '',
             showUserPointBoxAdd : ''
         };
         vm.selectType = 'node';
-        vm.taskEditType = 'list';
-        vm.pointEditType = '';
 
         vm.isNewNode = true;
         vm.taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
@@ -869,6 +903,7 @@
                 description : '',
                 points : [],
                 tasks : [],
+                users : [],
 
                 belongToEdge : {
                     id : '',
@@ -898,7 +933,6 @@
             JSONSchema : {}
         };
 
-        vm.newPointToTask = ''
 
 
         vm.changeGlobalBoxShowType = function(type){
@@ -921,13 +955,11 @@
             vm.css.showUserPointBoxAdd = type;
         }
 
-
-
         vm.changeSelectType = function(type){
             vm.selectType = type;
         }
         vm.changeTaskEditType = function(type){
-            vm.taskEditType = type;
+            vm.css.showTaskBox = type;
         }
 
 
@@ -1071,7 +1103,7 @@
                         id : vm.newTask.data.id,
                         type : vm.newTask.data.type,
                         description : vm.newTask.data.description,
-                        points : [],
+                        points : vm.newTask.data.points,
                         belongToEdge : {
                             id : vm.currentEdge.data.id,
                             source : vm.currentEdge.data.source,
@@ -1080,16 +1112,40 @@
                     }
                 };
 
+                var newTempFatherTask = {
+                    classes : 'node task ' + vm.newTask.data.type,
+                    data : {
+                        id : vm.newTask.data.id,
+                        type : vm.newTask.data.type,
+                        tasks : [newTempTask]
+                    }
+                }
+
+                if (vm.newTask.data.type === 'partUTasks' ){
+                    newTempFatherTask.data.guidKey = vm.newTask.data.users[0]
+                }
+
+                if (vm.newTask.data.type === 'partGTasks' ){
+                    newTempFatherTask.data.ggidKey = vm.newTask.data.users[0]
+                }
+
                 vm.taskTypeList.forEach(function(type, typeIndex){
                     if (vm.newTask.data.type === type){
-                        vm.currentEdge.data[type].push(newTempTask);
+                        if (vm.newTask.data.type === 'partUTasks' || vm.newTask.data.type === 'partGTasks' ){
+                            vm.currentEdge.data[type].push(newTempFatherTask);
+                            vm.currentEdge.data.allTask.push(newTempFatherTask);
+                        }else{
+                            vm.currentEdge.data[type].push(newTempTask);
+                            vm.currentEdge.data.allTask.push(newTempTask);
+                        }
                     }
                 })
 
-                vm.currentEdge.data.allTask.push(newTempTask);
 
+                // 更新流程图
                 cytoscapeChart.getElementById( vm.currentEdge.data.id ).data(vm.currentEdge.data);
 
+                // 更新当前边的数据
                 vm.flow.edges.forEach(function (edge, edgeIndex) {
                     if (edge.data.id === vm.currentEdge.data.id){
                         edge.data = vm.currentEdge.data
@@ -1109,7 +1165,6 @@
         vm.addNewPoint = function(form, type){
 
             var tempPoint = {};
-
 
             if (form.$valid){
 
@@ -1160,30 +1215,6 @@
                 message: '保存成功!'
             });
 
-        }
-
-        vm.addPointIntoTask = function(task){
-            if (pointIdList.indexOf(vm.newPointToTask) === -1 ){
-                alert('没有改点' + vm.newPointToTask)
-                return;
-            }
-
-            var tempPointIdList = task.data.points.map(function(point, pointIndex){
-                return point.id
-            })
-
-            if (tempPointIdList.indexOf(vm.newPointToTask) > -1 ){
-                alert('已经添加过该点:' + vm.newPointToTask)
-                return;
-            }
-
-            vm.flow.points.forEach(function(point, pointIndex){
-                if (point.id === vm.newPointToTask){
-                    task.data.points.push(point)
-                }
-            })
-
-            console.log(task)
         }
 
 
@@ -1285,13 +1316,13 @@
 
         var app = {
             init : function(){
-                // jQuery.getJSON('/json/data5.json', function(resultData){
-                //
-                //     formattedData = cytoscapeFormatterObjectToArray(resultData)
-                //
-                // })
-                // this.drawChart(formattedData);
-                this.drawChart(testData2);
+                jQuery.getJSON('/zflow/static/json/data5.json', function(resultData){
+
+                    formattedData = cytoscapeFormatterObjectToArray(resultData)
+
+                })
+                this.drawChart(formattedData);
+                // this.drawChart(testData2);
             },
 
             drawChart : function(sourceData){

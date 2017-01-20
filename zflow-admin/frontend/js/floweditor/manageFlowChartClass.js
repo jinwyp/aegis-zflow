@@ -210,7 +210,9 @@
                 partUTasks : [],
                 partGTasks : [],
 
-                points : []
+                points : [],
+                pointsData : [],
+                pointsUser : []
             }
         };
 
@@ -344,27 +346,14 @@
 
                     source[taskType][task].points.forEach(function(point, pointIndex){
                         var tempPoint = {
-                            classes : 'point ',
-                            data : {
-                                id : point,
-                                description : sourceAllData.points[point],
-                                JSONSchema : {
-                                    "title": "Example Schema",
-                                    "type": "object",
-                                    "properties": {
-                                        "firstName": {
-                                            "type": "string"
-                                        },
-                                        "lastName": {
-                                            "type": "string"
-                                        },
-                                        "age": {
-                                            "description": "Age in years",
-                                            "type": "integer",
-                                            "minimum": 0
-                                        }
-                                    },
-                                    "required": ["firstName", "lastName"]
+                            id : point,
+                            description : sourceAllData.points[point],
+                            JSONSchema : {
+                                "type": "object",
+                                "properties": {
+                                    "demoFieldName": {
+                                        "type": "string"
+                                    }
                                 }
                             }
                         }
@@ -379,27 +368,14 @@
 
                     source['userTasks'][task].points.forEach(function(point, pointIndex){
                         var tempPoint = {
-                            classes : 'point ',
-                            data : {
-                                id : point,
-                                description : sourceAllData.points[point],
-                                JSONSchema : {
-                                    "title": "Example Schema",
-                                    "type": "object",
-                                    "properties": {
-                                        "firstName": {
-                                            "type": "string"
-                                        },
-                                        "lastName": {
-                                            "type": "string"
-                                        },
-                                        "age": {
-                                            "description": "Age in years",
-                                            "type": "integer",
-                                            "minimum": 0
-                                        }
-                                    },
-                                    "required": ["firstName", "lastName"]
+                            id : point,
+                            description : sourceAllData.points[point],
+                            JSONSchema : {
+                                "type": "object",
+                                "properties": {
+                                    "demoFieldName": {
+                                        "type": "string"
+                                    }
                                 }
                             }
                         }
