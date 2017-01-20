@@ -729,11 +729,11 @@
             "autoTasks"  : [],
             "allTask"  : [],
 
-            points : []
+            "points" : []
         }
     };
 
-
+    console.log(testData2)
 
     angular.module('flowApp', ['cgNotify']);
 
@@ -745,7 +745,7 @@
         notify.config({
             position: 'right',
             duration: 20000,
-            templateUrl : '/lib/angular-notify/angular-notify.html'
+            templateUrl : '/zflow/static/lib/angular-notify/angular-notify.html'
         });
 
 
@@ -764,19 +764,30 @@
 
         vm.flow = {
             globalConfig : {
-                name : '',
+                name: "",
+                artifact: "money",
+                entry: "Money",
+                groupId : 'com.yimei.zflow',
                 initial : 'Start',  // 代表初始节点
                 timeout: 100, // 超时时间配置(图的属性)
-                flowType: '',  //流程类型
-                persistent: false // 代表初始节点
+                persistent: true // 代表初始节点
             },
             points : [],
+            pointsUser : [],
+            pointsData : [],
             edges : [],
             nodes : []
         };
 
 
 
+        vm.css = {
+            showGlobalBox : '',
+            showDataPointBox : '',
+            showDataPointBoxAdd : '',
+            showUserPointBox : '',
+            showUserPointBoxAdd : ''
+        };
         vm.selectType = 'node';
         vm.taskEditType = 'list';
         vm.pointEditType = '';
@@ -795,7 +806,11 @@
             taskExist : false,
             ajax : false
         };
-        vm.errorAddNewPoint = {
+        vm.errorAddNewPointData = {
+            pointExist : false,
+            ajax : false
+        };
+        vm.errorAddNewPointUser = {
             pointExist : false,
             ajax : false
         };
@@ -863,7 +878,7 @@
             }
         };
 
-        vm.newPoint = {
+        vm.newPointData = {
             id : '',
             description : '',
             JSONSchema : {
@@ -876,7 +891,57 @@
                 }
             }
         };
+
+        vm.newPointUser = {
+            id : '',
+            description : '',
+            JSONSchema : {}
+        };
+
         vm.newPointToTask = ''
+
+
+        vm.changeGlobalBoxShowType = function(type){
+            vm.css.showGlobalBox = type;
+        }
+        vm.changePointDataBoxShowType = function(type){
+            vm.css.showDataPointBox = type;
+            vm.css.showDataPointBoxAdd = '';
+        }
+        vm.changePointDataAddBoxShowType = function(type){
+            vm.css.showDataPointBox = '';
+            vm.css.showDataPointBoxAdd = type;
+        }
+        vm.changePointUserBoxShowType = function(type){
+            vm.css.showUserPointBox = type;
+            vm.css.showUserPointBoxAdd = '';
+        }
+        vm.changePointUserAddBoxShowType = function(type){
+            vm.css.showUserPointBox = '';
+            vm.css.showUserPointBoxAdd = type;
+        }
+
+
+
+        vm.changeSelectType = function(type){
+            vm.selectType = type;
+        }
+        vm.changeTaskEditType = function(type){
+            vm.taskEditType = type;
+        }
+
+
+        vm.convertDataArray = function () {
+            vm.css.showGlobalBox = 'output'
+            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points)
+            console.log(vm.ouputData)
+        }
+
+        vm.convertDataObj = function () {
+            vm.css.showGlobalBox = 'output'
+            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points))
+            console.log(vm.ouputData)
+        }
 
 
         vm.saveGlobal = function (form) {
@@ -1041,27 +1106,53 @@
         }
 
 
-        vm.addNewPoint = function(form){
+        vm.addNewPoint = function(form, type){
+
+            var tempPoint = {};
+
 
             if (form.$valid){
-                if (pointIdList.indexOf(vm.newPoint.id) > -1 ){
-                    vm.errorAddNewPoint.pointExist = true;
-                    return;
-                }else{
-                    vm.errorAddNewPoint.pointExist = false;
-                    pointIdList.push(vm.newPoint.id)
+
+                if (type === 'data'){
+                    if (pointIdList.indexOf(vm.newPointData.id) > -1 ){
+                        vm.errorAddNewPointData.pointExist = true;
+                        return;
+                    }else{
+                        vm.errorAddNewPointData.pointExist = false;
+                        pointIdList.push(vm.newPointData.id)
+
+                        tempPoint = {
+                            id : vm.newPointData.id,
+                            description : vm.newPointData.description,
+                            JSONSchema : {
+                                "type": "object",
+                                "properties": vm.newPointData.JSONSchema.properties
+                            }
+                        };
+
+                        vm.flow.pointsData.push(tempPoint);
+
+                    }
+                }
+
+                if (type === 'user'){
+                    if (pointIdList.indexOf(vm.newPointUser.id) > -1 ){
+                        vm.errorAddNewPointUser.pointExist = true;
+                        return;
+                    }else{
+                        vm.errorAddNewPointUser.pointExist = false;
+                        pointIdList.push(vm.newPointUser.id)
+
+                        tempPoint = {
+                            id : vm.newPointUser.id,
+                            description : vm.newPointUser.description
+                        };
+
+                        vm.flow.pointsUser.push(tempPoint);
+                    }
                 }
             }
 
-            var tempPoint = {
-                id : vm.newPoint.id,
-                description : vm.newPoint.description,
-                JSONSchema : {
-                    "type": "object",
-                    "properties": vm.newPoint.JSONSchema.properties
-                }
-
-            };
             vm.flow.points.push(tempPoint);
 
             notify({
@@ -1096,15 +1187,6 @@
         }
 
 
-        vm.changeSelectType = function(type){
-            vm.selectType = type;
-        }
-        vm.changeTaskEditType = function(type){
-            vm.taskEditType = type;
-        }
-        vm.changePointEditType = function(type){
-            vm.pointEditType = type;
-        }
 
         function jsonEditor (id, schema){
             return new JSONEditor(document.getElementById(id),{
@@ -1113,29 +1195,22 @@
                 theme : 'bootstrap3'
             });
         }
-        vm.selectPoint = function(type, point){
-            vm.pointEditType = type;
+        vm.selectDataPoint = function(type, point){
+            vm.css.showDataPointBox = type;
             vm.currentPoint = point;
             if (JSONSchemaEditor) JSONSchemaEditor.destroy();
             JSONSchemaEditor = jsonEditor('json_editor_box', vm.currentPoint.JSONSchema)
         }
-        vm.savePointSchema = function(type, point){
+        vm.savePointSchema = function(){
             console.log(JSONSchemaEditor.getValue());
             vm.currentPoint.JSONSchema.properties = JSONSchemaEditor.getValue().properties
+            vm.css.showDataPointBox = 'list'
         }
 
 
 
 
-        vm.convertDataArray = function () {
-            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points)
-            console.log(vm.ouputData)
-        }
 
-        vm.convertDataObj = function () {
-            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points))
-            console.log(vm.ouputData)
-        }
 
 
 
@@ -1208,24 +1283,24 @@
 
         };
 
-
-
         var app = {
             init : function(){
-                jQuery.getJSON('/json/data5.json', function(resultData){
-
-                    formattedData = cytoscapeFormatterObjectToArray(resultData)
-                    formattedData = testData2
-                })
-                this.drawChart();
+                // jQuery.getJSON('/json/data5.json', function(resultData){
+                //
+                //     formattedData = cytoscapeFormatterObjectToArray(resultData)
+                //
+                // })
+                // this.drawChart(formattedData);
+                this.drawChart(testData2);
             },
-            drawChart : function(){
+
+            drawChart : function(sourceData){
                 var configChart = {
                     domId : 'chart',
                     eventCB : chartEventCallback
                 };
 
-                cytoscapeChart = new flowChart2(formattedData, configChart);
+                cytoscapeChart = new flowChart2(sourceData, configChart);
                 // cytoscapeChart.center()
                 // cytoscapeChart.pan({
                 //     x: 10,
@@ -1235,22 +1310,22 @@
                 console.log(cytoscapeChart.width())
 
 
-                vm.flow.edges = formattedData.edges;
-                vm.flow.nodes = formattedData.nodes;
-                vm.flow.points = formattedData.formattedSource.points;
+                vm.flow.edges = sourceData.edges;
+                vm.flow.nodes = sourceData.nodes;
+                vm.flow.points = sourceData.formattedSource.points;
 
                 console.log(vm.flow)
 
-                nodeIdList = formattedData.nodes.map(function(vertex, vertexIndex){
+                nodeIdList = sourceData.nodes.map(function(vertex, vertexIndex){
                     return vertex.data.id
                 })
-                edgeIdList = formattedData.edges.map(function(edge, edgeIndex){
+                edgeIdList = sourceData.edges.map(function(edge, edgeIndex){
                     return edge.data.id
                 })
-                taskIdList = formattedData.formattedSource.allTask.map(function(task, taskIndex){
+                taskIdList = sourceData.formattedSource.allTask.map(function(task, taskIndex){
                     return task.data.id
                 })
-                pointIdList = formattedData.formattedSource.points.map(function(point, pointIndex){
+                pointIdList = sourceData.formattedSource.points.map(function(point, pointIndex){
                     return point.data.id
                 })
             }
