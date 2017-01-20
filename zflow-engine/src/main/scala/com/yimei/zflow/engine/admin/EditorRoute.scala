@@ -24,6 +24,7 @@ import com.yimei.zflow.util.HttpResult.{PagerInfo, Result}
 import com.yimei.zflow.util.exception.BusinessException
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 /**
   * Created by hary on 16/12/28.
@@ -39,14 +40,19 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
   def listEditor: Route = get {
     (path("editor") & parameter('page.as[Int].?) & parameter('pageSize.as[Int].?)) { (p, ps) =>
 
-      if((p.isDefined && p.get < 0) || (ps.isDefined && ps.get < 0)) throw BusinessException("分页参数有误！")
-
-      val page = if(p.isDefined) p.get else 1
-      val pageSize = if(ps.isDefined) ps.get else 10
+      val page = p.getOrElse(1)
+      val pageSize = ps.getOrElse(10)
+      require(page < 0  || pageSize < 0, "分页参数有误！")
 
       val total: Future[Int] = dbrun(editorClass.size.result)
-      val designList: Future[Seq[EditorItem]] = dbrun(editorClass.sortBy(d => d.ts_c).map(d => (d.name, d.ts_c)).drop((page - 1) * pageSize).take(pageSize).result)
-        .map { r => r.map(d => EditorItem(d._1, d._2.get))}
+      val designList: Future[Seq[EditorItem]] = dbrun(
+        editorClass.sortBy(d => d.ts_c)
+          .map(d => (d.name, d.ts_c))
+          .drop((page - 1) * pageSize)
+          .take(pageSize).result
+      ).map {
+        r => r.map(d => EditorItem(d._1, d._2.get))
+      }
 
       val result: Future[Result[Seq[EditorItem]]] = for {
         t <- total
@@ -61,11 +67,11 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
   def loadEditor: Route = get {
     path("editor" / Segment) { name =>
 
-      val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result) map { d =>
-        if(d.isEmpty)
+      val design: Future[EditorEntity] = dbrun(editorClass.filter(d => d.name === name).result.head).map {
+        EditorDetail(_.name, _.json, _.meta, _.ts_c.get)
+      } recover {
+        case NonFatal(e) =>
           throw BusinessException("没有对应的元素！")
-        else
-          EditorDetail(d.head.name, d.head.json, d.head.meta, d.head.ts_c.get)
       }
 
       val result = for {
