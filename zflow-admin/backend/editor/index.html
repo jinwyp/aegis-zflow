@@ -365,7 +365,7 @@
                                             <tr ng-show="vm.currentEdge.data.allTask.length === 0">
                                                 <td colspan="4" class="text-center"> 暂无数据 </td>
                                             </tr>
-                                            <tr ng-repeat="task in vm.currentEdge.data.allTask track by task.data.id">
+                                            <tr ng-repeat="task in vm.currentEdge.data.allTask">
                                                 <td>
                                                     <span ng-if="task.data.type === 'userTasks'">流程发起人任务 userTasks </span> <!-- interpolation -->
                                                     <span ng-if="task.data.type === 'autoTasks'">自动任务 autoTasks</span>
@@ -374,19 +374,19 @@
                                                 </td>
                                                 <td>
                                                     <span ng-if="task.data.type === 'partUTasks'">{{task.data.guidKey.id}} - {{task.data.guidKey.description}}</span>
-                                                    <span ng-if="task.data.type === 'partGTasks'">{{task.data.ggidKey}} - {{task.data.ggidKey.description}}</span>
+                                                    <span ng-if="task.data.type === 'partGTasks'">{{task.data.ggidKey.id}} - {{task.data.ggidKey.description}}</span>
                                                 </td>
                                                 <td>
                                                     <span ng-if="task.data.type === 'userTasks' || task.data.type === 'autoTasks' "> {{task.data.id}} / {{task.data.description}}</span>
                                                     <div ng-if="task.data.type === 'partUTasks' || task.data.type === 'partGTasks' ">
-                                                        <span ng-repeat="task in task.data.tasks">{{task.data.id}} {{task.data.description}} <br> </span>
+                                                        <span ng-repeat="subTask in task.data.tasks">{{subTask.data.id}} {{subTask.data.description}} <br> </span>
                                                     </div>
                                                 </td>
 
                                                 <td>
                                                     <span  ng-repeat="point in task.data.points">{{point.id}}:{{point.description}} <br> </span>
-                                                    <div ng-if="task.data.type === 'partUTasks' || task.data.type === 'partGTasks'" ng-repeat="task in task.data.tasks">
-                                                        <span  ng-repeat="point in task.data.points">{{point.id}}:{{point.description}} <br> </span>
+                                                    <div ng-if="task.data.type === 'partUTasks' || task.data.type === 'partGTasks'" ng-repeat="subTask in task.data.tasks">
+                                                        <span  ng-repeat="point in subTask.data.points">{{point.id}}:{{point.description}} <br> </span>
                                                     </div>
                                                 </td>
 

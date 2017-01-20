@@ -1344,6 +1344,8 @@
                 vm.flow.edges = sourceData.edges;
                 vm.flow.nodes = sourceData.nodes;
                 vm.flow.points = sourceData.formattedSource.points;
+                vm.flow.pointsUser = sourceData.formattedSource.pointsUser;
+                vm.flow.pointsData = sourceData.formattedSource.pointsData;
 
                 console.log(vm.flow)
 
@@ -1357,7 +1359,7 @@
                     return task.data.id
                 })
                 pointIdList = sourceData.formattedSource.points.map(function(point, pointIndex){
-                    return point.data.id
+                    return point.id
                 })
             }
         };
