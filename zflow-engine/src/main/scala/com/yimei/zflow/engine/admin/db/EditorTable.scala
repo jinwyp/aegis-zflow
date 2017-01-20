@@ -15,8 +15,8 @@ trait EditorTable extends DB {
   class EditorClass(tag: Tag) extends Table[EditorEntity](tag, "editor") {
     def id        = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
     def name      = column[String]("name")
-    def json      = column[String]("json")
-    def meta      = column[String]("meta")
+    def json      = column[Option[String]]("json")
+    def meta      = column[Option[String]]("meta")
     def ts_c      = column[Option[Timestamp]]("ts_c")
 
     def * = (id, name, json, meta, ts_c) <> (EditorEntity.tupled, EditorEntity.unapply)
