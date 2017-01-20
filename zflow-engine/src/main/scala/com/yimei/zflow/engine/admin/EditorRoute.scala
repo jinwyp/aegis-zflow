@@ -42,17 +42,19 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
 
       val page = p.getOrElse(1)
       val pageSize = ps.getOrElse(10)
-      require(page < 0  || pageSize < 0, "分页参数有误！")
+      require(page > 0 && pageSize > 0, "分页参数不合法！")
+
 
       val total: Future[Int] = dbrun(editorClass.size.result)
       val designList: Future[Seq[EditorItem]] = dbrun(
         editorClass.sortBy(d => d.ts_c)
           .map(d => (d.name, d.ts_c))
           .drop((page - 1) * pageSize)
-          .take(pageSize).result
-      ).map {
-        r => r.map(d => EditorItem(d._1, d._2.get))
-      }
+          .take(pageSize).result)
+        .map {
+          r => r.map(d => EditorItem(d._1, d._2.get))
+        }
+
 
       val result: Future[Result[Seq[EditorItem]]] = for {
         t <- total
@@ -67,11 +69,10 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
   def loadEditor: Route = get {
     path("editor" / Segment) { name =>
 
-      val design: Future[EditorEntity] = dbrun(editorClass.filter(d => d.name === name).result.head).map {
-        EditorDetail(_.name, _.json, _.meta, _.ts_c.get)
-      } recover {
-        case NonFatal(e) =>
-          throw BusinessException("没有对应的元素！")
+      val design: Future[EditorDetail] = dbrun(editorClass.filter(d => d.name === name).result.head).map { d =>
+          EditorDetail(d.name, d.json.getOrElse(""), d.meta.getOrElse(""), d.ts_c.get)
+        } recover {
+        case _ => throw BusinessException("没有对应的元素！")
       }
 
       val result = for {
@@ -86,7 +87,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
   def saveEditor: Route = post {
     path("editor") {
       entity(as[SaveEditor]) { design =>
-        val designEntity = EditorEntity(None, design.name, design.json.getOrElse(""), design.meta.getOrElse(""), None)
+        val designEntity = EditorEntity(None, design.name, design.json, design.meta, None)
         dbrun(editorClass.insertOrUpdate(designEntity))
         val result = Result(data = Some("ok"))
 
@@ -118,7 +119,7 @@ trait EditorRoute extends EditorTable with SprayJsonSupport with FlowProtocol {
     // 生成文件到/tmp/flow.json, 并产生GraphConfig
     def getConfig(entity: EditorEntity): Future[GraphConfig] = {
       val sink: Sink[ByteString, Future[IOResult]] = FileIO.toPath(Paths.get("/tmp/flow.json"), Set(CREATE, WRITE))
-      val source = Source.single(entity.json).map(str => ByteString(str))
+      val source = Source.single(entity.json.get).map(str => ByteString(str))
       source.toMat(sink)(Keep.right).run()
     }.map { result: IOResult =>
       GraphLoader.loadConfig(new FileInputStream("/tmp/flow.json"))

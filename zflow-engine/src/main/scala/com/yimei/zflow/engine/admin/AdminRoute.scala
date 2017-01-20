@@ -50,13 +50,13 @@ trait AdminRoute extends ThymeleafConfig {
     }
   }
 
-  val staticPrefix = coreConfig.getString("static.root")
+  val staticPrefix = coreConfig.getString("static.path")
 
   def adminRoute: Route =
     pathPrefix("admin") {
       devView ~ deployView ~ editorView ~ monitorView
     } ~ pathPrefix("static") {
-      getFromDirectory(prefix)
+      getFromDirectory(staticPrefix)
     }
 
 }
