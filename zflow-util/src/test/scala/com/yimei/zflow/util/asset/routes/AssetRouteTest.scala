@@ -20,6 +20,7 @@ object AssetRouteUT extends AssetRoute {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
       |  username = "mysql"
       |  password = "mysql"
+      |  flyway-schema = "schema"
       |}
       |file.root = "/tmp"
       |akka.http.session.server-secret = "1234567891234567891234567891234567891234567890000012345678901234"
@@ -28,15 +29,17 @@ object AssetRouteUT extends AssetRoute {
 
   val fileField = "file"
 
-  def prepare() = {
-    val config = coreSystem.settings.config
-    val jdbcUrl = config.getString("database.jdbcUrl")
-    val username = config.getString("database.username")
-    val password = config.getString("database.password")
-    val flyway = new FlywayDB(jdbcUrl, username, password);
-    flyway.drop()
-    flyway.migrate()
-  }
+  def prepare() = FlywayDB(coreSystem).drop.migrate
+
+//  {
+//    val config = coreSystem.settings.config
+//    val jdbcUrl = config.getString("database.jdbcUrl")
+//    val username = config.getString("database.username")
+//    val password = config.getString("database.password")
+//    val flyway = new FlywayDB(jdbcUrl, username, password);
+//    flyway.drop()
+//    flyway.migrate()
+//  }
 
   import akka.http.scaladsl.server.Directives._
 
