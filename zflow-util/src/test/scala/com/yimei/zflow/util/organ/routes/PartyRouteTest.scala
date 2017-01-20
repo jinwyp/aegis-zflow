@@ -11,8 +11,9 @@ import com.yimei.zflow.util.HttpResult._
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object UT extends {
-  override implicit val coreSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
+object UT extends PartyRoute {
+
+  override protected def mkSystem: ActorSystem = ActorSystem("RouteTest", ConfigFactory.parseString(
     """
       |database {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
@@ -20,7 +21,7 @@ object UT extends {
       |  password = "mysql"
       |}
     """.stripMargin))
-} with PartyRoute {
+
   override val log: LoggingAdapter = Logging(coreSystem, this.getClass)
 
   def prepare() = {
