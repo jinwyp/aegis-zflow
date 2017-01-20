@@ -15,17 +15,15 @@ trait IdBufferable {
 
   val bufferSize: Int   // need overriede
   val bufferKey: String
-
-  var curId: Long =  0
-  var max:Long  = 0;
-
-  implicit val myEc: ExecutionContext
-  implicit val myTimeout: Timeout
   val myIdGenerator: ActorRef
 
-  def nextId = {
+  private[this] var curId: Long =  0
+  private[this] var max:Long  = 0;
+
+
+  def nextId(implicit ec: ExecutionContext, timeout: Timeout)  = {
     if(curId == 0 || curId == max) {
-      getBuffer
+      getBuffer(ec, timeout)
     }
     val ret = curId;
     curId = curId + 1
@@ -33,7 +31,7 @@ trait IdBufferable {
   }
 
 
-  private def getBuffer() = {
+  private def getBuffer(implicit ec: ExecutionContext, timeout: Timeout) = {
     val fpid = (myIdGenerator ? CommandGetId(bufferKey, bufferSize)).mapTo[Id]
     curId = Await.result(fpid, 2.seconds).id
     max = curId + bufferSize;

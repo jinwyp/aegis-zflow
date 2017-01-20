@@ -15,7 +15,7 @@ object Models extends DefaultJsonProtocol with CommonJsonFormat {
   case class SaveDeploy(id: Option[Long], flow_type: String, jar: String, enable: Boolean, ts_c: Option[Timestamp])
   implicit val saveDeployFormat = jsonFormat5(SaveDeploy)
 
-  // design
+  // Editor
   case class SaveDesign(id: Option[Long], name: String, json: String, meta: String)
   implicit val addDesignFormat = jsonFormat4(SaveDesign)
 
