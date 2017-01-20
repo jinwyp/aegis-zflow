@@ -198,6 +198,8 @@
     var formatterObjectToArray = function(source){
 
         var tempNodesId = [];
+        var tempPointsUserId = [];
+        var tempPointsDataId = [];
         var result = {
             nodes : [],
             edges : [],
@@ -358,8 +360,13 @@
                             }
                         }
                         newTask.data.points.push(tempPoint)
-                        result.formattedSource.pointsData.push(tempPoint)
-                        result.formattedSource.points.push(tempPoint)
+
+                        if (tempPointsDataId.indexOf(tempPoint.id) === -1){
+                            tempPointsDataId.push(tempPoint.id)
+                            result.formattedSource.pointsData.push(tempPoint)
+                            result.formattedSource.points.push(tempPoint)
+                        }
+
                     })
                 }
 
@@ -381,8 +388,12 @@
                             }
                         }
                         newTask.data.points.push(tempPoint)
-                        result.formattedSource.pointsData.push(tempPoint)
-                        result.formattedSource.points.push(tempPoint)
+
+                        if (tempPointsDataId.indexOf(tempPoint.id) === -1){
+                            tempPointsDataId.push(tempPoint.id)
+                            result.formattedSource.pointsData.push(tempPoint)
+                            result.formattedSource.points.push(tempPoint)
+                        }
                     })
                 }
 
@@ -468,8 +479,12 @@
                                         tempFatherTask.data.id = task.ggidKey;
                                     }
 
-                                    result.formattedSource.pointsUser.push(tempPoint)
-                                    result.formattedSource.points.push(tempPoint)
+                                    if (tempPointsUserId.indexOf(tempPoint.id) === -1){
+                                        tempPointsUserId.push(tempPoint.id)
+                                        result.formattedSource.pointsUser.push(tempPoint)
+                                        result.formattedSource.points.push(tempPoint)
+                                    }
+
 
 
                                     // 生成新的 subTask
