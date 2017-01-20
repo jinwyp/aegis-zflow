@@ -12,6 +12,7 @@ import com.yimei.zflow.api.GlobalConfig._
 import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.single.DaemonMaster
+import com.yimei.zflow.single.FlowApp._
 import com.yimei.zflow.util.asset.routes.AssetRoute
 import com.yimei.zflow.util.organ.OrganRoute
 import com.yimei.zflow.util.{FlowExceptionHandler, FlowRejectionHandler, FlywayDB}
@@ -20,11 +21,9 @@ import scala.concurrent.duration._
 
 /**
   * Created by hary on 17/1/9.
-  */
-object MoneyApp extends {
   implicit val coreSystem = ActorSystem("FlowSystem")
-} with App with FlowExceptionHandler with FlowRejectionHandler with EngineRoute with OrganRoute with AdminRoute with AssetRoute{
-
+  */
+object MoneyApp extends App with FlowExceptionHandler with FlowRejectionHandler with EngineRoute with OrganRoute with AdminRoute with AssetRoute{
 
   override val fileField: String = "file"
   override val utaskTimeout = Timeout(3.seconds)

@@ -12,8 +12,9 @@ import com.yimei.zflow.util.organ.OrganSession
 import org.scalatest.{Inside, Matchers, WordSpec}
 
 
-object AssetRouteUT extends {
-  implicit val coreSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
+object AssetRouteUT extends AssetRoute {
+
+  override protected def mkSystem: ActorSystem = ActorSystem("TestSystem", ConfigFactory.parseString(
     """
       |database {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
@@ -24,7 +25,7 @@ object AssetRouteUT extends {
       |akka.http.session.server-secret = "1234567891234567891234567891234567891234567890000012345678901234"
       |
     """.stripMargin))
-} with AssetRoute {
+
   val fileField = "file"
 
   def prepare() = {
@@ -76,7 +77,7 @@ class AssetRouteTest extends WordSpec
           Multipart.FormData.BodyPart.Strict(
             "file",
             HttpEntity(ContentTypes.`text/xml(UTF-8)`, xml),
-            Map("filename" -> "age.xml")  // 必须是filename, disposition parameters
+            Map("filename" -> "age.xml") // 必须是filename, disposition parameters
           )
         )
 
