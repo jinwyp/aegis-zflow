@@ -80,7 +80,7 @@ trait FlowService extends FlowInstanceTable with FlowProtocol with SprayJsonSupp
     */
   def flowList(guid: String, flowType: String, status: Option[String], page: Option[Int], pageSize: Option[Int]): Future[ListFlowResponse] = {
     val (pg, pz) = (page, pageSize) match {
-      case (Some(p), Some(s)) => (p, s)
+      case (Some(p), Some(s)) if p >=1 && s >= 1 => (p, s)
       case _ => (1, 10)
     }
 
@@ -89,7 +89,9 @@ trait FlowService extends FlowInstanceTable with FlowProtocol with SprayJsonSupp
         f.flow_type === flowType &&
         List(
           status.map(f.state === _)
-        ).collect({ case Some(a) => a }).reduceLeftOption(_ && _).getOrElse(true: Rep[Boolean]))
+        ).collect({ case Some(a) => a })
+          .reduceLeftOption(_ && _)
+          .getOrElse(true: Rep[Boolean]))
 
     val flows: Future[Seq[FlowInstanceEntity]] = dbrun(query.drop((pg - 1) * pz).take(pz).result)
 
