@@ -16,12 +16,12 @@ CREATE UNIQUE INDEX flowId_index ON flow_instance(flow_id);
 -- 流程任务
 create table flow_task(
   id BIGINT not null auto_increment,
-  flow_id    varchar(64)   not null,
-  task_id    varchar(128)  not null,
-  task_name  varchar(64)   not null,
+  flow_id    varchar(64)    not null,
+  flow_type  varchar(16)    not null,
+  task_id    varchar(128)   not null,
+  task_name  varchar(64)    not null,
   task_submit varchar(1024) not null,   -- 用户提交数据
-  user_type varchar(64) not null,
-  user_id VARCHAR(64) not null,
+  guid VARCHAR(64) not null,
   ts_c timestamp default current_timestamp,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;

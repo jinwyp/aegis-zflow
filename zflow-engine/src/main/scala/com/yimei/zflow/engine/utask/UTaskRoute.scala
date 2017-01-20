@@ -15,8 +15,8 @@ trait UTaskRoute extends SprayJsonSupport with UTaskService {
     */
   def listTask = get {
     path("utask") {
-      parameters("guid", "flowType", "page".as[Int], "pageSize".as[Int]) {(guid, flowType, page, pageSize) =>
-        complete(s"listTask: guid = $guid, flowType = $flowType, page = $page, pageSize = $pageSize")
+      parameters("guid".?, "flowType".?, "flowId".? ,"page".as[Int].?, "pageSize".as[Int].?) {(guid, flowType, flowId, page, pageSize) =>
+        complete(taskList(guid,flowType,flowId,page,pageSize))
       }
     }
   }

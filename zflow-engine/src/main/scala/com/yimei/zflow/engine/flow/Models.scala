@@ -12,7 +12,7 @@ import spray.json.DefaultJsonProtocol
 object Models  extends FlowProtocol with DefaultJsonProtocol with CommonJsonFormat {
 
   case class FlowInstanceEntry(flowId: String, flowType: String, guid: String, data: String, state:String, finished: Int, ts_c: Option[Timestamp])
-  implicit val flowInstanceEntity = jsonFormat7(FlowInstanceEntry)
+  implicit val flowInstanceEntityFormat = jsonFormat7(FlowInstanceEntry)
 
 
   case class ListFlowResponse(flows:Seq[FlowInstanceEntry],total:Int)
