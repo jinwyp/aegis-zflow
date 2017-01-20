@@ -9,6 +9,7 @@ import ThymeleafConfig._
   */
 trait AdminRoute {
 
+  // 开发
   def devView: Route = get {
     pathPrefix("dev") {
       pathEndOrSingleSlash {
@@ -20,6 +21,7 @@ trait AdminRoute {
     }
   }
 
+  // 部署
   def deployView: Route = get {
     pathPrefix("deploy") {
       pathEndOrSingleSlash {
@@ -28,6 +30,7 @@ trait AdminRoute {
     }
   }
 
+  // 设计流程
   def editorView: Route = get {
     pathPrefix("editor") {
       pathEndOrSingleSlash {
@@ -36,6 +39,7 @@ trait AdminRoute {
     }
   }
 
+  // 监控
   def monitorView: Route = get {
     pathPrefix("monitor") {
       pathEndOrSingleSlash {

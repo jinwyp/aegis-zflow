@@ -13,6 +13,8 @@ import com.yimei.zflow.util.HttpResult._
 import com.yimei.zflow.util.config.Core
 import com.yimei.zflow.util.exception.{BusinessException, DatabaseException}
 
+import scala.util.control.NonFatal
+
 /**
   * Created by wangqi on 16/12/27.
   */
@@ -30,7 +32,7 @@ trait FlowExceptionHandler extends SprayJsonSupport with Core {
         println(s"Request to $uri could not be handled normally!!!!!!!!! DatabaseException11111111 {}", e.message)
         complete(HttpResponse(StatusCodes.BadRequest, entity = e.message))
       }
-    case e =>
+    case NonFatal(e) =>
       extractUri { uri =>
         log.error(s"Request to $uri could not be handled normally!!!!!!!!!")
         log.error("{}", e)
