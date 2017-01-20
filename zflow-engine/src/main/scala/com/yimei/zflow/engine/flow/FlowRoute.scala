@@ -1,13 +1,21 @@
 package com.yimei.zflow.engine.flow
 
+import java.util.UUID
+
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import com.yimei.zflow.api.models.flow.FlowProtocol
+import spray.json.DefaultJsonProtocol
+import com.yimei.zflow.engine.flow.Models._
 
 /**
   * Created by hary on 17/1/7.
   */
-trait FlowRoute extends SprayJsonSupport with FlowService {
+trait FlowRoute extends SprayJsonSupport
+  with FlowService
+  with FlowProtocol
+  with DefaultJsonProtocol {
 
   /**
     * 1. 创建流程
@@ -17,8 +25,10 @@ trait FlowRoute extends SprayJsonSupport with FlowService {
     */
   private def createFlow = post {
     path("flow") {
-      parameters("guid", "flowType") { (guid, flowType) =>
-        complete(s"createFlow: guid = $guid, flowType = $flowType")
+      (parameters("guid", "flowType") & entity(as[Map[String,String]]) ){ (guid, flowType, init) =>
+       // todo 现在直接是uuid，后面会用idbuffer修改
+        val flowId = flowType + "!" + guid + "!" + UUID.randomUUID().toString
+        complete(flowCreate(flowId,flowType,guid,init))
       }
     }
   }
@@ -29,8 +39,8 @@ trait FlowRoute extends SprayJsonSupport with FlowService {
     */
   private def listFlow = get {
     path("flow") {
-      parameters('guid, 'flowType, 'status, 'page.as[Int], 'pageSize.as[Int]) { (guid, flowType, status, page, pageSize) =>
-        complete(s"listFlow: guid=$guid, flowType=$flowType, status=$status, page=$page, pageSize=$pageSize")
+      parameters('guid, 'flowType, 'status.?, 'page.as[Int].?, 'pageSize.as[Int].?) { (guid, flowType, status, page, pageSize) =>
+        complete(flowList(guid,flowType,status,page,pageSize))
       }
     }
   }
@@ -41,7 +51,7 @@ trait FlowRoute extends SprayJsonSupport with FlowService {
     */
   private def queryFlow = get {
     path("flow" / Segment) { flowId =>
-      complete(s"queryFlow: flowId = $flowId")
+      complete(flowState(flowId))
     }
   }
 
@@ -50,8 +60,8 @@ trait FlowRoute extends SprayJsonSupport with FlowService {
     * PUT /flow/:flowId?trigger=true
     */
   private def hijackFlow = put {
-    path("flow" / Segment) { flowId =>
-      complete(s"hijackFlow: flowId = $flowId")
+    (path("flow" / Segment) & entity(as[HijackEntity])){ (flowId,entity) =>
+      complete(flowHijack(flowId,entity.updatePoints,entity.decision,entity.trigger))
     }
   }
 

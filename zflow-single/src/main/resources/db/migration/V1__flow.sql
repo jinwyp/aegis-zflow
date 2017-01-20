@@ -3,8 +3,7 @@ create table flow_instance(
   id BIGINT not null auto_increment,
   flow_id varchar(64) not null,
   flow_type varchar(16) not null,     -- cang   ying
-  user_type varchar(32) not null,    -- 用户类型  相当于party_id
-  user_id varchar(64) not null,  -- 用户id  ?????
+  guid varchar(64) not null,  -- 用户id  ?????
   data  varchar(8192),         -- 流程上下文
   state varchar(1024),
   finished TINYINT not NULL ,    -- 0：未完成 1：已完成

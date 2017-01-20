@@ -16,14 +16,13 @@ trait FlowInstanceTable extends DB {
     def id = column[Option[Long]]("id", O.PrimaryKey, O.AutoInc)
     def flow_id = column[String]("flow_id")
     def flow_type = column[String]("flow_type")
-    def user_type = column[String]("user_type")
-    def user_id = column[String]("user_id")
+    def guid = column[String]("guid")
     def data = column[String]("data")
     def state = column[String]("state")
     def finished = column[Int]("finished")
-    def ts_c = column[Timestamp]("ts_c")
+    def ts_c = column[Option[Timestamp]]("ts_c")
 
-    def * = (id,flow_id,flow_type,user_type,user_id,data,state,finished,ts_c) <> (FlowInstanceEntity.tupled,FlowInstanceEntity.unapply)
+    def * = (id,flow_id,flow_type,guid,data,state,finished,ts_c) <> (FlowInstanceEntity.tupled,FlowInstanceEntity.unapply)
   }
 
   protected val flowInstance = TableQuery[FlowInstance]

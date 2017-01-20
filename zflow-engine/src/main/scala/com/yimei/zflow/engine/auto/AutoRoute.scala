@@ -19,8 +19,8 @@ trait AutoRoute extends SprayJsonSupport with AutoService {
     * @return
     */
   def getAuto = path("auto") {
-      parameters('flowId, 'taskName) { (flowId, taskName) =>
-        complete(s"$taskName + $flowId")
+      parameters('flowId, 'flowType, 'taskName) { (flowId, flowType, taskName) =>
+        complete(autoTask(flowId,flowType, taskName))
     }
   }
 

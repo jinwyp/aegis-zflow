@@ -24,7 +24,8 @@ trait OrganService extends Core
 
   import driver.api._
 
-  implicit val organServiceExecutionContext = coreSystem.dispatcher
+ // implicit val organServiceExecutionContext = coreSystem.dispatcher
+  import coreSystem.dispatcher
 
   /**
     * 创建用户
