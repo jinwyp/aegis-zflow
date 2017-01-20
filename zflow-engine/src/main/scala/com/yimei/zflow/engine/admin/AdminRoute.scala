@@ -2,12 +2,11 @@ package com.yimei.zflow.engine.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import ThymeleafConfig._
 
 /**
   * Created by hary on 17/1/11.
   */
-trait AdminRoute {
+trait AdminRoute extends ThymeleafConfig {
 
   // 开发
   def devView: Route = get {
@@ -51,7 +50,7 @@ trait AdminRoute {
     }
   }
 
-  val prefix = "../zflow-admin/frontend/"
+  val staticPrefix = coreConfig.getString("static.root")
 
   def adminRoute: Route =
     pathPrefix("admin") {

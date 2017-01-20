@@ -8,6 +8,7 @@ import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.yimei.zflow.util.config.Core
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.templatemode.TemplateMode
@@ -18,13 +19,11 @@ import scala.concurrent.Future
 /**
   * Created by hary on 17/1/5.
   */
-object ThymeleafConfig {
+trait ThymeleafConfig extends Core {
 
   val templateResolver = new FileTemplateResolver();
-  val prefix =
-    "../zflow-admin/backend/"
 
-  templateResolver.setPrefix(prefix);
+  templateResolver.setPrefix(coreConfig.getString("thymeleaf.path") )
   templateResolver.setSuffix(".html");
   templateResolver.setTemplateMode(TemplateMode.HTML);
   templateResolver.setCacheTTLMs(3600000L);
