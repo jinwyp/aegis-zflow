@@ -1258,6 +1258,7 @@
 
 
         function chartEventCallback (cy){
+/*
 
             cy.nodes('.node').qtip({
                 content: function(){
@@ -1304,22 +1305,69 @@
                     }
                 }
             })
+*/
 
 
 
-            cy.on('click', 'node', function(evt){
+            cy.on('mousedown', 'node', function(evt){
                 console.log('node:', this.data())
                 vm.currentNode.data = this.data();
                 vm.selectType = 'node';
                 $scope.$apply();
+
+                this.qtip({
+                    content: function(){
+                        return this.data().description || this.data().id;
+                    },
+                    show: {
+                        event: 'click'
+                    },
+                    hide: {
+                        event: 'unfocus'
+                    },
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center'
+                    },
+                    style: {
+                        classes: 'qtip-bootstrap',
+                        tip: {
+                            width: 16,
+                            height: 8
+                        }
+                    }
+                })
             })
 
 
-            cy.on('click', 'edge', function(evt){
+            cy.on('mousedown', 'edge', function(evt){
                 console.log('edge:', this.data())
                 vm.currentEdge.data = this.data();
                 vm.selectType = 'edge';
                 $scope.$apply();
+
+                this.qtip({
+                    content: function(){
+                        return this.data().id;
+                    },
+                    show: {
+                        event: 'click'
+                    },
+                    hide: {
+                        event: 'unfocus'
+                    },
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center'
+                    },
+                    style: {
+                        classes: 'qtip-bootstrap',
+                        tip: {
+                            width: 16,
+                            height: 8
+                        }
+                    }
+                })
             })
 
         };
