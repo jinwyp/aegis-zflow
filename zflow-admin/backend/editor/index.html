@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="panel-body" >
-                        <button class="btn btn-xs btn-green " ng-click="vm.convertDataArray()">导出数组形式</button>
+                        <!--<button class="btn btn-xs btn-green " ng-click="vm.convertDataArray()">导出数组形式</button>-->
                         <button class="btn btn-xs btn-green " ng-click="vm.convertDataObj()">导出对象形式</button>
                     </div>
 
@@ -265,7 +265,7 @@
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'node' && vm.currentNode.data.id">
                                 <div class="panel-heading"> <h4>当前选中节点: {{vm.currentNode.data.id || '未选择'}}
-                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
+                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeDetailBoxType('')">X</button>
                                 </h4> </div>
 
                                 <div class="panel-body">
@@ -302,9 +302,9 @@
                                         </div>
 
                                         <div class="form-group" ng-if="!vm.isNewNode">
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-8">
                                                 <select class="form-control m-b" ng-model="vm.newNode.data.id"
-                                                        ng-options="item.data.id as item.data.id for item in vm.flow.edges track by item.data.id" >
+                                                        ng-options="item.data.id as item.data.id for item in vm.flow.nodes track by item.data.id" >
                                                     <option value=""> --- 请选择指向的已有节点 --- </option>
                                                 </select>
                                             </div>
@@ -344,7 +344,7 @@
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'edge' && vm.currentEdge.data.id">
                                 <div class="panel-heading"><h4> 当前选中线: {{vm.currentEdge.data.id || '未选择'}}
-                                    <button class="btn btn-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
+                                    <button class="btn btn-sm btn-default pull-right ml" ng-click="vm.changeDetailBoxType('')">X</button>
                                     <button class="btn btn-sm btn-info pull-right ml" ng-show="vm.css.showTaskBox === 'list'" ng-click="vm.changeTaskEditType('add')">添加任务</button>
 
                                 </h4></div>
@@ -441,7 +441,7 @@
 
                                         <div class="form-group">
                                             <div class="col-sm-12">
-                                                <tags-input ng-model="vm.newTask.data.points" placeholder="添加数据点" display-property="id" key-property="id" min-length="1">
+                                                <tags-input ng-model="vm.newTask.data.points" placeholder="添加数据点" display-property="id" key-property="id" min-tags="1">
                                                     <auto-complete source="vm.flow.pointsData" min-length="1" template="tag-auto-complete-template"></auto-complete>
                                                 </tags-input>
 
@@ -453,7 +453,7 @@
 
                                         <div class="form-group" ng-show="vm.newTask.data.type ==='partUTasks' || vm.newTask.data.type ==='partGTasks'">
                                             <div class="col-sm-12">
-                                                <tags-input ng-model="vm.newTask.data.users" placeholder="参与者或参与组" display-property="id" key-property="id" min-length="1" max-tags="1">
+                                                <tags-input ng-model="vm.newTask.data.users" placeholder="参与者或参与组" display-property="id" key-property="id" min-tags="1" max-tags="1">
                                                     <auto-complete source="vm.flow.pointsUser" min-length="1" template="tag-auto-complete-template"></auto-complete>
                                                 </tags-input>
                                             </div>

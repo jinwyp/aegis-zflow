@@ -683,7 +683,7 @@
     };
 
 
-    var testData2 = {
+    var simpleFlow = {
 
         nodes : [
             {
@@ -694,7 +694,6 @@
                     program : ''
                 }
             },
-
             {
                 classes : "node isLastNode ",
                 data : {
@@ -739,7 +738,7 @@
     angular.module('flowApp').controller('vertexController', vertexController);
 
 
-    function vertexController ($scope, notify){
+    function vertexController ($scope, $http, notify){
 
         notify.config({
             position: 'right',
@@ -774,41 +773,41 @@
             },
             points : [],
             pointsUser : [
-                {
-                    "id": "User1",
-                    "description": "User111111"
-
-                },
-                {
-                    "id": "User2",
-                    "description": "User22222"
-                }
+                // {
+                //     "id": "User1",
+                //     "description": "User111111"
+                //
+                // },
+                // {
+                //     "id": "User2",
+                //     "description": "User22222"
+                // }
             ],
             pointsData : [
-                {
-                    "id": "P1",
-                    "description": "P1111",
-                    "JSONSchema": {
-                        "type": "object",
-                        "properties": {
-                            "demoFieldName": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                {
-                    "id": "P2",
-                    "description": "P2222",
-                    "JSONSchema": {
-                        "type": "object",
-                        "properties": {
-                            "demoFieldName": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
+                // {
+                //     "id": "P1",
+                //     "description": "P1111",
+                //     "JSONSchema": {
+                //         "type": "object",
+                //         "properties": {
+                //             "demoFieldName": {
+                //                 "type": "string"
+                //             }
+                //         }
+                //     }
+                // },
+                // {
+                //     "id": "P2",
+                //     "description": "P2222",
+                //     "JSONSchema": {
+                //         "type": "object",
+                //         "properties": {
+                //             "demoFieldName": {
+                //                 "type": "string"
+                //             }
+                //         }
+                //     }
+                // }
             ],
             edges : [],
             nodes : []
@@ -955,7 +954,7 @@
             vm.css.showUserPointBoxAdd = type;
         }
 
-        vm.changeSelectType = function(type){
+        vm.changeDetailBoxType = function(type){
             vm.selectType = type;
         }
         vm.changeTaskEditType = function(type){
@@ -965,13 +964,13 @@
 
         vm.convertDataArray = function () {
             vm.css.showGlobalBox = 'output'
-            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points)
+            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points)
             console.log(vm.ouputData)
         }
 
         vm.convertDataObj = function () {
             vm.css.showGlobalBox = 'output'
-            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points))
+            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points))
             console.log(vm.ouputData)
         }
 
@@ -979,6 +978,16 @@
         vm.saveGlobal = function (form) {
             console.log(vm.flow.globalConfig)
             if (form.$valid){
+                vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points))
+
+                $http.post('/zflow/api/editor/' + vm.flow.globalConfig.name, vm.ouputData, {})
+                    .then(function successCallback(response){
+                        console.log(response.status)
+                        console.log(response.data)
+                    })
+                    .catch(function onError(){
+
+                    });
 
             }
         }
@@ -1149,10 +1158,11 @@
                 vm.flow.edges.forEach(function (edge, edgeIndex) {
                     if (edge.data.id === vm.currentEdge.data.id){
                         edge.data = vm.currentEdge.data
+                        console.log(edge)
                     }
                 })
 
-                console.log(vm.flow.edges)
+
                 notify({
                     classes: 'alert-success',
                     message: '保存成功!'
@@ -1322,7 +1332,7 @@
 
                 })
                 this.drawChart(formattedData);
-                // this.drawChart(testData2);
+                // this.drawChart(simpleFlow);
             },
 
             drawChart : function(sourceData){

@@ -63,14 +63,15 @@ var point = {
 
     var formatter = {
 
-        cyArrayToRawArray : function (sourceNodes, sourceEdges, sourcePoints) {
+        cyArrayToRawArray : function (sourceGlobal, sourceNodes, sourceEdges, sourcePoints) {
 
             var globalConfig = {
-                initial    : 'START',  // 代表初始节点
-                graphJar   : "com.yimei.cflow.graph.money.MoneyGraphJar",
-                timeout    : 100,  // 超时时间配置(图的属性)
-                flowType   : '',   //流程类型
-                persistent : true
+                artifact: sourceGlobal.name,
+                entry: "Yimei",
+                groupId : sourceGlobal.groupId,
+                initial    : 'Start',  // 代表初始节点
+                timeout    : sourceGlobal.timeout,  // 超时时间配置(图的属性)
+                persistent : sourceGlobal.persistent
             };
 
             var verticesArray = [];
@@ -80,6 +81,7 @@ var point = {
             var autoTasksArray = [];
             var partUTasksArray = [];
             var partGTasksArray = [];
+
 
 
             sourceNodes.forEach(function (node, nodeIndex) {
@@ -98,11 +100,12 @@ var point = {
                     name : edge.data.id,
                     begin : edge.data.source,
                     end : edge.data.target,
-                    "userTasks": edge.data.userTasks,
-                    "autoTasks": edge.data.autoTasks,
-                    "partGTasks": edge.data.partGTasks,
-                    "partUTasks": edge.data.partUTasks,
-                    "allTasks": edge.data.allTask
+
+                    userTasks: edge.data.userTasks,
+                    autoTasks: edge.data.autoTasks,
+                    partGTasks: edge.data.partGTasks,
+                    partUTasks: edge.data.partUTasks,
+                    allTasks: edge.data.allTask
                 }
 
                 edgeArray.push(tempEdge)
@@ -137,31 +140,34 @@ var point = {
                         }
 
                         if (taskType === 'partUTasks') {
-                            fatherTask.guidKey = task.data.guidKey
+                            fatherTask.guidKey = task.data.guidKey.id
 
                             task.data.tasks.forEach(function(subTask, subTaskIndex){
-                                fatherTask.tasks.push({
+                                var newSubTask = {
                                     id : subTask.data.id,
                                     type : subTask.data.type,
                                     description : subTask.data.description,
                                     points : subTask.data.points
-                                })
+                                }
+                                userTasksArray.push(newSubTask)
+                                fatherTask.tasks.push(newSubTask)
                             })
                             partUTasksArray.push(fatherTask)
                         }
 
                         if (taskType === 'partGTasks') {
-                            fatherTask.ggidKey = task.data.ggidKey
+                            fatherTask.ggidKey = task.data.ggidKey.id
 
                             task.data.tasks.forEach(function(subTask, subTaskIndex){
-                                fatherTask.tasks.push({
+                                var newSubTask = {
                                     id : subTask.data.id,
                                     type : subTask.data.type,
                                     description : subTask.data.description,
                                     points : subTask.data.points
-                                })
+                                }
+                                userTasksArray.push(newSubTask)
+                                fatherTask.tasks.push(newSubTask)
                             })
-
                             partGTasksArray.push(fatherTask)
                         }
 
@@ -190,26 +196,29 @@ var point = {
         rawArrayToObj : function (source) {
 
             var verticesObject = {};
+            var verticesObjectAll = {};
             var edgeObject = {};
             var pointObject = {};
+            var pointObjectAll = {};
 
             var userTasksObject = {};
             var autoTasksObject = {};
-            var partUTasksObject = {};
-            var partGTasksObject = {};
 
             source.points.forEach(function(point, pointIndex){
-                pointObject[point.id] = point
+                pointObject[point.id] = point.description
+                pointObjectAll[point.id] = point
             })
 
             source.vertices.forEach(function(vertex, vertexIndex){
-                verticesObject[vertex.id] = vertex
+                verticesObject[vertex.id] = vertex.description
+                verticesObjectAll[vertex.id] = vertex
             })
+
 
             source.edges.forEach(function(edge, edgeIndex){
 
                 var newEdge = {
-                    "id" : edge.id,
+                    // "id" : edge.id,
                     "name": edge.name,
                     "begin": edge.begin,
                     "end": edge.end,
@@ -230,7 +239,7 @@ var point = {
                 edge.partUTasks.forEach(function(task, taskIndex){
 
                     var tempTask = {
-                        "guidKey": task.data.guidKey,
+                        "guidKey": task.data.guidKey.id,
                         "tasks": []
                     }
 
@@ -245,7 +254,7 @@ var point = {
                 edge.partGTasks.forEach(function(task, taskIndex){
 
                     var tempTask = {
-                        "ggidKey": task.data.ggidKey,
+                        "ggidKey": task.data.ggidKey.id,
                         "tasks": []
                     }
 
@@ -260,33 +269,25 @@ var point = {
             })
 
 
-            source.userTasks.forEach(function(task, taskIndex){
-                userTasksObject[task.id] = task
+            source.userTasks.forEach(function(userTask, userTaskIndex){
+                var tempUserTask = {
+                    // id : userTask.id,
+                    // type : userTask.type,
+                    description : userTask.description,
+                    points : userTask.points.map(function (point, pointIndex) { return point.id })
+                }
+
+                userTasksObject[userTask.id] = tempUserTask
             })
 
-            source.autoTasks.forEach(function(task, taskIndex){
-                autoTasksObject[task.id] = task
-            })
+            source.autoTasks.forEach(function(autoTask, autoTaskIndex){
+                var tempAutoTask = {
+                    // id : autoTask.id,
+                    // type : autoTask.type,
+                    description : autoTask.description
+                }
 
-
-            source.partUTasks.forEach(function(task, taskIndex){
-
-                var tempSubTaskIDList = task.tasks.map(function(subTask, subTaskIndex){
-                    return subTask.id;
-                });
-                task.tasks = tempSubTaskIDList
-
-                partUTasksObject[task.id] = task
-            })
-
-            source.partGTasks.forEach(function(task, taskIndex){
-
-                var tempSubTaskIDList = task.tasks.map(function(subTask, subTaskIndex){
-                    return subTask.id;
-                });
-                task.tasks = tempSubTaskIDList
-
-                partGTasksObject[task.id] = task
+                autoTasksObject[autoTask.id] = tempAutoTask
             })
 
 
@@ -296,9 +297,7 @@ var point = {
                 edges : edgeObject,
                 points : pointObject,
                 userTasks : userTasksObject,
-                autoTasks : autoTasksObject,
-                partGTasks : partGTasksObject,
-                partUTasks : partUTasksObject
+                autoTasks : autoTasksObject
             }
         }
     }
