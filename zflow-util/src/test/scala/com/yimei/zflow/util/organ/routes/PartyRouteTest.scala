@@ -19,21 +19,12 @@ object UT extends PartyRoute {
       |  jdbcUrl = "jdbc:mysql://127.0.0.1/cyflow?useUnicode=true&characterEncoding=utf8"
       |  username = "mysql"
       |  password = "mysql"
+      |  flyway-schema = "schema"
       |}
     """.stripMargin))
 
   override val log: LoggingAdapter = Logging(coreSystem, this.getClass)
-
-  def prepare() = {
-    val config = coreSystem.settings.config
-    val jdbcUrl = config.getString("database.jdbcUrl")
-    val username = config.getString("database.username")
-    val password = config.getString("database.password")
-
-    val flyway = new FlywayDB(jdbcUrl, username, password)
-    flyway.drop()
-    flyway.migrate()
-  }
+  def prepare() = FlywayDB(coreSystem).drop.migrate
 }
 
 /**

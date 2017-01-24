@@ -21,8 +21,11 @@ import scala.concurrent.Future
   */
 trait ThymeleafConfig extends Core {
 
-  val templateResolver = new FileTemplateResolver();
 
+  val templateResolver = new FileTemplateResolver();
+  printf("-------------------------------------------------------------------------")
+  printf(coreConfig.getString("thymeleaf.path"))
+  printf("-------------------------------------------------------------------------")
   templateResolver.setPrefix(coreConfig.getString("thymeleaf.path") )
   templateResolver.setSuffix(".html");
   templateResolver.setTemplateMode(TemplateMode.HTML);

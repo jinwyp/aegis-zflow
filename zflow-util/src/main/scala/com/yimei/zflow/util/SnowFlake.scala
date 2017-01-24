@@ -23,7 +23,7 @@ object SnowFlake {
   def apply(mbit: Int, bbit: Int, dbit: Int, hbit: Int, sbit: Int) = new SnowFlake(mbit, bbit, dbit, hbit, sbit)
 
   /**
-    * 假设系统需要运行10年:   20*365*24*3600*1000 = log(2, 20*365*24*3600*1000) =~ 39
+    * 假设系统需要运行10年:   20*365*24*3600*1000 = log(2, 10*365*24*3600*1000) =~ 39
     * 假设系统需要运行50年:   20*365*24*3600*1000 = log(2, 20*365*24*3600*1000) =~ 42
     *
     * @return

@@ -2,6 +2,7 @@
 <html ng-app="flowApp">
 <head>
     <link rel="stylesheet" href="/zflow/static/lib/angular-notify/angular-notify.css" >
+    <link rel="stylesheet" href="/zflow/static/lib/ng-tags-input/ng-tags-input.css" >
     <link rel="stylesheet" href="/zflow/static/lib/angletheme/bootstrap.css">
     <link rel="stylesheet" href="/zflow/static/lib/angletheme/app.css">
     <link rel="stylesheet" href="/zflow/static/css/jquery.qtip.css"/>
@@ -49,7 +50,7 @@
                     </div>
 
                     <div class="panel-body" >
-                        <button class="btn btn-xs btn-green " ng-click="vm.convertDataArray()">导出数组形式</button>
+                        <!--<button class="btn btn-xs btn-green " ng-click="vm.convertDataArray()">导出数组形式</button>-->
                         <button class="btn btn-xs btn-green " ng-click="vm.convertDataObj()">导出对象形式</button>
                     </div>
 
@@ -71,9 +72,9 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading"><h4>数据采集点
-                        <button class="btn btn-default pull-right ml" ng-show="vm.css.showDataPointBox === 'list'" ng-click="vm.changePointDataBoxShowType('')">折叠</button>
-                        <button class="btn btn-default pull-right ml" ng-show="vm.css.showDataPointBox === '' " ng-click="vm.changePointDataBoxShowType('list')">展开</button>
-                        <button class="btn btn-info pull-right ml" ng-click="vm.changePointDataAddBoxShowType('add')">添加</button>
+                        <button class="btn btn-sm btn-default pull-right ml" ng-show="vm.css.showDataPointBox === 'list'" ng-click="vm.changePointDataBoxShowType('')">折叠</button>
+                        <button class="btn btn-sm btn-default pull-right ml" ng-show="vm.css.showDataPointBox === '' " ng-click="vm.changePointDataBoxShowType('list')">展开</button>
+                        <button class="btn btn-sm btn-info pull-right ml" ng-click="vm.changePointDataAddBoxShowType('add')">添加</button>
                     </h4>
                     </div>
                     <div class="panel-body" ng-if="vm.css.showDataPointBox === 'list' ">
@@ -90,7 +91,7 @@
                                 <tr ng-show="vm.flow.points.length === 0">
                                     <td colspan="3" class="text-center"> 暂无数据 </td>
                                 </tr>
-                                <tr ng-repeat=" point in vm.flow.points track by point.data.id">
+                                <tr ng-repeat=" point in vm.flow.pointsData track by point.id">
                                     <td> <a ng-click="vm.selectDataPoint('jsoneditor', point)">{{point.id}}</a></td>
                                     <td>{{point.description}}</td>
                                     <td>
@@ -176,9 +177,9 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-heading"><h4>用户采集点
-                        <button class="btn btn-default pull-right ml" ng-show="vm.css.showUserPointBox === 'list'" ng-click="vm.changePointUserBoxShowType('')">折叠</button>
-                        <button class="btn btn-default pull-right ml" ng-show="vm.css.showUserPointBox === '' " ng-click="vm.changePointUserBoxShowType('list')">展开</button>
-                        <button class="btn btn-info pull-right ml" ng-click="vm.changePointUserAddBoxShowType('add')">添加</button>
+                        <button class="btn btn-sm btn-default pull-right ml" ng-show="vm.css.showUserPointBox === 'list'" ng-click="vm.changePointUserBoxShowType('')">折叠</button>
+                        <button class="btn btn-sm btn-default pull-right ml" ng-show="vm.css.showUserPointBox === '' " ng-click="vm.changePointUserBoxShowType('list')">展开</button>
+                        <button class="btn btn-sm btn-info pull-right ml" ng-click="vm.changePointUserAddBoxShowType('add')">添加</button>
                     </h4>
                     </div>
                     <div class="panel-body" ng-if="vm.css.showUserPointBox === 'list' ">
@@ -194,7 +195,7 @@
                                 <tr ng-show="vm.flow.points.length === 0">
                                     <td colspan="2" class="text-center"> 暂无数据 </td>
                                 </tr>
-                                <tr ng-repeat=" point in vm.flow.points track by point.data.id">
+                                <tr ng-repeat=" point in vm.flow.pointsUser track by point.id">
                                     <td> {{point.id}}</td>
                                     <td>{{point.description}}</td>
                                 </tr>
@@ -264,7 +265,7 @@
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'node' && vm.currentNode.data.id">
                                 <div class="panel-heading"> <h4>当前选中节点: {{vm.currentNode.data.id || '未选择'}}
-                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
+                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeDetailBoxType('')">X</button>
                                 </h4> </div>
 
                                 <div class="panel-body">
@@ -301,9 +302,9 @@
                                         </div>
 
                                         <div class="form-group" ng-if="!vm.isNewNode">
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-8">
                                                 <select class="form-control m-b" ng-model="vm.newNode.data.id"
-                                                        ng-options="item.data.id as item.data.id for item in vm.flow.edges track by item.data.id" >
+                                                        ng-options="item.data.id as item.data.id for item in vm.flow.nodes track by item.data.id" >
                                                     <option value=""> --- 请选择指向的已有节点 --- </option>
                                                 </select>
                                             </div>
@@ -343,36 +344,52 @@
 
                             <div class="panel panel-default" ng-show="vm.selectType === 'edge' && vm.currentEdge.data.id">
                                 <div class="panel-heading"><h4> 当前选中线: {{vm.currentEdge.data.id || '未选择'}}
-                                    <button class="btn mb-sm btn-default pull-right ml" ng-click="vm.changeSelectType('')">X</button>
-                                    <button class="btn mb-sm btn-info pull-right ml" ng-show="vm.taskEditType === 'list'" ng-click="vm.changeTaskEditType('add')">添加任务</button>
-                                    <button class="btn mb-sm btn-default pull-right ml" ng-show="vm.taskEditType === 'add'" ng-click="vm.changeTaskEditType('list')">返回列表</button>
+                                    <button class="btn btn-sm btn-default pull-right ml" ng-click="vm.changeDetailBoxType('')">X</button>
+                                    <button class="btn btn-sm btn-info pull-right ml" ng-show="vm.css.showTaskBox === 'list'" ng-click="vm.changeTaskEditType('add')">添加任务</button>
+
                                 </h4></div>
 
                                 <div class="panel-body">
-                                    <div class="table-responsive" ng-if="vm.taskEditType === 'list' ">
+                                    <div class="table-responsive" ng-if="vm.css.showTaskBox === 'list' ">
                                         <table class="table table-hover table-striped">
                                             <thead>
                                             <tr>
-                                                <th>任务ID / 任务说明</th>
                                                 <th>类型</th>
+                                                <th>参与人或组</th>
+                                                <th>任务ID / 任务说明</th>
                                                 <th>数据采集点</th>
-                                                <th>子任务</th>
+
                                             </tr>
                                             </thead>
                                             <tbody>
                                             <tr ng-show="vm.currentEdge.data.allTask.length === 0">
-                                                <td colspan="3" class="text-center"> 暂无数据 </td>
+                                                <td colspan="4" class="text-center"> 暂无数据 </td>
                                             </tr>
-                                            <tr ng-repeat="task in vm.currentEdge.data.allTask track by task.data.id">
-                                                <td>{{task.data.id}} <br> {{task.data.description}}</td>
-                                                <td>{{task.data.type}}</td>
+                                            <tr ng-repeat="task in vm.currentEdge.data.allTask">
                                                 <td>
-                                                    <span ng-repeat="point in task.data.points">{{point.id}}: {{point.description}} <br> </span>
-                                                    <input class="" type="text" ng-model="vm.newPointToTask"> <button class="btn btn-sm btn-primary" ng-click="vm.addPointIntoTask(task)">添加点</button>
+                                                    <span ng-if="task.data.type === 'userTasks'">流程发起人任务 userTasks </span> <!-- interpolation -->
+                                                    <span ng-if="task.data.type === 'autoTasks'">自动任务 autoTasks</span>
+                                                    <span ng-if="task.data.type === 'partUTasks'">参与者任务 partUTasks</span>
+                                                    <span ng-if="task.data.type === 'partGTasks'">参与组任务 partGTasks</span>
                                                 </td>
                                                 <td>
-                                                    <span ng-repeat="task in task.data.tasks">{{task.data.id}}: {{task.data.description}} <br> </span>
+                                                    <span ng-if="task.data.type === 'partUTasks'">{{task.data.guidKey.id}} - {{task.data.guidKey.description}}</span>
+                                                    <span ng-if="task.data.type === 'partGTasks'">{{task.data.ggidKey.id}} - {{task.data.ggidKey.description}}</span>
                                                 </td>
+                                                <td>
+                                                    <span ng-if="task.data.type === 'userTasks' || task.data.type === 'autoTasks' "> {{task.data.id}} / {{task.data.description}}</span>
+                                                    <div ng-if="task.data.type === 'partUTasks' || task.data.type === 'partGTasks' ">
+                                                        <span ng-repeat="subTask in task.data.tasks">{{subTask.data.id}} {{subTask.data.description}} <br> </span>
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    <span  ng-repeat="point in task.data.points">{{point.id}}:{{point.description}} <br> </span>
+                                                    <div ng-if="task.data.type === 'partUTasks' || task.data.type === 'partGTasks'" ng-repeat="subTask in task.data.tasks">
+                                                        <span  ng-repeat="point in subTask.data.points">{{point.id}}:{{point.description}} <br> </span>
+                                                    </div>
+                                                </td>
+
                                             </tr>
                                             </tbody>
                                         </table>
@@ -380,11 +397,26 @@
                                 </div>
 
 
-                                <div class="panel-footer" ng-if="vm.taskEditType === 'add' ">
+                                <div class="panel-body" ng-if="vm.css.showTaskBox === 'add' ">
 
                                     <h5> 添加一个新任务 </h5>
 
                                     <form class="form-horizontal" name="formTask">
+
+                                        <div class="form-group" ng-class="{'has-error' : formTask.tType.$invalid && formTask.tType.$dirty}">
+                                            <div class="col-sm-6">
+                                                <select class="form-control m-b" name="tType" ng-model="vm.newTask.data.type" required>
+                                                    <option value="">--- 请选择任务类型 ---</option> <!-- not selected / blank option -->
+                                                    <option value="userTasks">流程发起人任务 userTasks </option> <!-- interpolation -->
+                                                    <option value="autoTasks">自动任务 autoTasks</option>
+                                                    <option value="partUTasks">参与者任务 partUTasks</option>
+                                                    <option value="partGTasks">参与组任务 partGTasks</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <span class="help-block" ng-if="formTask.tType.$error.required">必填!</span>
+                                            </div>
+                                        </div>
 
                                         <div class="form-group" ng-class="{'has-error' : formTask.tid.$invalid && formTask.tid.$dirty}">
                                             <div class="col-sm-8">
@@ -406,27 +438,37 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-group" ng-class="{'has-error' : formTask.tType.$invalid && formTask.tType.$dirty}">
-                                            <div class="col-sm-6">
-                                                <select class="form-control m-b" name="tType" ng-model="vm.newTask.data.type" required>
-                                                    <option value="">--- 请选择任务类型 ---</option> <!-- not selected / blank option -->
-                                                    <option value="userTasks">userTasks</option> <!-- interpolation -->
-                                                    <option value="autoTasks">autoTasks</option>
-                                                    <option value="partUTasks">partUTasks</option>
-                                                    <option value="partGTasks">partGTasks</option>
-                                                </select>
+
+                                        <div class="form-group">
+                                            <div class="col-sm-12">
+                                                <tags-input ng-model="vm.newTask.data.points" placeholder="添加数据点" display-property="id" key-property="id" min-tags="1">
+                                                    <auto-complete source="vm.flow.pointsData" min-length="1" template="tag-auto-complete-template"></auto-complete>
+                                                </tags-input>
+
+                                                <script type="text/ng-template" id="tag-auto-complete-template">
+                                                    <span>{{data.id}} - {{data.description}} </span>
+                                                </script>
                                             </div>
-                                            <div class="col-sm-6">
-                                                <span class="help-block" ng-if="formTask.tType.$error.required">必填!</span>
+                                        </div>
+
+                                        <div class="form-group" ng-show="vm.newTask.data.type ==='partUTasks' || vm.newTask.data.type ==='partGTasks'">
+                                            <div class="col-sm-12">
+                                                <tags-input ng-model="vm.newTask.data.users" placeholder="参与者或参与组" display-property="id" key-property="id" min-tags="1" max-tags="1">
+                                                    <auto-complete source="vm.flow.pointsUser" min-length="1" template="tag-auto-complete-template"></auto-complete>
+                                                </tags-input>
                                             </div>
                                         </div>
 
 
                                         <div class="form-group has-error">
-                                            <div class="col-lg-12">
-                                                <button type="submit" class="btn btn-primary" ng-disabled="formTask.$invalid" ng-click="vm.addNewTask(formTask)">保存</button>
+                                            <div class="col-sm-2">
+                                                <button type="submit" class="btn btn-primary " ng-disabled="formTask.$invalid" ng-click="vm.addNewTask(formTask)">保存</button>
                                             </div>
-                                            <div class="col-lg-12">
+                                            <div class="col-sm-2">
+                                                <button class="btn btn-default " ng-show="vm.css.showTaskBox === 'add' " ng-click="vm.changeTaskEditType('list')">返回列表</button>
+                                            </div>
+
+                                            <div class="col-sm-12">
                                                 <span class="help-block" ng-if="vm.errorAddNewTask.taskExist">任务ID已存在!</span>
                                             </div>
                                         </div>
@@ -457,6 +499,7 @@
 <script src='/zflow/static/lib/jquery.js'></script>
 <script src='/zflow/static/lib/angular/angular.js'></script>
 <script src='/zflow/static/lib/angular-notify/angular-notify.js'></script>
+<script src='/zflow/static/lib/ng-tags-input/ng-tags-input.js'></script>
 
 <script src="/zflow/static/lib/cytoscape/jquery.qtip.js"></script>
 <script src='/zflow/static/lib/cytoscape/cytoscape.js'></script>

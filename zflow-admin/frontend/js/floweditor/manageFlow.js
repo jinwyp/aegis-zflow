@@ -683,7 +683,7 @@
     };
 
 
-    var testData2 = {
+    var simpleFlow = {
 
         nodes : [
             {
@@ -694,7 +694,6 @@
                     program : ''
                 }
             },
-
             {
                 classes : "node isLastNode ",
                 data : {
@@ -733,14 +732,13 @@
         }
     };
 
-    console.log(testData2)
 
-    angular.module('flowApp', ['cgNotify']);
+    angular.module('flowApp', ['cgNotify', 'ngTagsInput']);
 
     angular.module('flowApp').controller('vertexController', vertexController);
 
 
-    function vertexController ($scope, notify){
+    function vertexController ($scope, $http, notify){
 
         notify.config({
             position: 'right',
@@ -762,6 +760,7 @@
 
         vm.ouputData = '';
 
+
         vm.flow = {
             globalConfig : {
                 name: "",
@@ -773,8 +772,43 @@
                 persistent: true // 代表初始节点
             },
             points : [],
-            pointsUser : [],
-            pointsData : [],
+            pointsUser : [
+                // {
+                //     "id": "User1",
+                //     "description": "User111111"
+                //
+                // },
+                // {
+                //     "id": "User2",
+                //     "description": "User22222"
+                // }
+            ],
+            pointsData : [
+                // {
+                //     "id": "P1",
+                //     "description": "P1111",
+                //     "JSONSchema": {
+                //         "type": "object",
+                //         "properties": {
+                //             "demoFieldName": {
+                //                 "type": "string"
+                //             }
+                //         }
+                //     }
+                // },
+                // {
+                //     "id": "P2",
+                //     "description": "P2222",
+                //     "JSONSchema": {
+                //         "type": "object",
+                //         "properties": {
+                //             "demoFieldName": {
+                //                 "type": "string"
+                //             }
+                //         }
+                //     }
+                // }
+            ],
             edges : [],
             nodes : []
         };
@@ -783,14 +817,13 @@
 
         vm.css = {
             showGlobalBox : '',
+            showTaskBox : 'list',
             showDataPointBox : '',
             showDataPointBoxAdd : '',
             showUserPointBox : '',
             showUserPointBoxAdd : ''
         };
         vm.selectType = 'node';
-        vm.taskEditType = 'list';
-        vm.pointEditType = '';
 
         vm.isNewNode = true;
         vm.taskTypeList = ['autoTasks', 'userTasks', 'partUTasks', 'partGTasks'];
@@ -869,6 +902,7 @@
                 description : '',
                 points : [],
                 tasks : [],
+                users : [],
 
                 belongToEdge : {
                     id : '',
@@ -898,7 +932,6 @@
             JSONSchema : {}
         };
 
-        vm.newPointToTask = ''
 
 
         vm.changeGlobalBoxShowType = function(type){
@@ -921,25 +954,23 @@
             vm.css.showUserPointBoxAdd = type;
         }
 
-
-
-        vm.changeSelectType = function(type){
+        vm.changeDetailBoxType = function(type){
             vm.selectType = type;
         }
         vm.changeTaskEditType = function(type){
-            vm.taskEditType = type;
+            vm.css.showTaskBox = type;
         }
 
 
         vm.convertDataArray = function () {
             vm.css.showGlobalBox = 'output'
-            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points)
+            vm.ouputData = formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points)
             console.log(vm.ouputData)
         }
 
         vm.convertDataObj = function () {
             vm.css.showGlobalBox = 'output'
-            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.nodes, vm.flow.edges, vm.flow.points))
+            vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points))
             console.log(vm.ouputData)
         }
 
@@ -947,6 +978,16 @@
         vm.saveGlobal = function (form) {
             console.log(vm.flow.globalConfig)
             if (form.$valid){
+                vm.ouputData = formatter.rawArrayToObj(formatter.cyArrayToRawArray(vm.flow.globalConfig, vm.flow.nodes, vm.flow.edges, vm.flow.points))
+
+                $http.post('/zflow/api/editor/' + vm.flow.globalConfig.name, vm.ouputData, {})
+                    .then(function successCallback(response){
+                        console.log(response.status)
+                        console.log(response.data)
+                    })
+                    .catch(function onError(){
+
+                    });
 
             }
         }
@@ -1071,7 +1112,7 @@
                         id : vm.newTask.data.id,
                         type : vm.newTask.data.type,
                         description : vm.newTask.data.description,
-                        points : [],
+                        points : vm.newTask.data.points,
                         belongToEdge : {
                             id : vm.currentEdge.data.id,
                             source : vm.currentEdge.data.source,
@@ -1080,23 +1121,48 @@
                     }
                 };
 
+                var newTempFatherTask = {
+                    classes : 'node task ' + vm.newTask.data.type,
+                    data : {
+                        id : vm.newTask.data.id,
+                        type : vm.newTask.data.type,
+                        tasks : [newTempTask]
+                    }
+                }
+
+                if (vm.newTask.data.type === 'partUTasks' ){
+                    newTempFatherTask.data.guidKey = vm.newTask.data.users[0]
+                }
+
+                if (vm.newTask.data.type === 'partGTasks' ){
+                    newTempFatherTask.data.ggidKey = vm.newTask.data.users[0]
+                }
+
                 vm.taskTypeList.forEach(function(type, typeIndex){
                     if (vm.newTask.data.type === type){
-                        vm.currentEdge.data[type].push(newTempTask);
+                        if (vm.newTask.data.type === 'partUTasks' || vm.newTask.data.type === 'partGTasks' ){
+                            vm.currentEdge.data[type].push(newTempFatherTask);
+                            vm.currentEdge.data.allTask.push(newTempFatherTask);
+                        }else{
+                            vm.currentEdge.data[type].push(newTempTask);
+                            vm.currentEdge.data.allTask.push(newTempTask);
+                        }
                     }
                 })
 
-                vm.currentEdge.data.allTask.push(newTempTask);
 
+                // 更新流程图
                 cytoscapeChart.getElementById( vm.currentEdge.data.id ).data(vm.currentEdge.data);
 
+                // 更新当前边的数据
                 vm.flow.edges.forEach(function (edge, edgeIndex) {
                     if (edge.data.id === vm.currentEdge.data.id){
                         edge.data = vm.currentEdge.data
+                        console.log(edge)
                     }
                 })
 
-                console.log(vm.flow.edges)
+
                 notify({
                     classes: 'alert-success',
                     message: '保存成功!'
@@ -1109,7 +1175,6 @@
         vm.addNewPoint = function(form, type){
 
             var tempPoint = {};
-
 
             if (form.$valid){
 
@@ -1162,30 +1227,6 @@
 
         }
 
-        vm.addPointIntoTask = function(task){
-            if (pointIdList.indexOf(vm.newPointToTask) === -1 ){
-                alert('没有改点' + vm.newPointToTask)
-                return;
-            }
-
-            var tempPointIdList = task.data.points.map(function(point, pointIndex){
-                return point.id
-            })
-
-            if (tempPointIdList.indexOf(vm.newPointToTask) > -1 ){
-                alert('已经添加过该点:' + vm.newPointToTask)
-                return;
-            }
-
-            vm.flow.points.forEach(function(point, pointIndex){
-                if (point.id === vm.newPointToTask){
-                    task.data.points.push(point)
-                }
-            })
-
-            console.log(task)
-        }
-
 
 
         function jsonEditor (id, schema){
@@ -1217,6 +1258,7 @@
 
 
         function chartEventCallback (cy){
+/*
 
             cy.nodes('.node').qtip({
                 content: function(){
@@ -1263,35 +1305,82 @@
                     }
                 }
             })
+*/
 
 
 
-            cy.on('click', 'node', function(evt){
+            cy.on('mousedown', 'node', function(evt){
                 console.log('node:', this.data())
                 vm.currentNode.data = this.data();
                 vm.selectType = 'node';
                 $scope.$apply();
+
+                this.qtip({
+                    content: function(){
+                        return this.data().description || this.data().id;
+                    },
+                    show: {
+                        event: 'click'
+                    },
+                    hide: {
+                        event: 'unfocus'
+                    },
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center'
+                    },
+                    style: {
+                        classes: 'qtip-bootstrap',
+                        tip: {
+                            width: 16,
+                            height: 8
+                        }
+                    }
+                })
             })
 
 
-            cy.on('click', 'edge', function(evt){
+            cy.on('mousedown', 'edge', function(evt){
                 console.log('edge:', this.data())
                 vm.currentEdge.data = this.data();
                 vm.selectType = 'edge';
                 $scope.$apply();
+
+                this.qtip({
+                    content: function(){
+                        return this.data().id;
+                    },
+                    show: {
+                        event: 'click'
+                    },
+                    hide: {
+                        event: 'unfocus'
+                    },
+                    position: {
+                        my: 'bottom center',
+                        at: 'top center'
+                    },
+                    style: {
+                        classes: 'qtip-bootstrap',
+                        tip: {
+                            width: 16,
+                            height: 8
+                        }
+                    }
+                })
             })
 
         };
 
         var app = {
             init : function(){
-                // jQuery.getJSON('/json/data5.json', function(resultData){
-                //
-                //     formattedData = cytoscapeFormatterObjectToArray(resultData)
-                //
-                // })
-                // this.drawChart(formattedData);
-                this.drawChart(testData2);
+                jQuery.getJSON('/zflow/static/json/data5.json', function(resultData){
+
+                    formattedData = cytoscapeFormatterObjectToArray(resultData)
+
+                })
+                this.drawChart(formattedData);
+                // this.drawChart(simpleFlow);
             },
 
             drawChart : function(sourceData){
@@ -1313,6 +1402,8 @@
                 vm.flow.edges = sourceData.edges;
                 vm.flow.nodes = sourceData.nodes;
                 vm.flow.points = sourceData.formattedSource.points;
+                vm.flow.pointsUser = sourceData.formattedSource.pointsUser;
+                vm.flow.pointsData = sourceData.formattedSource.pointsData;
 
                 console.log(vm.flow)
 
@@ -1326,7 +1417,7 @@
                     return task.data.id
                 })
                 pointIdList = sourceData.formattedSource.points.map(function(point, pointIndex){
-                    return point.data.id
+                    return point.id
                 })
             }
         };
