@@ -136,9 +136,11 @@ trait EdgeBehavior {
     val pGroupTasks: Seq[String] = partGTasks.foldLeft(Seq[String]())((t, gut) => t ++: gut.tasks)
     val allUserTasks: Seq[String] = userTasks ++: pUserTasks ++: pGroupTasks
 
-    //对于指定的flowType和taskName 所需要的全部数据点， 如果当前status中的未使用过的数据点没有完全收集完，就返回false
-    autoTasks.foldLeft(true)((t, at) => t && !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
-      allUserTasks.foldLeft(true)((t, ut) => t && !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
+    // 对于指定的flowType和taskName 所需要的全部数据点， 如果当前status中的未使用过的数据点没有完全收集完，就返回false
+    //  autoTasks.foldLeft(true)((t, at) => t && !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
+    //      allUserTasks.foldLeft(true)((t, ut) => t && !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
+    autoTasks.forall(at => !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
+      allUserTasks.forall(ut => !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
   }
 
   //获取全部不能重用的task
@@ -211,12 +213,12 @@ case class GraphGlobal(
                         initial: String
                       )
 
-case class GraphConfig( globalConfig: GraphGlobal,
-                        points: Map[String, String],
-                        autoTasks: Map[String, TaskInfo],
-                        userTasks: Map[String, TaskInfo],
-                        vertices: Map[String, Vertex],
-                        edges: Map[String, Edge]
+case class GraphConfig(globalConfig: GraphGlobal,
+                       points: Map[String, String],
+                       autoTasks: Map[String, TaskInfo],
+                       userTasks: Map[String, TaskInfo],
+                       vertices: Map[String, Vertex],
+                       edges: Map[String, Edge]
                       )
 
 trait FlowProtocol extends DefaultJsonProtocol with CommonJsonFormat {
