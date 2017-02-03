@@ -14,7 +14,7 @@ import com.yimei.zflow.engine.admin.AdminRoute
 import com.yimei.zflow.engine.graph.GraphLoader
 import com.yimei.zflow.engine.{EngineRoute, FlowRegistry}
 import com.yimei.zflow.util.organ.OrganRoute
-import com.yimei.zflow.util.{FlowExceptionHandler, FlywayDB}
+import com.yimei.zflow.util.{FlowExceptionHandler, FlowRejectionHandler, FlywayDB}
 
 import scala.concurrent.duration._
 
@@ -22,7 +22,7 @@ import scala.concurrent.duration._
   * Created by hary on 17/1/6.
   implicit val coreSystem = ActorSystem("FlowSystem")
   */
-object FlowApp extends App with FlowExceptionHandler with EngineRoute with OrganRoute with AdminRoute with FlowProtocol{
+object FlowApp extends App with FlowExceptionHandler with FlowRejectionHandler with EngineRoute with OrganRoute with AdminRoute with FlowProtocol{
 
   override val utaskTimeout = Timeout(3.seconds)
   override val flowServiceTimeout = Timeout(3.seconds)

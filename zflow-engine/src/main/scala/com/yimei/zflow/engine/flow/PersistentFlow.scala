@@ -157,7 +157,7 @@ class PersistentFlow(modules: Map[String, ActorRef]) extends AbstractFlow
     */
   protected def makeDecision(name: String) = {
     val e = graph.edges(name)
-    if (e.check((state))) {
+    if (e.check(state)) {
       persist(EdgeCompleted(name)) { event =>
         updateState(event)
 

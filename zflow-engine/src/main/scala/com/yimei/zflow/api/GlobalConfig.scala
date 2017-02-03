@@ -13,7 +13,6 @@ object GlobalConfig {
   val module_gtask   = "GTaskMaster"
   val module_flow    = "FlowMaster"
   val module_auto    = "AutoMaster"
-  val module_proxy   = "ServiceProxy"
   val module_id      = "IdGenerator"
   val module_updater = "Updater"
 }
