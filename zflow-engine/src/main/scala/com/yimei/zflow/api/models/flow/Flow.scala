@@ -116,6 +116,11 @@ trait EdgeBehavior {
     }
   }
 
+  //
+  val allUserTasks = userTasks ++:
+    partUTasks.foldLeft(Seq[String]())((t, put) => t ++: put.tasks) ++:
+    partGTasks.foldLeft(Seq[String]())((t, gut) => t ++: gut.tasks)
+
   /**
     *
     * @param state
@@ -132,13 +137,13 @@ trait EdgeBehavior {
       true
     }
 
-    val pUserTasks: Seq[String] = partUTasks.foldLeft(Seq[String]())((t, put) => t ++: put.tasks)
-    val pGroupTasks: Seq[String] = partGTasks.foldLeft(Seq[String]())((t, gut) => t ++: gut.tasks)
-    val allUserTasks: Seq[String] = userTasks ++: pUserTasks ++: pGroupTasks
+    // val pUserTasks: Seq[String] = partUTasks.foldLeft(Seq[String]())((t, put) => t ++: put.tasks)
+    // val pGroupTasks: Seq[String] = partGTasks.foldLeft(Seq[String]())((t, gut) => t ++: gut.tasks)
+    // val allUserTasks: Seq[String] = userTasks ++: pUserTasks ++: pGroupTasks
 
     // 对于指定的flowType和taskName 所需要的全部数据点， 如果当前status中的未使用过的数据点没有完全收集完，就返回false
-    //  autoTasks.foldLeft(true)((t, at) => t && !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
-    //      allUserTasks.foldLeft(true)((t, ut) => t && !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
+    // autoTasks.foldLeft(true)((t, at) => t && !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
+    //   allUserTasks.foldLeft(true)((t, ut) => t && !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
     autoTasks.forall(at => !registries(state.flowType).autoTasks(at).points.exists(!state.points.filter(t => (!t._2.used)).contains(_))) &&
       allUserTasks.forall(ut => !registries(state.flowType).userTasks(ut).points.exists(!state.points.filter(t => (!t._2.used)).contains(_)))
   }
