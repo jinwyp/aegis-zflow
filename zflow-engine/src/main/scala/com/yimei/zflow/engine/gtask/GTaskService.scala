@@ -3,17 +3,19 @@ package com.yimei.zflow.engine.gtask
 import akka.pattern._
 import akka.util.Timeout
 import com.yimei.zflow.api.models.gtask.{State => GroupState, _}
+import com.yimei.zflow.util.config.Core
 
 import scala.concurrent.Future
 
 /**
   * Created by hary on 17/1/6.
   */
-trait GTaskService {
+trait GTaskService extends Core{
 
   import com.yimei.zflow.engine.FlowRegistry._
 
   val gtaskTimeout: Timeout
+  import coreSystem.dispatcher
 
   def gtaskCreate(ggid: String): Future[GroupState] =
     if (gtask != null) {
@@ -22,9 +24,12 @@ trait GTaskService {
       Future.failed(new Exception("gtask is not prepared"))
     }
 
-  def gtaskQuery(ggid: String) =
+  def gtaskQuery(ggid: String , flowType: String): Future[GroupState] =
     if (gtask != null) {
-      (gtask ? CommandQueryGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
+      val gState: Future[GroupState] = (gtask ? CommandQueryGroup(ggid)) (gtaskTimeout).mapTo[GroupState]
+      gState map { gs =>
+        gs.copy(tasks = gs.tasks.filter(entity => entity._2.flowType == flowType))
+      }
     } else {
       Future.failed(new Exception("gtask is not prepared"))
     }

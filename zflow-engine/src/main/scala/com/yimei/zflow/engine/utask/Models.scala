@@ -2,6 +2,7 @@ package com.yimei.zflow.engine.utask
 
 import java.sql.Timestamp
 
+import com.yimei.zflow.api.models.flow.DataPoint
 import com.yimei.zflow.api.models.utask.UTaskProtocol
 import com.yimei.zflow.util.CommonJsonFormat
 import spray.json.DefaultJsonProtocol
@@ -15,5 +16,8 @@ object Models extends UTaskProtocol with DefaultJsonProtocol with CommonJsonForm
 
   case class ListTaskResponse(tasks:Seq[FlowTaskEntry], total:Int)
   implicit val listTaskResponseFormat = jsonFormat2(ListTaskResponse)
+
+  case class UserSubmitEntity(flowId:String,taskName:String,points:Map[String,DataPoint])
+  implicit val userSubmitEntityFormat = jsonFormat3(UserSubmitEntity)
 
 }
